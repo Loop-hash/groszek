@@ -18,14 +18,13 @@ HEADERS = {
 }
 
 PAGES = {
-    "kaufland_przeglad": "https://sklep.kaufland.pl/oferta/przeglad.html?kloffer-week=current",
-    "lidl_home": "https://www.lidl.pl/",
-    "lidl_okazje": "https://www.lidl.pl/c/najlepsze-okazje/a10009219",
-    "lidl_bez_promocji": "https://www.lidl.pl/c/bez-promocji/s10089501",
-    "aldi_oferty": "https://www.aldi.pl/oferty.html",
-    "aldi_home": "https://www.aldi.pl/",
-    "biedronka_home": "https://www.biedronka.pl/pl",
-    "biedronka_gazetki": "https://www.biedronka.pl/pl/gazetki",
+    "kaufland_next": "https://sklep.kaufland.pl/oferta/przeglad.html?kloffer-week=next",
+    "biedronka_nowa_oferta": "https://www.biedronka.pl/pl/nowa-oferta",
+    "biedronka_w_tym_tygodniu": "https://www.biedronka.pl/pl/w-tym-tygodniu",
+    "biedronka_owoce": "https://www.biedronka.pl/pl/owoce-warzywa",
+    "biedronka_mieso": "https://www.biedronka.pl/pl/mieso-ryby",
+    "biedronka_promocja_nf": "https://www.biedronka.pl/pl/promocja-nf",
+    "biedronka_press": "https://www.biedronka.pl/pl/press,id,1wll0t29t,title,codziennie-niskie-ceny-p-oferta-od-12-10",
 }
 
 
