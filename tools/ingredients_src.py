@@ -362,3 +362,33 @@ I.update({
     "schab": dict(name="Schab bez kości", icon="mince", cat="mięso", usda=None, n=[172, 21.0, 9.5, 0.0, 0.0, 0.13],
                   src="typowe wartości dla schabu wieprzowego", kg=22.0, est=True, pkg=500, flags=["meat", "pork", "wholecut"], kw=["schab"]),
 })
+
+# ---------------- dla kuchni azjatyckich, bliskowschodnich i obu Ameryk ----------------
+I.update({
+    "kimchi": dict(name="Kimchi", icon="cabbage", cat="warzywa", usda=None, n=[15, 1.1, 0.5, 2.4, 1.6, 1.5],
+                   src="typowa etykieta kimchi", kg=40.0, est=True, pkg=300, kw=["kimchi"]),
+    "nori": dict(name="Glony nori", icon="leaf", cat="sosy i dodatki", usda=None, n=[300, 40.0, 4.0, 40.0, 30.0, 2.0],
+                 src="typowa etykieta suszonych glonów nori", kg=600.0, est=True, pkg=10, kw=["nori"]),
+    "kielki": dict(name="Kiełki fasoli mung", icon="leaf", cat="warzywa", usda="Mung beans, mature seeds, sprouted, raw",
+                   n=[30, 3.0, 0.2, 5.9, 1.8, 0.02], kg=25.0, est=True, pkg=200, kw=["kielki"]),
+    "sos_bbq": dict(name="Sos barbecue", icon="bottle", cat="sosy i dodatki", usda="Sauce, barbecue",
+                    n=[172, 0.8, 0.6, 40.8, 0.9, 2.1], kg=20.0, est=True, pkg=400, kw=["sos barbecue", "sos bbq"]),
+    "wiorki_kokosowe": dict(name="Wiórki kokosowe", icon="coconut", cat="bakalie", usda="Nuts, coconut meat, dried (desiccated), not sweetened",
+                            n=[660, 6.9, 64.5, 23.7, 16.3, 0.09], kg=25.0, est=True, pkg=200, kw=["wiorki kokosowe"]),
+    "mieta": dict(name="Mięta świeża", icon="herb", cat="warzywa", usda="Spearmint, fresh",
+                  n=[44, 3.3, 0.7, 8.4, 6.8, 0.08], kg=100.0, est=True, pkg=30, kw=["mieta"]),
+    "morele_suszone": dict(name="Morele suszone", icon="orange", cat="bakalie", usda="Apricots, dried, sulfured, uncooked",
+                           n=[241, 3.4, 0.5, 62.6, 7.3, 0.03], kg=40.0, est=True, pkg=200, kw=["morele suszone"]),
+    "migdaly": dict(name="Migdały", icon="nut", cat="bakalie", usda="Nuts, almonds",
+                    n=[579, 21.2, 49.9, 21.6, 12.5, 0.0], kg=50.0, est=True, pkg=100, flags=["nuts"], kw=["migdaly"]),
+    "maka_kukurydziana": dict(name="Mąka kukurydziana", icon="corn", cat="do pieczenia", usda="Cornmeal, degermed, enriched, yellow",
+                              n=[370, 7.1, 1.8, 79.5, 3.9, 0.01], kg=8.0, est=True, pkg=500, kw=["maka kukurydziana", "kasza kukurydziana", "polenta"]),
+    "hoisin": dict(name="Sos hoisin", icon="bottle", cat="sosy i dodatki", usda="Sauce, hoisin, ready-to-serve",
+                   n=[220, 3.3, 3.4, 44.1, 2.8, 4.4], kg=50.0, est=True, pkg=200, kw=["hoisin"]),
+    "paneer": dict(name="Ser paneer albo do smażenia", icon="cheese", cat="nabiał", usda=None, n=[321, 21.4, 25.0, 3.6, 0.0, 0.05],
+                   src="typowa etykieta sera paneer", kg=50.0, est=True, pkg=200, flags=["dairy"], kw=["paneer", "ser do smazenia", "halloumi"]),
+    "fasola_czarna": dict(name="Fasola czarna z puszki", icon="beans", cat="strączki", usda="Beans, black, mature seeds, canned, low sodium",
+                          n=[91, 6.0, 0.3, 16.6, 6.9, 0.35], kg=16.0, est=True, pkg=240, kw=["fasola czarna"]),
+    "ryz_jasminowy": dict(name="Ryż jaśminowy", icon="rice", cat="makarony i kasze", usda="Rice, white, long-grain, regular, raw, enriched",
+                          n=[365, 7.1, 0.7, 80.0, 1.3, 0.01], kg=10.0, est=True, pkg=1000, kw=["ryz jasminowy"]),
+})

@@ -39,6 +39,18 @@ def _pixel_keys(name):
 
 
 FOODS = _pixel_keys("FOOD")
+# gdy wszystkie plakietki dla kształtu są zajęte, bierzemy podobny kształt
+DISH_ALTS = {
+    "soup": ["bowl", "deepplate", "tureen", "cauldron", "mug"], "mug": ["bowl", "deepplate"],
+    "pot": ["cauldron", "tureen", "bowl"], "pan": ["wok", "plate", "tray"], "casserole": ["tray", "pie"],
+    "plate": ["deepplate", "tray"], "salad": ["bowl", "deepplate"], "ricebowl": ["bowl", "wok"],
+    "pancakes": ["crepe", "plate"], "crepe": ["pancakes"], "toast": ["sandwich", "bun"], "sandwich": ["bun", "toast"],
+    "pierogi": ["steamer", "roll"], "noodles": ["wok", "spaghetti"], "spaghetti": ["noodles", "bowl"],
+    "patties": ["cutlet", "meatballs"], "cutlet": ["patties", "plate"], "meatballs": ["patties", "bowl"],
+    "pie": ["casserole", "tray"], "flatbread": ["pizza", "wrap"], "wrap": ["taco", "flatbread"], "taco": ["wrap"],
+    "roll": ["wrap", "steamer"], "fries": ["plate", "tray"], "oats": ["bowl", "mug"], "skewer": ["plate"],
+    "cake": ["pie", "tray"], "burger": ["bun", "sandwich"], "pizza": ["flatbread"], "steamer": ["pierogi", "bowl"],
+}
 DISHES = _pixel_keys("DISH")
 
 
@@ -81,9 +93,12 @@ def main():
             errors.append(f"{rc['id']}: nieznany kształt dania {dish}")
         cands = [rc["icon"].get("badge")] + [I[t[0]]["icon"] for t in rc["ings"] if t[0] in I and not I[t[0]].get("pantry")] + FOODS
         key = None
-        for b in cands:
-            if b and b in FOODS and (dish, b) not in icons:
-                key = (dish, b)
+        for dd in [dish] + DISH_ALTS.get(dish, []):
+            for b in cands:
+                if b and b in FOODS and (dd, b) not in icons:
+                    key = (dd, b)
+                    break
+            if key:
                 break
         if not key:
             errors.append(f"{rc['id']}: brak wolnej ikonki dla {dish}")
