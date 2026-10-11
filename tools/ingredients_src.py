@@ -415,3 +415,14 @@ I.update({
     "gorczyca": dict(name="Gorczyca (nasiona)", icon="jar", cat="przyprawy", usda="Spices, mustard seed, ground",
                      n=[508, 26.1, 36.2, 28.1, 12.2, 0.03], kg=60.0, est=True, pkg=30, pantry=True, kw=["gorczyca"]),
 })
+
+I.update({
+    "pasta_curry_czerwona": dict(name="Czerwona pasta curry", icon="jar", cat="sosy i dodatki", usda=None,
+                                 n=[120, 2.5, 6.0, 13.0, 5.0, 10.0], src="typowa etykieta czerwonej pasty curry", kg=100.0,
+                                 est=True, pkg=50, kw=["czerwona pasta curry", "pasta curry czerwona"], hard=True),
+    "nerkowce": dict(name="Orzechy nerkowca", icon="nut", cat="bakalie", usda="Nuts, cashew nuts, raw",
+                     n=[553, 18.2, 43.9, 30.2, 3.3, 0.03], kg=45.0, est=True, pkg=100, flags=["nuts"], kw=["nerkowce", "orzechy nerkowca"]),
+    "papier_ryzowy": dict(name="Papier ryżowy", icon="seaweed", cat="sosy i dodatki", usda=None,
+                          n=[340, 1.0, 0.2, 83.0, 0.9, 0.6], src="typowa etykieta papieru ryżowego", kg=40.0, est=True, pkg=200,
+                          kw=["papier ryzowy"], hard=True),
+})
