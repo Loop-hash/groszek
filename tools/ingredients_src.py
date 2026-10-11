@@ -436,3 +436,8 @@ I.update({
     "ryz_sushi": dict(name="Ryż do sushi", icon="rice", cat="makarony i kasze", usda=None, n=[350, 6.5, 0.5, 78.0, 1.0, 0.0],
                       src="typowa etykieta ryżu do sushi", kg=14.0, est=True, pkg=500, kw=["ryz do sushi", "ryz sushi"]),
 })
+
+I.update({
+    "pestki_dyni": dict(name="Pestki dyni", icon="nut", cat="bakalie", usda="Seeds, pumpkin and squash seed kernels, dried",
+                        n=[559, 30.2, 49.1, 10.7, 6.0, 0.02], kg=40.0, est=True, pkg=100, kw=["pestki dyni"]),
+})

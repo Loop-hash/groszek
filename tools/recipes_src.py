@@ -372,7 +372,7 @@ RECIPES = [
          "Sos do maczania: sos sojowy, ocet, cukier i chili."]),
 
     # ---------------- Meksyk ----------------
-    R("mx-quesadilla", "Quesadilla z kurczakiem i fasolą", "Meksyk", ("taco", "cheese"), 2, 25, ["palnik"], ["obiad", "kolacja"], [
+    R("mx-quesadilla", "Quesadilla z kurczakiem i fasolą", "Meksyk", ("taco", "cheese"), 3, 25, ["palnik"], ["obiad", "kolacja"], [
         ("tortilla", 240, "4 szt."), ("kurczak", 200), ("fasola_czerwona", 240, "1 puszka"), ("kukurydza", 140, "pół puszki"),
         ("ser_zolty", 120), ("papryka_slodka", 2), ("kmin", 1), ("chili", 1), ("olej", 10), ("sol", 2)],
         ["Kurczaka pokrój w kostkę, dopraw papryką, kminem, chili i solą. Usmaż na oleju.",
