@@ -1,0 +1,10 @@
+node_modules/
+debug/
+app/www/data/
+.DS_Store
+*.log
+app/android/app/build/
+app/android/build/
+app/android/.gradle/
+app/android/local.properties
+app/android/capacitor-cordova-android-plugins/build/

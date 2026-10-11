@@ -1,0 +1,69 @@
+name: Promocje
+
+on:
+  schedule:
+    - cron: "0 4 * * 1,4"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scraper/**"
+      - ".github/workflows/promos.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: promos
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalacja
+        run: pip install -r scraper/requirements.txt
+
+      - name: Podgląd stron sklepów
+        run: |
+          mkdir -p debug
+          set -o pipefail
+          python scraper/discover.py debug 2>&1 | tee debug/discover.log
+
+      - name: Pobranie promocji
+        run: |
+          set -o pipefail
+          if [ -f scraper/scrape.py ]; then
+            python scraper/scrape.py --out data/promos.json --debug debug 2>&1 | tee debug/scrape.log
+          fi
+
+      - name: Zapis promocji
+        run: |
+          git config user.name "groszek-bot"
+          git config user.email "groszek-bot@users.noreply.github.com"
+          if [ -f data/promos.json ]; then
+            git add data/promos.json
+            if ! git diff --cached --quiet; then
+              git commit -m "Promocje: aktualizacja $(date -u +%Y-%m-%d)"
+              git pull --rebase origin main
+              git push origin HEAD:main
+            fi
+          fi
+
+      - name: Logi do gałęzi ci-promos
+        if: always()
+        run: |
+          cd debug
+          git init -q
+          git checkout -q -b ci-promos
+          git config user.name "groszek-bot"
+          git config user.email "groszek-bot@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Logi z $(date -u +%Y-%m-%dT%H:%M)"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" ci-promos
