@@ -12,7 +12,8 @@ export default {
     const st = c.state;
     const s = st.settings;
     const all = allRecipes(c);
-    const visible = all.filter((r) => !blockReason(r, s, st.ratings));
+    // nielubiane zostają na liście (na końcu), żeby dało się zmienić zdanie; planer ich nie używa
+    const visible = all.filter((r) => !blockReason(r, s, {}));
     const hidden = all.length - visible.length;
     const q = norm(p.q || '');
     const meal = p.meal || 'all';
@@ -31,6 +32,8 @@ export default {
     if (sort === 'cheap') list.sort((a, b) => costs.get(a.id).perPortion - costs.get(b.id).perPortion);
     else if (sort === 'fast') list.sort((a, b) => (a.time || 99) - (b.time || 99));
     else list.sort((a, b) => a.name.localeCompare(b.name, 'pl'));
+    const disliked = (r) => (st.ratings[r.id] === -1 ? 1 : 0);
+    list.sort((a, b) => disliked(a) - disliked(b));
 
     const counts = {};
     for (const r of visible) counts[r.country] = (counts[r.country] || 0) + 1;
@@ -42,11 +45,13 @@ export default {
       const cost = costs.get(r.id);
       const n = nutrition(r);
       const liked = st.ratings[r.id] === 1;
-      return `<button class="recipe-card" data-act="open" data-arg="${esc(r.id)}">` +
+      const bad = st.ratings[r.id] === -1;
+      return `<button class="recipe-card" data-act="open" data-arg="${esc(r.id)}" style="${bad ? 'border-style:dashed;opacity:.6' : ''}">` +
         `<div class="row between" style="align-items:flex-start">${recipeIcon(r.icon, 48)}${cost.perPortion ? `<span class="price" style="height:26px;font-size:14px">${fmt(cost.perPortion)} zł</span>` : ''}</div>` +
         `<span class="nm">${esc(r.name)}</span>` +
         `<span class="tiny muted">${esc(r.custom ? 'mój przepis' : r.country)}${r.time ? ` · ${r.time} min` : ''}${n.kcal ? ` · ${Math.round(n.kcal)} kcal` : ''}</span>` +
         `${cost.promo.length || liked ? `<span class="row" style="gap:4px;flex-wrap:wrap">${cost.promo.length ? `<span class="pill">${ui('tag', 12)} ${cost.promo.length} w promocji</span>` : ''}${liked ? `<span class="pill dark">${ui('thumbUp', 11)}</span>` : ''}</span>` : ''}` +
+        `${bad ? `<span class="pill dashed">${ui('thumbDown', 11)} nie smakowało</span>` : ''}` +
         '</button>';
     }).join('');
 

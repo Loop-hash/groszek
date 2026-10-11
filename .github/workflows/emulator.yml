@@ -1,0 +1,57 @@
+name: Test na emulatorze
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: [APK]
+    types: [completed]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: emulator
+  cancel-in-progress: true
+
+jobs:
+  emu:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Włącz KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Pobierz APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download najnowsza -p groszek.apk -D . --clobber
+
+      - name: Emulator i przeklikanie
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: python3 tools/emu.py
+
+      - name: Wyniki na gałąź ci-emu
+        if: always()
+        run: |
+          mkdir -p debug
+          cd debug
+          git init -q
+          git config user.name groszek-bot
+          git config user.email groszek-bot@users.noreply.github.com
+          git checkout -q -b ci-emu
+          git add -A
+          git commit -q -m "Test na emulatorze" || true
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" ci-emu

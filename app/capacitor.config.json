@@ -4,5 +4,6 @@
   "webDir": "www",
   "android": {
     "backgroundColor": "#FAFAF7"
-  }
+  },
+  "loggingBehavior": "production"
 }

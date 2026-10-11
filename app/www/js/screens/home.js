@@ -1,5 +1,5 @@
 // Start: ile możesz dziś wydać, pasek budżetu i skróty do reszty apki.
-import { status, fmt, totalExp, levelFor } from '../budget.js';
+import { status, fmt, totalExp, levelFor, addDays, today } from '../budget.js';
 import { sprite, spark, ui, dish } from '../pixels.js';
 import { esc, plural } from '../ui.js';
 import { listMatches } from '../offers.js';
@@ -30,6 +30,10 @@ export default {
         `<button class="btn small dark" data-act="url" data-arg="${esc(c.app.update.url)}">Pobierz</button></div>` : '';
 
     const meals = todayMeals(c);
+    let planned = false;
+    for (let i = 0; i < 7 && !planned; i++) planned = !!(st.plan[addDays(today(), i)] || []).length;
+    const planHint = !planned && st.expenses.length >= 0
+      ? `<button class="card dashed row" data-act="go" data-arg="composer" style="text-align:left">${dish('pan', 34, '')}<span class="grow stack" style="gap:2px"><b>Nie masz planu jedzenia</b><span class="small muted">Podaj kwotę, a ułożę dania i zakupy na każdy dzień.</span></span>${ui('arrow', 16, 'flip')}</button>` : '';
     const mealCard = meals.length
       ? meals.map((mm) => `<button class="card row" data-act="recipe" data-arg="${esc(mm.recipe.id)}" style="text-align:left;background:none;color:inherit">` +
         `<span class="iconbox">${recipeIcon(mm.recipe.icon, 36)}</span><span class="grow stack" style="gap:2px"><span class="label">${esc(mm.label)}</span>` +
@@ -43,7 +47,7 @@ export default {
         <button class="lvl" data-act="go" data-arg="level" aria-label="Twój poziom: ${lvl.level}"><small>LVL</small><strong>${lvl.level}</strong></button>
       </header>
       ${upd}
-      <div class="hero" style="height:150px">${sparks(s.mood)}${sprite(s.mood, 140)}</div>
+      <div class="hero" style="height:${upd ? 118 : 150}px">${sparks(s.mood)}${sprite(s.mood, upd ? 112 : 140)}</div>
       <div class="stack center" style="gap:4px">
         <div class="label">${over ? 'Dziś ponad plan o' : 'Na dziś możesz wydać'}</div>
         <div class="big" style="font-size:64px">${fmt(Math.abs(s.todayLeft))}<span style="font-size:26px"> zł</span></div>
@@ -62,7 +66,7 @@ export default {
           <span class="pixel">${fmt(s.budget, 0)} zł</span>
         </div>
       </div>
-      ${mealCard}
+      ${mealCard || planHint}
       <button class="cta" data-act="go" data-arg="add">${ui('plus', 18)}<span>Dodaj wydatek</span>${arrowRight()}</button>
       <nav class="nav" aria-label="Sekcje">
         <button data-act="go" data-arg="list"><span class="circle">${ui('basket', 34)}${pending.length ? `<span class="badge">${pending.length}</span>` : ''}</span><span>Lista</span></button>
