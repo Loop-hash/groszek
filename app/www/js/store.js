@@ -21,7 +21,8 @@ export function plugin(name) {
 export async function kvGet(key) {
   if (pref === null) pref = plugin('Preferences') || false;
   if (pref) {
-    try { const r = await pref.get({ key }); return r && r.value != null ? r.value : null; } catch (e) { /* dalej */ }
+    // starsze wersje apki zapisywały w localStorage, więc gdy w Preferences pusto, szukamy tam
+    try { const r = await pref.get({ key }); if (r && r.value != null) return r.value; } catch (e) { /* dalej */ }
   }
   try { return localStorage.getItem(key); } catch (e) { return null; }
 }
