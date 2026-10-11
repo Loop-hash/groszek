@@ -397,3 +397,8 @@ I.update({
     "bob": dict(name="Bób mrożony", icon="beans", cat="mrożonki", usda="Broadbeans, immature seeds, raw",
                 n=[72, 5.6, 0.6, 11.7, 4.2, 0.13], kg=14.0, est=True, pkg=450, kw=["bob"]),
 })
+
+I.update({
+    "kasza_manna": dict(name="Kasza manna", icon="grain", cat="makarony i kasze", usda="Semolina, enriched",
+                        n=[360, 12.7, 1.1, 72.8, 3.9, 0.0], kg=6.0, est=True, pkg=500, flags=["gluten"], kw=["kasza manna", "semolina"]),
+})

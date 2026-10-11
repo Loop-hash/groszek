@@ -236,7 +236,7 @@ RECIPES = [
         "W Libanie robi się kaftę z jagnięciny albo wołowiny. Wieprzowina jest tańsza i też smakuje."),
 
     # ---------------- Maroko ----------------
-    R("ma-tajine", "Tajine z kurczakiem i ciecierzycą", "Maroko", ("pot", "chicken"), 3, 45, ["palnik"], ["obiad"], [
+    R("ma-tajine", "Tajine z kurczakiem i ciecierzycą", "Maroko", ("tagine", "chickpea"), 3, 45, ["palnik"], ["obiad"], [
         ("kurczak", 400), ("ciecierzyca", 240, "1 puszka"), ("marchew", 160, "2 szt."), ("cebula", 110, "1 szt."), ("czosnek", 10),
         ("pomidory_puszka", 400, "1 puszka"), ("kmin", 2), ("cynamon", 2), ("papryka_slodka", 2), ("imbir", 10),
         ("cytryna", 30), ("olej", 15), ("sol", 4), ("kuskus", 200)],
