@@ -11,7 +11,16 @@ from datetime import datetime, timezone
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from ingredients_src import I  # noqa: E402
-from recipes_src import RECIPES  # noqa: E402
+from recipes_src import RECIPES as BASE  # noqa: E402
+import glob  # noqa: E402
+import importlib.util  # noqa: E402
+
+RECIPES = list(BASE)
+for _f in sorted(glob.glob(os.path.join(HERE, "recipes", "*.py"))):
+    _spec = importlib.util.spec_from_file_location("przepisy_" + os.path.basename(_f)[:-3], _f)
+    _mod = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(_mod)
+    RECIPES.extend(_mod.RECIPES)
 
 ROOT = os.path.dirname(HERE)
 NUT = ["kcal", "protein", "fat", "carbs", "fiber", "salt"]
@@ -19,6 +28,18 @@ FLAGS_FROM = {"meat", "pork", "beef", "fish", "seafood", "dairy", "egg", "gluten
 COUNTRIES = ['Polska', 'Włochy', 'Francja', 'Hiszpania', 'Grecja', 'Niemcy', 'Węgry', 'Ukraina', 'Gruzja', 'Turcja',
              'Liban', 'Maroko', 'Indie', 'Tajlandia', 'Wietnam', 'Chiny', 'Japonia', 'Korea', 'Meksyk', 'USA', 'Podstawy']
 NEEDS = {"palnik", "piekarnik", "opiekacz", "toster", "blender", "mikrofala"}
+
+
+def _pixel_keys(name):
+    import re
+    src = open(os.path.join(ROOT, "app", "www", "js", "pixels.js"), encoding="utf-8").read()
+    start = src.index(f"export const {name} = {{")
+    end = src.index("};", start)
+    return re.findall(r"^  (\w+): \[", src[start:end], re.M)
+
+
+FOODS = _pixel_keys("FOOD")
+DISHES = _pixel_keys("DISH")
 
 
 def r(x, d=1):
@@ -55,10 +76,20 @@ def main():
         ids.add(rc["id"])
         if rc["country"] not in COUNTRIES:
             errors.append(f"{rc['id']}: nieznany kraj {rc['country']}")
-        key = (rc["icon"].get("dish"), rc["icon"].get("badge"))
-        if key in icons:
-            errors.append(f"{rc['id']}: ta sama ikonka co {icons[key]} {key}")
+        dish = rc["icon"].get("dish")
+        if dish not in DISHES:
+            errors.append(f"{rc['id']}: nieznany kształt dania {dish}")
+        cands = [rc["icon"].get("badge")] + [I[t[0]]["icon"] for t in rc["ings"] if t[0] in I and not I[t[0]].get("pantry")] + FOODS
+        key = None
+        for b in cands:
+            if b and b in FOODS and (dish, b) not in icons:
+                key = (dish, b)
+                break
+        if not key:
+            errors.append(f"{rc['id']}: brak wolnej ikonki dla {dish}")
+            continue
         icons[key] = rc["id"]
+        rc["icon"] = {"dish": key[0], "badge": key[1]}
         for nd in rc["needs"]:
             for alt in nd.split("|"):
                 if alt not in NEEDS:

@@ -5,9 +5,7 @@ needs: palnik, piekarnik (albo air fryer), opiekacz, toster.
 meal: obiad, sniadanie, kolacja (planer dobiera po tym polu).
 """
 
-def R(id, name, country, icon, portions, time, needs, meal, ings, steps, tip=None):
-    return dict(id=id, name=name, country=country, icon=dict(zip(("dish", "badge"), icon)), portions=portions, time=time,
-                needs=needs, meal=meal, ings=ings, steps=steps, tip=tip)
+from rlib import R  # noqa: E402
 
 
 RECIPES = [
