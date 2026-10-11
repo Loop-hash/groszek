@@ -273,3 +273,5 @@ button.card.dark, .item-main.card.dark { background: var(--ink); color: var(--pa
 details.more > summary .pixel { white-space: nowrap; flex: none; }
 details.more > summary { gap: 10px; }
 .cal .day { font-size: 14px; }
+.sheet-body > * { flex: none; }
+.peek, .bubble { pointer-events: none; }

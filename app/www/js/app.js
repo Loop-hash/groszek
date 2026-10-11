@@ -301,6 +301,7 @@ function onResume() {
   const d = today();
   if (d !== app.day) { app.day = d; render(); maybeSummary(); }
   refreshData(false);
+  checkForUpdate().catch(() => {});
 }
 
 // ---------- start ----------
@@ -321,6 +322,22 @@ async function boot() {
   document.addEventListener('input', onInput);
   document.addEventListener('change', onChange);
   document.addEventListener('submit', onSubmit);
+  // Groszek zza rogu nigdy nie blokuje przycisków: znika przy pierwszym dotknięciu albo przewinięciu
+  const hideIfPeeking = () => { if ($('peek-root').firstChild) hidePeek(); };
+  document.addEventListener('pointerdown', hideIfPeeking, true);
+  document.addEventListener('scroll', hideIfPeeking, true);
+  // pole z kursorem przewijane na środek, żeby klawiatura go nie zasłoniła
+  document.addEventListener('focusin', (e) => {
+    const el = e.target;
+    if (!el || !/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.type === 'file') return;
+    setTimeout(() => {
+      try {
+        const r = el.getBoundingClientRect();
+        const h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+        if (r.bottom > h - 16 || r.top < 0) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      } catch (err) { /* stary WebView */ }
+    }, 350);
+  });
   if (window.matchMedia) {
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     if (mq.addEventListener) mq.addEventListener('change', applyTheme);

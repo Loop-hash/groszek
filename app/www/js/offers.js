@@ -145,7 +145,7 @@ export function offerForItem(item, matches) {
   if (item.offerId) {
     const chosen = list.find((o) => o.id === item.offerId);
     if (chosen) return chosen;
-    if (item.offer) return item.offer;
+    if (item.offer && (!item.offer.to || item.offer.to >= today())) return item.offer;
   }
   return list[0] || null;
 }

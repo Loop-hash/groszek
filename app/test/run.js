@@ -81,6 +81,6 @@ await t('kolejność dopasowań', () => {
 });
 
 const extra = await import('./more.js').catch((e) => (e.code === 'ERR_MODULE_NOT_FOUND' ? null : Promise.reject(e)));
-if (extra) n += await extra.default(t, assert);
+if (extra) await extra.default(t, assert);
 
 console.log(process.exitCode ? 'Są błędy.' : `OK: ${n} testów`);
