@@ -426,3 +426,8 @@ I.update({
                           n=[340, 1.0, 0.2, 83.0, 0.9, 0.6], src="typowa etykieta papieru ryżowego", kg=40.0, est=True, pkg=200,
                           kw=["papier ryzowy"], hard=True),
 })
+
+I.update({
+    "trawa_cytrynowa": dict(name="Trawa cytrynowa", icon="herb", cat="warzywa", usda=None, n=[99, 1.8, 0.5, 25.3, 0.0, 0.02],
+                            src="USDA, Lemon grass (citronella), raw", kg=60.0, est=True, pkg=50, kw=["trawa cytrynowa"], hard=True),
+})
