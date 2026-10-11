@@ -14,6 +14,7 @@ const ENTRIES = [
   { k: ['ciasto francusk', 'ciasto na pizz', 'ciasto filo', 'ciasto kruche'], ico: 'flour', cat: 'do pieczenia' },
   { k: ['papryka slodk', 'papryka wedzon', 'papryka ostr', 'papryka mielon'], ico: 'jar', cat: 'przyprawy' },
   { k: ['pierogi'], ico: 'bag', cat: 'mrożonki i gotowce' },
+  { k: ['makaron jaj', 'makaron', 'spaghetti', 'tagliatell'], ico: 'pasta', cat: 'makarony i kasze' },
   { k: ['maslo orzech'], ico: 'jar', cat: 'śniadania' },
   { k: ['frytki z ', 'domowe frytki'], ico: 'potato', cat: 'warzywa' },
   // zachcianki
@@ -107,27 +108,38 @@ export function classify(name, learned = {}) {
   return { ico: hit.ico, cat: hit.cat, treat: TREAT_CATS.includes(hit.cat), known: true };
 }
 
-// Słowa do szukania produktu w promocjach (bez końcówek odmiany).
-export function searchStems(name) {
-  const hit = lookup(name);
-  const text = norm(name);
-  const stems = new Set();
-  if (hit && hit.kw) stems.add(hit.kw.replace(/^[=^]/, ''));
-  for (const w of text.split(' ')) {
-    if (w.length >= 4) stems.add(w.length > 6 ? w.slice(0, w.length - 2) : w.slice(0, Math.max(4, w.length - 1)));
-  }
-  return [...stems].filter(Boolean);
+// Słowa do szukania produktu w promocjach (rdzenie bez polskich końcówek).
+const STOP = new Set(['z', 'ze', 'do', 'na', 'w', 'we', 'i', 'bez', 'dla', 'od', 'po', 'lub', 'oraz', 'a', 'o', 'kg', 'g', 'ml', 'l', 'szt']);
+export function stem(w) {
+  if (w.length <= 4) return w;
+  if (w.length === 5) return w.slice(0, 4);
+  if (w.length <= 7) return w.slice(0, w.length - 2);
+  return w.slice(0, w.length - 3);
 }
 
-// Czy oferta pasuje do pozycji z listy.
-export function offerMatches(itemName, offer) {
-  const stems = searchStems(itemName);
-  if (!stems.length) return false;
+export function searchStems(name) {
+  return norm(name).split(' ').filter((w) => w.length >= 3 && !STOP.has(w) && !/^\d/.test(w)).map(stem);
+}
+
+// Czy oferta pasuje do pozycji z listy. Każde ważne słowo z listy musi być w nazwie oferty.
+export function offerScore(itemName, offer) {
+  const itemWords = norm(itemName).split(' ').filter((w) => w.length >= 3 && !STOP.has(w) && !/^\d/.test(w));
+  if (!itemWords.length) return 0;
+  const stems = itemWords.map(stem);
   const text = norm(offer.name + ' ' + (offer.brand || ''));
-  const words = text.split(' ');
+  const words = text.split(' ').filter((w) => w.length >= 3 && !STOP.has(w));
   const hitItem = lookup(itemName);
   const hitOffer = lookup(offer.name);
   // produkt z listy i oferta muszą trafić w tę samą grupę, żeby "mleko" nie łapało "czekolady mlecznej"
-  if (hitItem && hitOffer && hitItem.ico !== hitOffer.ico) return false;
-  return stems.some((s) => words.some((w) => w.startsWith(s)) || (s.includes(' ') && text.includes(s)));
+  if (hitItem && hitOffer && hitItem.ico !== hitOffer.ico) return 0;
+  // to samo słowo ze słownika (np. "jajka" i "jaja") liczy się jako trafienie
+  const root = hitItem && hitOffer && hitItem.kw === hitOffer.kw ? hitItem.kw.replace(/^[=^]/, '') : null;
+  const ok = stems.every((s, i) => words.some((w) => w.startsWith(s)) || (root && itemWords[i].includes(root)));
+  if (!ok) return 0;
+  const used = words.filter((w) => stems.some((s) => w.startsWith(s)) || (root && w.includes(root))).length;
+  return Math.max(0.01, used / Math.max(1, words.length));
+}
+
+export function offerMatches(itemName, offer) {
+  return offerScore(itemName, offer) > 0;
 }

@@ -73,8 +73,11 @@ export function status(state, dateStr = today()) {
   const remaining = r2(budget - spent);
   const perDay = p.daysLeft > 0 ? r2((budget - spentBefore) / p.daysLeft) : 0;
   const todayLeft = r2(perDay - spentToday);
-  // plan: tyle powinno zostać na koniec dzisiejszego dnia
-  const planRemainingEnd = r2(budget * (p.days - (p.dayIndex + 1)) / p.days);
+  // plan: tyle powinno zostać na koniec dzisiejszego dnia (w pierwszym miesiącu liczony od dnia instalacji)
+  const st0 = planStart(state, p);
+  const pDays = diffDays(st0, p.end) + 1;
+  const pIdx = Math.max(0, diffDays(st0, dateStr));
+  const planRemainingEnd = r2(budget * (pDays - (pIdx + 1)) / pDays);
   const aheadBy = r2(remaining - planRemainingEnd);
   const fracRemaining = budget > 0 ? Math.max(0, Math.min(1, remaining / budget)) : 0;
   const fracPlan = budget > 0 ? Math.max(0, Math.min(1, planRemainingEnd / budget)) : 0;
@@ -85,20 +88,28 @@ export function status(state, dateStr = today()) {
 }
 
 // Dni "w limicie": suma wydatków do końca dnia nie przekracza planu na ten dzień.
+export function planStart(state, p) {
+  const s = state.startedOn;
+  return s && s > p.start && s <= p.end ? s : p.start;
+}
+
 export function daysInLimit(state, p, upTo) {
   const budget = Number(state.settings.budget) || 0;
   const last = upTo < p.end ? upTo : p.end;
+  const first = planStart(state, p);
+  const pDays = diffDays(first, p.end) + 1;
   const byDay = {};
   for (const e of state.expenses) if (e.date >= p.start && e.date <= last) byDay[e.date] = (byDay[e.date] || 0) + e.amount;
   let cum = 0;
+  for (const d of Object.keys(byDay)) if (d < first) cum += byDay[d];
   let inLimit = 0;
   let streak = 0;
   let best = 0;
   let total = 0;
-  for (let i = 0, d = p.start; d <= last; i++, d = addDays(d, 1)) {
+  for (let i = 0, d = first; d <= last; i++, d = addDays(d, 1)) {
     cum += byDay[d] || 0;
     total++;
-    const ok = cum <= budget * (i + 1) / p.days + 0.005;
+    const ok = cum <= budget * (i + 1) / pDays + 0.005;
     if (ok) { inLimit++; streak++; best = Math.max(best, streak); } else { streak = 0; }
   }
   return { inLimit, total, streak, best };
@@ -161,4 +172,12 @@ export function shopsClosed(s) {
   if (fixed.includes(md)) return true;
   const e = easter(d.getFullYear());
   return [addDays(e, 1), addDays(e, 60)].includes(s) || s === e;
+}
+
+export function totalSaved(state) {
+  return r2((state.savings || []).reduce((a, s) => a + (Number(s.amount) || 0), 0));
+}
+
+export function totalExp(state) {
+  return Math.floor(totalSaved(state));
 }

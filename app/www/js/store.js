@@ -55,6 +55,7 @@ export function defaults() {
     expenses: [],
     list: [],
     learned: {},
+    icons: {},
     savings: [],
     ratings: {},
     customRecipes: [],
