@@ -41,11 +41,13 @@ def _pixel_keys(name):
 FOODS = _pixel_keys("FOOD")
 # gdy wszystkie plakietki dla kształtu są zajęte, bierzemy podobny kształt
 DISH_ALTS = {
-    "soup": ["bowl", "deepplate", "tureen", "cauldron", "mug"], "mug": ["bowl", "deepplate"],
-    "pot": ["cauldron", "tureen", "bowl"], "pan": ["wok", "plate", "tray"], "casserole": ["tray", "pie"],
-    "plate": ["deepplate", "tray"], "salad": ["bowl", "deepplate"], "ricebowl": ["bowl", "wok"],
+    "soup": ["bowl", "deepplate", "tureen", "cauldron", "mug", "claypot"], "mug": ["bowl", "deepplate"],
+    "pot": ["cauldron", "tureen", "claypot", "bowl"], "pan": ["wok", "skillet", "plate", "tray"], "casserole": ["tray", "pie", "claypot"],
+    "plate": ["deepplate", "tray", "curry"], "salad": ["bowl", "deepplate", "bento"], "ricebowl": ["bowl", "wok", "curry", "bento"],
+    "tagine": ["claypot", "pot"], "claypot": ["pot", "cauldron"], "skillet": ["pan", "wok"], "curry": ["ricebowl", "plate"],
+    "bento": ["ricebowl", "plate"], "onigiri": ["bento", "ricebowl"], "dumpling": ["steamer", "pierogi"], "hotdog": ["bun", "sandwich"],
     "pancakes": ["crepe", "plate"], "crepe": ["pancakes"], "toast": ["sandwich", "bun"], "sandwich": ["bun", "toast"],
-    "pierogi": ["steamer", "roll"], "noodles": ["wok", "spaghetti"], "spaghetti": ["noodles", "bowl"],
+    "pierogi": ["steamer", "dumpling", "roll"], "noodles": ["wok", "spaghetti"], "spaghetti": ["noodles", "bowl"],
     "patties": ["cutlet", "meatballs"], "cutlet": ["patties", "plate"], "meatballs": ["patties", "bowl"],
     "pie": ["casserole", "tray"], "flatbread": ["pizza", "wrap"], "wrap": ["taco", "flatbread"], "taco": ["wrap"],
     "roll": ["wrap", "steamer"], "fries": ["plate", "tray"], "oats": ["bowl", "mug"], "skewer": ["plate"],
@@ -91,12 +93,19 @@ def main():
         dish = rc["icon"].get("dish")
         if dish not in DISHES:
             errors.append(f"{rc['id']}: nieznany kształt dania {dish}")
-        cands = [rc["icon"].get("badge")] + [I[t[0]]["icon"] for t in rc["ings"] if t[0] in I and not I[t[0]].get("pantry")] + FOODS
+        shapes = [dish] + DISH_ALTS.get(dish, [])
+        main = [I[t[0]]["icon"] for t in rc["ings"] if t[0] in I and not I[t[0]].get("pantry") and t[1] >= 40]
+        # najpierw sensowna plakietka (wybrana, potem z głównych składników) na podobnym kształcie,
+        # dopiero na końcu cokolwiek wolnego
+        tiers = [[rc["icon"].get("badge")], main, FOODS]
         key = None
-        for dd in [dish] + DISH_ALTS.get(dish, []):
-            for b in cands:
-                if b and b in FOODS and (dd, b) not in icons:
-                    key = (dd, b)
+        for cands in tiers:
+            for dd in shapes:
+                for b in cands:
+                    if b and b in FOODS and (dd, b) not in icons:
+                        key = (dd, b)
+                        break
+                if key:
                     break
             if key:
                 break
