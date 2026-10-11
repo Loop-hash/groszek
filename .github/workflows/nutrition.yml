@@ -1,0 +1,38 @@
+name: Sprawdzenie wartości odżywczych
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/ingredients_src.py'
+      - 'tools/nutrition.py'
+      - '.github/workflows/nutrition.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Porównaj z USDA
+        run: |
+          mkdir -p debug
+          python tools/nutrition.py debug 2>&1 | tee debug/run.log
+      - name: Raport na gałąź ci-nutrition
+        if: always()
+        run: |
+          mkdir -p debug
+          cd debug
+          git init -q
+          git config user.name groszek-bot
+          git config user.email groszek-bot@users.noreply.github.com
+          git checkout -q -b ci-nutrition
+          git add -A
+          git commit -q -m "Raport wartości odżywczych"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" ci-nutrition
