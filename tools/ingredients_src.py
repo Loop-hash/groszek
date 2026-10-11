@@ -431,3 +431,8 @@ I.update({
     "trawa_cytrynowa": dict(name="Trawa cytrynowa", icon="herb", cat="warzywa", usda=None, n=[99, 1.8, 0.5, 25.3, 0.0, 0.02],
                             src="USDA, Lemon grass (citronella), raw", kg=60.0, est=True, pkg=50, kw=["trawa cytrynowa"], hard=True),
 })
+
+I.update({
+    "ryz_sushi": dict(name="Ryż do sushi", icon="rice", cat="makarony i kasze", usda=None, n=[350, 6.5, 0.5, 78.0, 1.0, 0.0],
+                      src="typowa etykieta ryżu do sushi", kg=14.0, est=True, pkg=500, kw=["ryz do sushi", "ryz sushi"]),
+})
