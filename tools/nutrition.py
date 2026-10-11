@@ -33,7 +33,14 @@ def main():
     wanted = {}
     for k, v in I.items():
         if v.get("usda"):
-            fid = foods.get(v["usda"].strip().lower())
+            want = v["usda"].strip().lower()
+            fid = foods.get(want)
+            if not fid:
+                # w SR Legacy część opisów ma dopisek w nawiasie, np. "(Includes foods for USDA's Food Distribution Program)"
+                cand = sorted(d for d in foods if d.startswith(want + " (") or d.startswith(want + ","))
+                if cand:
+                    fid = foods[cand[0]]
+                    print(f"{k}: użyto opisu „{cand[0]}”")
             wanted[k] = fid
     ids = {fid for fid in wanted.values() if fid}
     vals = {fid: [None] * 6 for fid in ids}
