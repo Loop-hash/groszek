@@ -314,7 +314,7 @@ RECIPES = [
         "W Wietnamie do sosu dodaje się sos rybny. Tu jest sojowy, żeby obyło się bez ryby."),
 
     # ---------------- Chiny ----------------
-    R("cn-kungpao", "Kurczak kung pao", "Chiny", ("ricebowl", "pepper"), 2, 25, ["palnik"], ["obiad"], [
+    R("cn-kungpao", "Kurczak kung pao", "Chiny", ("ricebowl", "pepper"), 3, 25, ["palnik"], ["obiad"], [
         ("kurczak", 350), ("orzeszki", 50), ("papryka", 160), ("dymka", 50), ("czosnek", 10), ("imbir", 10),
         ("sos_sojowy", 45, "3 łyżki"), ("ocet", 15, "1 łyżka"), ("cukier", 15, "1 łyżka"), ("skrobia", 10, "1 łyżka"),
         ("chili", 2), ("olej", 20), ("ryz", 200)],
