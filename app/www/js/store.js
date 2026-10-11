@@ -7,9 +7,15 @@ function native() {
   return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 }
 
+// Wtyczki Capacitora (Preferences, App, Filesystem, Share). Rdzeń ładuje js/vendor/capacitor.js.
+const plugins = {};
 export function plugin(name) {
   if (!native()) return null;
-  try { return window.Capacitor.registerPlugin(name); } catch (e) { return null; }
+  if (plugins[name]) return plugins[name];
+  const reg = (window.Capacitor && window.Capacitor.registerPlugin) || (window.capacitorExports && window.capacitorExports.registerPlugin);
+  if (!reg) { console.error('Brak registerPlugin, wtyczka ' + name + ' niedostępna'); return null; }
+  try { plugins[name] = reg(name); } catch (e) { console.error('Wtyczka ' + name + ': ' + e.message); return null; }
+  return plugins[name];
 }
 
 export async function kvGet(key) {

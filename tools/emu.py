@@ -69,6 +69,24 @@ def tap_text(t, exact=False, nth=0, save=None):
     return True
 
 
+def tap_class(cls, nth=0):
+    hits = [n for n in nodes() if n["cls"] == cls and n["w"] > 4]
+    if len(hits) <= nth:
+        log("NIE ZNALEZIONO klasy", cls)
+        return False
+    n = hits[nth]
+    sh(f"adb shell input tap {n['x']} {n['y']}")
+    log("tap", cls, n["x"], n["y"])
+    time.sleep(1.2)
+    return True
+
+
+def screen_has(t):
+    ok = any(t.lower() in (n["text"] + " " + n["desc"]).lower() for n in nodes())
+    log("jest" if ok else "BRAK", repr(t))
+    return ok
+
+
 def back():
     sh("adb shell input keyevent 4")
     time.sleep(1.2)
@@ -85,17 +103,13 @@ def main():
     sh("adb shell am start -n pl.groszek.app/.MainActivity")
     time.sleep(15)
     shot("01-start")
-    nodes("01-start")
     tap_text("Zaczynamy")
     time.sleep(3)
     shot("02-home")
-    nodes("02-home")
     time.sleep(9)
-    shot("02b-home-bez-groszka")
 
     tap_text("Lista", exact=True)
-    time.sleep(2)
-    tap_text("Dopisz, np. jogurt")
+    tap_class("android.widget.EditText")
     typ("mleko")
     sh("adb shell input keyevent 66")
     time.sleep(1.5)
@@ -103,41 +117,49 @@ def main():
     sh("adb shell input keyevent 66")
     time.sleep(2)
     shot("03-lista-klawiatura")
-    sh("adb shell input keyevent 111")  # schowaj klawiaturę
-    time.sleep(1)
+    back()  # chowa klawiaturę
     shot("03b-lista")
     back()
+    screen_has("Na dziś możesz wydać")
+
+    tap_text("Ustawienia")
+    time.sleep(2)
+    tap_text("Tryb ostry", exact=False, nth=1)
+    shot("04-ustawienia")
     back()
+    tap_text("Lista", exact=True)
+    tap_class("android.widget.EditText")
+    typ("chipsy")
+    sh("adb shell input keyevent 66")
+    time.sleep(2.5)
+    shot("05-ostry")
+    back()  # zamyka arkusz
+    back()  # klawiatura
+    back()
+    screen_has("Na dziś możesz wydać")
 
     tap_text("Promocje", exact=True)
     time.sleep(3)
-    shot("04-promocje")
+    shot("06-promocje")
     back()
+    screen_has("Na dziś możesz wydać")
 
     tap_text("Przepisy", exact=True)
     time.sleep(3)
-    shot("05-przepisy")
+    shot("07-przepisy")
     tap_text("Owsianka z jabłkiem")
     time.sleep(2)
-    shot("06-przepis")
+    shot("08-przepis")
     back()
     back()
 
     tap_text("Planer", exact=True)
     time.sleep(2)
-    shot("07-planer")
     tap_text("Ułóż plan za kwotę")
     time.sleep(2)
-    tap_text("Ułóż plan", exact=False, nth=0)
+    tap_text("Ułóż plan", exact=True)
     time.sleep(5)
-    shot("08-kompozytor")
-    back()
-    back()
-
-    tap_text("Ustawienia")
-    time.sleep(2)
-    shot("09-ustawienia")
-    tap_text("Kalorie dziennie")
+    shot("09-kompozytor")
     back()
     back()
 
@@ -150,9 +172,28 @@ def main():
     time.sleep(2)
     shot("11-po-wydatku")
 
+    tap_text("Ustawienia")
+    time.sleep(2)
+    for _ in range(8):
+        sh("adb shell input swipe 540 2000 540 600 300")
+    time.sleep(1)
+    tap_text("Zapisz kopię")
+    time.sleep(3)
+    shot("12-kopia-udostepnij")
+    back()
+    back()
+
+    # zapis danych: zamknij apkę i otwórz jeszcze raz
+    sh("adb shell am force-stop pl.groszek.app")
+    time.sleep(2)
+    sh("adb shell am start -n pl.groszek.app/.MainActivity")
+    time.sleep(10)
+    shot("13-po-restarcie")
+    screen_has("wydane 125,00")
+
     sh("adb shell cmd uimode night yes")
     time.sleep(4)
-    shot("12-ciemny")
+    shot("14-ciemny")
     sh("adb shell cmd uimode night no")
     open(os.path.join(OUT, "logcat.txt"), "w").write(sh("adb logcat -d -v brief", timeout=60))
     log("koniec")
