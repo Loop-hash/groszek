@@ -2,7 +2,7 @@
 import { status, today, addDays, fmt, dayLabel, dowShort, period, diffDays } from '../budget.js';
 import { ui, recipeIcon, food, sprite } from '../pixels.js';
 import { esc, topbar, toggle, plural } from '../ui.js';
-import { compose, nutStatus, STATUS_LABEL, buyLabel } from '../plan.js';
+import { compose, nutStatus, STATUS_LABEL, buyLabel, multLabel } from '../plan.js';
 import { findRecipe, NUT, NUT_LABEL, NUT_UNIT, MEALS } from '../recipes.js';
 import { STORES } from '../offers.js';
 
@@ -33,7 +33,7 @@ export default {
         const row = (res.plan[d] || []).slice().sort((a, b) => ['sniadanie', 'obiad', 'kolacja'].indexOf(a.slot) - ['sniadanie', 'obiad', 'kolacja'].indexOf(b.slot));
         const trip = res.trips.find((t) => t.date === d);
         return `<div class="item col" style="gap:6px"><div class="row between"><b>${dowShort(d)} · ${esc(dayLabel(d))}</b>${trip ? `<span class="pill dark">${ui('basket', 12)} zakupy</span>` : ''}</div>` +
-          row.map((m) => { const r = findRecipe(c, m.id); return r ? `<div class="row">${recipeIcon(r.icon, 26)}<span class="small grow"><span class="muted">${MEALS[m.slot]}:</span> ${esc(r.name)}${m.slot === 'obiad' ? (m.cook ? (m.batch > 1 ? ' <b>(gotujesz na 2 dni)</b>' : '') : ' <span class="muted">(z wczoraj)</span>') : ''}</span></div>` : ''; }).join('') + '</div>';
+          row.map((m) => { const r = findRecipe(c, m.id); return r ? `<div class="row">${recipeIcon(r.icon, 26)}<span class="small grow"><span class="muted">${MEALS[m.slot]}:</span> ${esc(r.name)}${m.mult && m.mult !== 1 ? ` <b>· ${multLabel(m.mult)}</b>` : ''}${m.slot === 'obiad' ? (m.cook ? (m.batch > 1 ? ' <b>(gotujesz na 2 dni)</b>' : '') : ' <span class="muted">(z wczoraj)</span>') : ''}</span></div>` : ''; }).join('') + '</div>';
       }).join('');
       const trips = res.trips.map((tr) => `<details class="more"><summary><span>${esc(dowShort(tr.date))} ${esc(dayLabel(tr.date))} · ${esc(tr.storeName)}</span><span class="pixel">${fmt(tr.cost)} zł</span></summary><div class="stack">` +
         tr.items.map((it) => `<div class="row">${food(it.icon, 22)}<span class="grow small">${esc(it.name)} <span class="muted">· ${esc(buyLabel(it))}</span></span>${it.promo ? `<span class="pill dark">${esc(STORES[it.promo.store])}</span>` : ''}<span class="pixel small">${fmt(it.price)}</span></div>`).join('') + '</div></details>').join('');

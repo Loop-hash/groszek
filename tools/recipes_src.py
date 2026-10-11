@@ -449,4 +449,38 @@ RECIPES = [
         ["Do miski wlej jogurt.",
          "Dosyp płatki i pokrojonego banana.",
          "Jeśli lubisz słodziej, dodaj łyżeczkę cukru albo miodu."]),
+    R("pd-nalesniki", "Naleśniki z twarogiem", "Podstawy", ("crepe", "cheese"), 2, 25, ["palnik"], ["sniadanie", "kolacja"], [
+        ("maka", 120), ("mleko", 250), ("jajka", 50, "1 szt."), ("olej", 15), ("sol", 1), ("twarog", 200), ("cukier", 20), ("jogurt", 50)],
+        ["Wymieszaj mąkę, mleko, jajko, szczyptę soli i łyżkę oleju na gładkie, rzadkie ciasto.",
+         "Smaż cienkie naleśniki na lekko natłuszczonej patelni, po minucie z każdej strony.",
+         "Twaróg rozgnieć z cukrem i jogurtem.",
+         "Posmaruj naleśniki twarogiem i zwiń."],
+        "Ciasto możesz zrobić wieczorem i trzymać w lodówce do rana."),
+    R("pd-placki-bananowe", "Placuszki bananowe", "Podstawy", ("pancakes", "banana"), 1, 15, ["palnik"], ["sniadanie"], [
+        ("banan", 120, "1 dojrzały"), ("jajka", 50, "1 szt."), ("maka", 40, "2 łyżki"), ("mleko", 50), ("cynamon", 1), ("olej", 10), ("jogurt", 100)],
+        ["Banana rozgnieć widelcem na papkę.",
+         "Dodaj jajko, mąkę, mleko i cynamon, wymieszaj.",
+         "Smaż małe placuszki na oleju po 2 minuty z każdej strony.",
+         "Jedz z jogurtem."]),
+    R("pd-ryz-na-mleku", "Ryż na mleku z jabłkiem", "Podstawy", ("oats", "rice"), 1, 25, ["palnik"], ["sniadanie", "kolacja"], [
+        ("ryz", 70), ("mleko", 400), ("jablko", 180, "1 szt."), ("cukier", 10), ("cynamon", 1)],
+        ["Ryż wsyp do zimnego mleka i zagotuj.",
+         "Gotuj na bardzo małym ogniu 20 minut, często mieszając, żeby się nie przypalił.",
+         "Jabłko zetrzyj, wymieszaj z cukrem i cynamonem i połóż na ryż."],
+        "Wieczorem możesz ugotować podwójną porcję i rano tylko podgrzać."),
+    R("pd-tosty-francuskie", "Tosty francuskie z bananem", "Podstawy", ("toast", "banana"), 1, 15, ["palnik"], ["sniadanie"], [
+        ("chleb_tostowy", 120, "4 kromki"), ("jajka", 100, "2 szt."), ("mleko", 80), ("cynamon", 1), ("maslo", 10), ("banan", 120), ("cukier", 5)],
+        ["Jajka roztrzep z mlekiem i cynamonem.",
+         "Kromki zanurz w masie z obu stron.",
+         "Smaż na maśle po 2 minuty z każdej strony, aż się zarumienią.",
+         "Podawaj z plasterkami banana, posyp cukrem."]),
+    R("pd-kanapki-ser", "Kanapki z serem i pomidorem", "Podstawy", ("toast", "tomato"), 1, 5, [], ["sniadanie", "kolacja"], [
+        ("chleb", 140, "4 kromki"), ("maslo", 10), ("ser_zolty", 60), ("pomidory", 150, "1 szt."), ("sol", 0.5)],
+        ["Chleb posmaruj masłem.",
+         "Połóż plastry sera i pomidora, posól i popieprz."]),
+    R("pd-jajka-miekko", "Jajka na miękko z chlebem", "Podstawy", ("pot", "egg"), 1, 10, ["palnik"], ["sniadanie"], [
+        ("jajka", 150, "3 szt."), ("chleb", 105, "3 kromki"), ("maslo", 10), ("ogorek", 100), ("sol", 1)],
+        ["Jajka włóż do wrzątku i gotuj 4 minuty (żółtko płynne) albo 6 minut (lekko ścięte).",
+         "Przelej zimną wodą.",
+         "Jedz łyżeczką z chlebem z masłem i ogórkiem."]),
 ]

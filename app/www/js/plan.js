@@ -37,8 +37,9 @@ export function dayTotals(c, date) {
   let cost = 0;
   for (const m of dayMeals(c, date)) {
     const n = nutrition(m.recipe);
-    for (const k of NUT) t[k] += Number(n[k]) || 0;
-    cost += recipeCost(c, m.recipe).perPortion;
+    const x = m.mult || 1;
+    for (const k of NUT) t[k] += (Number(n[k]) || 0) * x;
+    cost += recipeCost(c, m.recipe).perPortion * x;
   }
   return { ...t, cost: r2(cost) };
 }
@@ -50,7 +51,7 @@ export function todayMeals(c) {
   const h = new Date().getHours();
   const order = h < 11 ? SLOT_ORDER : h < 17 ? ['obiad', 'kolacja'] : ['kolacja'];
   const pick = meals.filter((m) => order.includes(m.slot)).sort((a, b) => order.indexOf(a.slot) - order.indexOf(b.slot))[0] || meals[meals.length - 1];
-  return [{ recipe: pick.recipe, label: `${MEALS[pick.slot] || 'Dziś'} na dziś${pick.cook === false ? ' (z wczoraj)' : ''}`, cost: recipeCost(c, pick.recipe).perPortion }];
+  return [{ recipe: pick.recipe, label: `${MEALS[pick.slot] || 'Dziś'} na dziś${pick.cook === false ? ' (z wczoraj)' : ''}${pick.mult && pick.mult !== 1 ? ` · ${multLabel(pick.mult)}` : ''}`, cost: r2(recipeCost(c, pick.recipe).perPortion * (pick.mult || 1)) }];
 }
 
 // ---------- układanie miesiąca ----------
@@ -77,7 +78,21 @@ function pickBest(cands, scoreFn) {
 }
 
 // opts: { amount, from, days, meals: ['sniadanie','obiad','kolacja'], cook2, seed }
+// Układa dwa warianty: z różnorodnymi śniadaniami i najtańszy. Wybiera różnorodny, jeśli mieści się w kwocie i w kaloriach.
 export function compose(c, opts) {
+  const T = Number(c.state.settings.kcal) || 2200;
+  const a = composeOnce(c, opts, true);
+  const fitsA = a.total <= opts.amount + 0.5;
+  if (fitsA && a.avg.kcal >= T * 0.93) return a;
+  const b = composeOnce(c, opts, false);
+  const fitsB = b.total <= opts.amount + 0.5;
+  if (fitsB && !fitsA) return b;
+  if (fitsA && !fitsB) return a;
+  if (!fitsA && !fitsB) return a.total <= b.total ? a : b;
+  return b.avg.kcal > a.avg.kcal + T * 0.04 ? b : a;
+}
+
+function composeOnce(c, opts, varied) {
   const rand = rng(opts.seed || 1);
   const s = c.state.settings;
   const T = Number(s.kcal) || 2200;
@@ -99,20 +114,37 @@ export function compose(c, opts) {
   const history = { sniadanie: [], obiad: [], kolacja: [] };
   const lastTag = { obiad: null };
 
+  const zlPerKcal = perDay / T; // tyle wolno średnio wydać na 1 kcal
+  const kcalOfR = (r) => Math.max(150, nutrition(r).kcal || 0);
+  const cpkOf = (r) => cost(r) / kcalOfR(r);
+
   function score(r, slot, i) {
-    const target = (perDay * share[slot]) / Math.max(0.5, used) * 1.0;
-    const cst = cost(r);
     let sc = 0;
-    sc -= cst > target ? (cst - target) * 3 : (target - cst) * 0.15;
+    // koszt na kalorię w porównaniu z budżetem: drożej niż budżet mocno w dół, taniej lekko w górę
+    const ratio = cpkOf(r) / zlPerKcal;
+    sc += ratio < 1 ? (1 - ratio) * 0.6 : -(ratio - 1) * 6;
     sc += ratings[r.id] === 1 ? 1.5 : 0;
+    // kalorie: porcję można powiększyć, więc karzemy tylko, gdy nawet większa porcja nie wystarczy albo danie jest za ciężkie
+    const want = (T * share[slot]) / Math.max(0.5, used);
+    const kc = kcalOfR(r);
+    const maxMult = slot === 'obiad' ? 2 : 1.5;
+    if (kc * maxMult < want) sc -= (want - kc * maxMult) / 150;
+    if (kc > want * 1.3) sc -= (kc - want * 1.3) / 150;
+    // różnorodność
     const h = history[slot];
     const lastIdx = h.lastIndexOf(r.id);
-    if (lastIdx >= 0) sc -= h.length - lastIdx <= (slot === 'obiad' ? 6 : 2) ? 6 : 1.5;
+    if (lastIdx >= 0) sc -= h.length - lastIdx <= (slot === 'obiad' ? 6 : 3) ? 6 : 1.5;
+    sc -= h.filter((x) => x === r.id).length * 0.9;
+    if (slot !== 'obiad') {
+      // nie to samo "na bazie" (np. dwie różne owsianki) dzień po dniu, i nie za często w tygodniu
+      const fam = family(c, r.id);
+      if (h.length && family(c, h[h.length - 1]) === fam) sc -= 5;
+      else if (h.slice(-2).some((id) => family(c, id) === fam)) sc -= 3;
+      sc -= h.slice(-7).filter((id) => family(c, id) === fam).length * 0.8;
+    }
     if (slot === 'obiad' && lastTag.obiad && proteinTag(c, r) === lastTag.obiad) sc -= 2.5;
     sc += recipeCost(c, r).promo.length * 0.25;
-    const kc = nutrition(r).kcal || 0;
-    sc -= Math.abs(kc - T * share[slot]) / 400;
-    return sc + rand() * 1.4 + (i === 0 ? 0 : 0);
+    return sc + rand() * 1.4;
   }
 
   // obiady (z gotowaniem na 2 dni)
@@ -121,7 +153,7 @@ export function compose(c, opts) {
     while (i < dates.length) {
       const r = pickBest(pools.obiad, (x) => score(x, 'obiad', i));
       const span = opts.cook2 && (r.portions || 1) >= 2 ? Math.min(2, dates.length - i) : 1;
-      for (let k = 0; k < span; k++) plan[dates[i + k]].push({ id: r.id, slot: 'obiad', cook: k === 0, batch: span });
+      for (let k = 0; k < span; k++) plan[dates[i + k]].push({ id: r.id, slot: 'obiad', cook: k === 0, batch: span, group: 'o' + i });
       history.obiad.push(r.id);
       lastTag.obiad = proteinTag(c, r);
       i += span;
@@ -138,31 +170,103 @@ export function compose(c, opts) {
     });
   }
 
-  let result = evaluate(c, plan, dates, opts);
-  // za drogo? podmieniaj najdroższe obiady na tańsze
-  for (let it = 0; it < 40 && result.total > opts.amount; it++) {
-    const cooks = [];
-    for (const d of dates) for (const m of plan[d]) if (m.cook) cooks.push({ d, m, c: cost(findRecipe(c, m.id)) * m.batch });
-    cooks.sort((a, b) => b.c - a.c);
-    let changed = false;
-    for (const ck of cooks) {
-      const pool = pools[ck.m.slot].filter((x) => cost(x) < cost(findRecipe(c, ck.m.id)) - 0.3);
-      if (!pool.length) continue;
-      const near = dates.slice(Math.max(0, dates.indexOf(ck.d) - 4), dates.indexOf(ck.d) + 5).flatMap((d) => plan[d].map((m) => m.id));
-      const fresh = pool.filter((x) => !near.includes(x.id));
-      const r = (fresh.length ? fresh : pool).sort((a, b) => cost(a) - cost(b))[Math.floor(rand() * Math.min(3, (fresh.length ? fresh : pool).length))];
-      const oldId = ck.m.id;
-      const idx = dates.indexOf(ck.d);
-      for (let k = 0; k < ck.m.batch; k++) {
-        const row = plan[dates[idx + k]];
-        if (!row) continue;
-        const mm = row.find((x) => x.slot === ck.m.slot && x.id === oldId);
-        if (mm) mm.id = r.id;
+  // większe porcje tam, gdzie brakuje kalorii
+  const kcalOf = (m) => (nutrition(findRecipe(c, m.id)).kcal || 0) * (m.mult || 1);
+  const dayK = (d) => plan[d].reduce((a, m) => a + kcalOf(m), 0);
+  const STEPS = { obiad: [1, 1.5, 2], sniadanie: [1, 1.5], kolacja: [1, 1.5] };
+  const groupOf = (m) => (m.group ? dates.flatMap((d) => plan[d].filter((mm) => mm.group === m.group)) : [m]);
+  function fill() {
+    const blocked = new Set();
+    for (let guard = 0; guard < dates.length * 6; guard++) {
+      let worst = null;
+      let wd = T * 0.05;
+      for (const d of dates) {
+        if (blocked.has(d)) continue;
+        const def = T - dayK(d);
+        if (def > wd) { wd = def; worst = d; }
       }
-      changed = true;
-      break;
+      if (!worst) return;
+      let best = null;
+      let bestRatio = Infinity;
+      for (const m of plan[worst]) {
+        const cur = m.mult || 1;
+        const next = (STEPS[m.slot] || []).find((x) => x > cur);
+        if (!next) continue;
+        const r = findRecipe(c, m.id);
+        const addK = (nutrition(r).kcal || 0) * (next - cur);
+        if (groupOf(m).some((mm) => {
+          const d = dates.find((dd) => plan[dd].includes(mm));
+          return dayK(d) + addK > T * 1.08;
+        })) continue;
+        const ratio = cpkOf(r);
+        if (ratio < bestRatio) { bestRatio = ratio; best = { m, next }; }
+      }
+      if (!best) { blocked.add(worst); continue; }
+      for (const mm of groupOf(best.m)) mm.mult = best.next;
     }
-    if (!changed) break;
+  }
+
+  // za drogo: najpierw podmieniaj dania najdroższe na kalorię, potem zmniejszaj porcje
+  function swapOne(varied = true, absolute = false) {
+    const val = absolute ? cost : cpkOf;
+    const cooks = [];
+    for (const d of dates) for (const m of plan[d]) if (m.cook) cooks.push({ d, m, r: findRecipe(c, m.id) });
+    cooks.sort((a, b) => val(b.r) * (b.m.batch || 1) * (b.m.mult || 1) - val(a.r) * (a.m.batch || 1) * (a.m.mult || 1));
+    for (const ck of cooks) {
+      const cur = val(ck.r);
+      const pool = pools[ck.m.slot].filter((x) => val(x) < cur * 0.85);
+      if (!pool.length) continue;
+      const idx = dates.indexOf(ck.d);
+      const near = new Set(dates.slice(Math.max(0, idx - 3), idx + 4).flatMap((d) => plan[d].map((m) => m.id)));
+      // śniadania i kolacje: bez tej samej "bazy" dzień przed i dzień po (np. owsianka po owsiance)
+      const famNear = ck.m.slot === 'obiad' || !varied ? new Set() : new Set([dates[idx - 1], dates[idx + 1]].filter(Boolean)
+        .flatMap((d) => plan[d].filter((m) => m.slot === ck.m.slot).map((m) => family(c, m.id))));
+      const fresh = pool.filter((x) => !near.has(x.id) && !famNear.has(family(c, x.id)));
+      const fresh2 = fresh.length ? fresh : pool.filter((x) => !famNear.has(family(c, x.id)));
+      const list = (fresh2.length ? fresh2 : pool).sort((a, b) => val(a) - val(b));
+      const r = list[Math.floor(rand() * Math.min(3, list.length))];
+      for (const mm of groupOf(ck.m)) { mm.id = r.id; mm.mult = 1; }
+      return true;
+    }
+    return false;
+  }
+  function downsizeOne() {
+    let best = null;
+    let bc = 0;
+    for (const d of dates) {
+      for (const m of plan[d]) {
+        if (!m.cook || (m.mult || 1) <= 1) continue;
+        const c2 = cost(findRecipe(c, m.id)) * (m.batch || 1);
+        if (c2 > bc) { bc = c2; best = m; }
+      }
+    }
+    if (!best) return false;
+    const steps = STEPS[best.slot];
+    const prev = steps[Math.max(0, steps.indexOf(best.mult || 1) - 1)];
+    for (const mm of groupOf(best)) mm.mult = prev;
+    return true;
+  }
+
+  fill();
+  let result = evaluate(c, plan, dates, opts);
+  for (let it = 0; varied && it < 60 && result.total > opts.amount + 0.5; it++) {
+    if (!swapOne(true)) break;
+    fill();
+    result = evaluate(c, plan, dates, opts);
+  }
+  // nadal za drogo: odpuść różnorodność śniadań, byle się zmieścić
+  for (let it = 0; it < 60 && result.total > opts.amount + 0.5; it++) {
+    if (!swapOne(false)) break;
+    fill();
+    result = evaluate(c, plan, dates, opts);
+  }
+  for (let it = 0; it < 120 && result.total > opts.amount + 0.5; it++) {
+    if (!downsizeOne()) break;
+    result = evaluate(c, plan, dates, opts);
+  }
+  // ostatnia deska ratunku: po prostu najtańsze dania, nawet kosztem kalorii
+  for (let it = 0; it < 60 && result.total > opts.amount + 0.5; it++) {
+    if (!swapOne(false, true)) break;
     result = evaluate(c, plan, dates, opts);
   }
 
@@ -171,7 +275,7 @@ export function compose(c, opts) {
   for (const d of dates) {
     for (const m of plan[d]) {
       const n = nutrition(findRecipe(c, m.id));
-      for (const k of NUT) avg[k] += (Number(n[k]) || 0) / dates.length;
+      for (const k of NUT) avg[k] += ((Number(n[k]) || 0) * (m.mult || 1)) / dates.length;
     }
   }
   if (result.total > opts.amount + 0.5) {
@@ -181,6 +285,15 @@ export function compose(c, opts) {
     warnings.push(`Średnio ${Math.round(avg.kcal)} kcal dziennie, a cel to ${Math.round(T)}. ${opts.meals.length < 3 ? 'Dodaj w planie śniadania albo kolacje.' : 'Dorzuć przekąski, np. banana, jogurt albo kanapkę.'}`);
   }
   return { plan, dates, trips: result.trips, total: result.total, avg, targets: tg, warnings, opts, pantry: result.pantry };
+}
+
+function family(c, id) {
+  const r = findRecipe(c, id);
+  return (r && r.ings && r.ings[0] && r.ings[0].i) || id;
+}
+
+export function multLabel(x) {
+  return x && x !== 1 ? `${String(x).replace('.', ',')} porcji` : '';
 }
 
 function fmtZl(n) {
@@ -210,7 +323,7 @@ export function evaluate(c, plan, dates, opts) {
         if (!m.cook) continue;
         const r = findRecipe(c, m.id);
         if (!r || r.custom) continue;
-        const factor = (m.batch || 1) / (r.portions || 1);
+        const factor = ((m.batch || 1) * (m.mult || 1)) / (r.portions || 1);
         for (const x of r.ings || []) {
           const i = ing(c, x.i);
           if (!i) continue;

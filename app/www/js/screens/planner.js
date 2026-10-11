@@ -2,7 +2,7 @@
 import { period, previousPeriod, today, addDays, parseYmd, dayLabel, dowName, fmt, r2 } from '../budget.js';
 import { ui, recipeIcon, food } from '../pixels.js';
 import { esc, topbar, search, plural } from '../ui.js';
-import { dayMeals, dayTotals, targets, nutStatus, STATUS_LABEL, buyLabel, SLOT_ORDER } from '../plan.js';
+import { dayMeals, dayTotals, targets, nutStatus, STATUS_LABEL, buyLabel, SLOT_ORDER, multLabel } from '../plan.js';
 import { available, recipeCost, nutrition, NUT, NUT_LABEL, NUT_UNIT, MEALS, findRecipe } from '../recipes.js';
 import { norm } from '../dict.js';
 import { addToList } from '../listlogic.js';
@@ -92,7 +92,8 @@ export default {
 
     const meals = dayMeals(c, sel);
     const tot = dayTotals(c, sel);
-    const mealRows = meals.map((m) => `<div class="item"><button class="item-main" data-act="recipe" data-arg="${esc(m.recipe.id)}">${recipeIcon(m.recipe.icon, 36)}<span class="grow stack"><span class="sub" style="text-transform:uppercase;font-weight:800;letter-spacing:.08em">${esc(MEALS[m.slot] || m.slot)}${m.cook === false ? ' · z poprzedniego dnia' : (m.batch > 1 ? ' · gotujesz na 2 dni' : '')}</span><span class="name" style="font-size:15px">${esc(m.recipe.name)}</span><span class="sub">${Math.round(nutrition(m.recipe).kcal || 0)} kcal · ${fmt(recipeCost(c, m.recipe).perPortion)} zł</span></span></button>` +
+    const mealRows = meals.map((m) => `<div class="item"><button class="item-main" data-act="recipe" data-arg="${esc(m.recipe.id)}">${recipeIcon(m.recipe.icon, 36)}<span class="grow stack"><span class="sub" style="text-transform:uppercase;font-weight:800;letter-spacing:.08em">${esc(MEALS[m.slot] || m.slot)}${m.cook === false ? ' · z poprzedniego dnia' : (m.batch > 1 ? ' · gotujesz na 2 dni' : '')}</span>${m.cook !== false && m.slot === 'obiad' ? `<span class="sub">ugotuj ${String((m.batch || 1) * (m.mult || 1)).replace('.', ',')} ${plural((m.batch || 1) * (m.mult || 1), 'porcję', 'porcje', 'porcji')} (przepis jest na ${m.recipe.portions})</span>` : ''}<span class="name" style="font-size:15px">${esc(m.recipe.name)}</span><span class="sub">${Math.round((nutrition(m.recipe).kcal || 0) * (m.mult || 1))} kcal · ${fmt(recipeCost(c, m.recipe).perPortion * (m.mult || 1))} zł</span></span></button>` +
+      `<button class="pill ${m.mult && m.mult !== 1 ? 'dark' : ''}" data-act="mult" data-arg="${m.idx}" aria-label="Wielkość porcji" style="background:${m.mult && m.mult !== 1 ? 'var(--ink)' : 'var(--paper)'};color:${m.mult && m.mult !== 1 ? 'var(--paper)' : 'var(--ink)'}">×${String(m.mult || 1).replace('.', ',')}</button>` +
       `<button class="sq" style="width:38px;height:38px;border:0" data-act="rm" data-arg="${m.idx}" aria-label="Usuń z planu">${ui('trash', 16)}</button></div>`).join('');
 
     const trips = (st.trips || []).filter((tr) => tr.date >= t).slice(0, 6);
@@ -131,6 +132,16 @@ export default {
       c.render();
     },
     composer(c) { c.go('composer'); },
+    mult(c, idx) {
+      const m = (c.state.plan[c.params.sel] || [])[Number(idx)];
+      if (!m) return;
+      const steps = [1, 1.5, 2, 0.5];
+      m.mult = steps[(steps.indexOf(m.mult || 1) + 1) % steps.length];
+      if (m.mult === 1) delete m.mult;
+      c.save();
+      c.render();
+      c.toast(m.mult ? `Porcja ×${String(m.mult).replace('.', ',')}` : 'Zwykła porcja');
+    },
     trip(c, i) {
       const t = today();
       const tr = (c.state.trips || []).filter((x) => x.date >= t)[Number(i)];
