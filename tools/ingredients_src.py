@@ -155,7 +155,7 @@ I = {
     "mleko_kokosowe": dict(name="Mleczko kokosowe", icon="can", cat="konserwy",
                            usda="Nuts, coconut milk, canned (liquid expressed from grated meat and water)",
                            n=[197, 2.0, 21.3, 2.8, 0.0, 0.03], kg=15.0, est=True, pkg=400, kw=["mleczko kokosowe", "mleko kokosowe"]),
-    "sos_sojowy": dict(name="Sos sojowy", icon="bottle", cat="sosy i dodatki", usda="Soy sauce made from soy and wheat (shoyu)",
+    "sos_sojowy": dict(name="Sos sojowy", icon="soy", cat="sosy i dodatki", usda="Soy sauce made from soy and wheat (shoyu)",
                        n=[53, 8.1, 0.6, 4.9, 0.8, 14.1], kg=33.0, est=True, pkg=150, pantry=True, flags=["gluten"], kw=["sos sojowy"]),
     "pasta_curry": dict(name="Zielona pasta curry", icon="jar", cat="sosy i dodatki", usda=None,
                         n=[120, 2.0, 7.0, 12.0, 4.0, 12.0], src="typowa etykieta pasty curry", kg=100.0, est=True, pkg=50,
@@ -297,7 +297,7 @@ I.update({
                        n=[47, 0.9, 0.1, 11.8, 2.4, 0.0], kg=6.0, est=True, pkg=None, piece=180, kw=["pomarancz"]),
     "rodzynki": dict(name="Rodzynki", icon="nut", cat="bakalie", usda="Raisins, seedless",
                      n=[299, 3.1, 0.5, 79.2, 3.7, 0.03], kg=25.0, est=True, pkg=100, kw=["rodzynki"]),
-    "ananas": dict(name="Ananas z puszki", icon="can", cat="konserwy", usda="Pineapple, canned, juice pack, solids and liquids",
+    "ananas": dict(name="Ananas z puszki", icon="pineapple", cat="konserwy", usda="Pineapple, canned, juice pack, solids and liquids",
                    n=[60, 0.4, 0.1, 15.7, 0.8, 0.0], kg=12.0, est=True, pkg=565, kw=["ananas"]),
     "owoce_lesne": dict(name="Owoce leśne mrożone", icon="apple", cat="mrożonki", usda="Blueberries, frozen, unsweetened",
                         n=[51, 0.4, 0.6, 12.2, 2.7, 0.0], kg=15.0, est=True, pkg=450, kw=["owoce lesne", "jagody", "borowki"]),
@@ -367,7 +367,7 @@ I.update({
 I.update({
     "kimchi": dict(name="Kimchi", icon="cabbage", cat="warzywa", usda=None, n=[15, 1.1, 0.5, 2.4, 1.6, 1.5],
                    src="typowa etykieta kimchi", kg=40.0, est=True, pkg=300, kw=["kimchi"]),
-    "nori": dict(name="Glony nori", icon="leaf", cat="sosy i dodatki", usda=None, n=[300, 40.0, 4.0, 40.0, 30.0, 2.0],
+    "nori": dict(name="Glony nori", icon="seaweed", cat="sosy i dodatki", usda=None, n=[300, 40.0, 4.0, 40.0, 30.0, 2.0],
                  src="typowa etykieta suszonych glonów nori", kg=600.0, est=True, pkg=10, kw=["nori"]),
     "kielki": dict(name="Kiełki fasoli mung", icon="sprout", cat="warzywa", usda="Mung beans, mature seeds, sprouted, raw",
                    n=[30, 3.0, 0.2, 5.9, 1.8, 0.02], kg=25.0, est=True, pkg=200, kw=["kielki"]),
@@ -383,7 +383,7 @@ I.update({
                     n=[579, 21.2, 49.9, 21.6, 12.5, 0.0], kg=50.0, est=True, pkg=100, flags=["nuts"], kw=["migdaly"]),
     "maka_kukurydziana": dict(name="Mąka kukurydziana", icon="corn", cat="do pieczenia", usda="Cornmeal, degermed, enriched, yellow",
                               n=[370, 7.1, 1.8, 79.5, 3.9, 0.01], kg=8.0, est=True, pkg=500, kw=["maka kukurydziana", "kasza kukurydziana", "polenta"]),
-    "hoisin": dict(name="Sos hoisin", icon="bottle", cat="sosy i dodatki", usda="Sauce, hoisin, ready-to-serve",
+    "hoisin": dict(name="Sos hoisin", icon="soy", cat="sosy i dodatki", usda="Sauce, hoisin, ready-to-serve",
                    n=[220, 3.3, 3.4, 44.1, 2.8, 4.4], kg=50.0, est=True, pkg=200, kw=["hoisin"]),
     "paneer": dict(name="Ser paneer albo do smażenia", icon="cheese", cat="nabiał", usda=None, n=[321, 21.4, 25.0, 3.6, 0.0, 0.05],
                    src="typowa etykieta sera paneer", kg=50.0, est=True, pkg=200, flags=["dairy"], kw=["paneer", "ser do smazenia", "halloumi"]),
@@ -401,4 +401,17 @@ I.update({
 I.update({
     "kasza_manna": dict(name="Kasza manna", icon="grain", cat="makarony i kasze", usda="Semolina, enriched",
                         n=[360, 12.7, 1.1, 72.8, 3.9, 0.0], kg=6.0, est=True, pkg=500, flags=["gluten"], kw=["kasza manna", "semolina"]),
+})
+
+I.update({
+    "maka_ciecierzycowa": dict(name="Mąka z ciecierzycy", icon="flour", cat="do pieczenia", usda="Chickpea flour (besan)",
+                               n=[387, 22.4, 6.7, 57.8, 10.8, 0.16], kg=16.0, est=True, pkg=500,
+                               kw=["maka z ciecierzycy", "maka ciecierzycowa", "besan"]),
+    "maka_ryzowa": dict(name="Mąka ryżowa", icon="flour", cat="do pieczenia", usda="Rice flour, white, unenriched",
+                        n=[366, 6.0, 1.4, 80.1, 2.4, 0.0], kg=14.0, est=True, pkg=500, kw=["maka ryzowa"]),
+    "garam_masala": dict(name="Garam masala", icon="jar", cat="przyprawy", usda=None, n=[379, 14.0, 15.0, 50.0, 30.0, 0.2],
+                         src="typowa etykieta mieszanki garam masala", kg=150.0, est=True, pkg=20, pantry=True,
+                         kw=["garam masala"]),
+    "gorczyca": dict(name="Gorczyca (nasiona)", icon="jar", cat="przyprawy", usda="Spices, mustard seed, ground",
+                     n=[508, 26.1, 36.2, 28.1, 12.2, 0.03], kg=60.0, est=True, pkg=30, pantry=True, kw=["gorczyca"]),
 })
