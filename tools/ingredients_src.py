@@ -441,3 +441,8 @@ I.update({
     "pestki_dyni": dict(name="Pestki dyni", icon="nut", cat="bakalie", usda="Seeds, pumpkin and squash seed kernels, dried",
                         n=[559, 30.2, 49.1, 10.7, 6.0, 0.02], kg=40.0, est=True, pkg=100, kw=["pestki dyni"]),
 })
+
+I.update({
+    "bajgle": dict(name="Bajgle", icon="bread", cat="pieczywo", usda=None, n=[260, 10.0, 1.6, 50.0, 2.5, 1.1],
+                   src="typowa etykieta bajgli", kg=20.0, est=True, pkg=340, flags=["gluten"], kw=["bajgle", "bajgiel"]),
+})
