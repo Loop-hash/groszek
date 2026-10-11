@@ -3,6 +3,7 @@ import { status, fmt, today, addDays, r2, dayLabel } from '../budget.js';
 import { ui } from '../pixels.js';
 import { esc, topbar, chip, plural } from '../ui.js';
 import { uid } from '../store.js';
+import { readReceipt } from '../receipt.js';
 
 const SHOPS = ['Biedronka', 'Lidl', 'Kaufland', 'Aldi', 'Żabka', 'Inny'];
 
@@ -33,6 +34,38 @@ function init(c) {
   p.note = '';
 }
 
+async function scan(c, file) {
+  const STATUS = { 'loading tesseract core': 'wczytuję czytnik', 'initializing tesseract': 'uruchamiam czytnik', 'loading language traineddata': 'wczytuję język polski',
+    'initializing api': 'uruchamiam czytnik', 'recognizing text': 'czytam tekst', 'przygotowuję zdjęcie': 'przygotowuję zdjęcie' };
+  const cfg = {
+    mascot: 'pea',
+    render: () => '<h2>Czytam paragon…</h2><p id="ocr-status">przygotowuję zdjęcie</p><div class="bar"><div class="fill" id="ocr-bar" style="width:3%"></div></div>' +
+      '<p class="tiny">Pierwszy raz trwa dłużej, bo wczytuję słownik. Wszystko dzieje się w telefonie, bez internetu.</p>',
+    actions: {},
+  };
+  c.sheet(cfg);
+  try {
+    const res = await readReceipt(file, (m) => {
+      const st = document.getElementById('ocr-status');
+      const bar = document.getElementById('ocr-bar');
+      if (st) st.textContent = STATUS[m.status] || m.status;
+      if (bar && m.status === 'recognizing text') bar.style.width = Math.max(5, Math.round((m.progress || 0) * 100)) + '%';
+    });
+    if (c.app.sheetCfg !== cfg) return; // ktoś zamknął arkusz
+    c.closeSheet(true);
+    const p = c.params;
+    p.ocr = { total: res.total, candidates: res.candidates, store: res.store, date: res.date };
+    if (res.total != null) p.amount = String(res.total.toFixed(2)).replace('.', ',');
+    if (res.store) p.store = SHOPS.includes(res.store) ? res.store : 'Inny';
+    if (res.date && res.date <= today() && res.date >= addDays(today(), -30)) p.date = res.date;
+    c.render();
+    c.peek(res.total != null ? `Odczytałem ${fmt(res.total)} zł. Sprawdź i zapisz!` : 'Nie widzę sumy. Wpisz ją ręcznie.', res.total != null ? 'happy' : 'worried');
+  } catch (e) {
+    if (c.app.sheetCfg === cfg) c.closeSheet(true);
+    c.toast('Nie udało się odczytać: ' + (e && e.message ? e.message : e));
+  }
+}
+
 export default {
   render(c) {
     init(c);
@@ -55,8 +88,16 @@ export default {
     if (![t, addDays(t, -1), addDays(t, -2)].includes(p.date)) dateChips.push(chip('date', dayLabel(p.date), true, p.date));
 
     const right = p.id ? `<button class="sq" data-act="del" aria-label="Usuń wydatek">${ui('trash', 22)}</button>` : undefined;
+    const ocr = p.ocr;
+    const ocrCard = ocr ? `<div class="card ${ocr.total != null ? '' : 'dashed'} stack" style="gap:8px">
+        <div class="row">${ui('receipt', 20)}<b class="grow">${ocr.total != null ? 'Odczytane z paragonu' : 'Nie znalazłem sumy na paragonie'}</b></div>
+        <span class="small muted">${ocr.total != null ? `Suma ${fmt(ocr.total)} zł${ocr.store ? ' · ' + esc(ocr.store) : ''}${ocr.date ? ' · ' + esc(dayLabel(ocr.date)) : ''}. Sprawdź, czy się zgadza.` : 'Wpisz kwotę ręcznie albo wybierz jedną z odczytanych:'}</span>
+        ${ocr.candidates.length ? `${ocr.total != null ? '<span class="small">Inna kwota?</span>' : ''}<div class="wrap">${ocr.candidates.map((a) => `<button class="chip" data-act="cand" data-arg="${a}">${fmt(a)} zł</button>`).join('')}</div>` : ''}
+      </div>` : '';
     return `
       ${topbar(p.id ? 'Popraw wydatek' : 'Nowy wydatek', '', { right })}
+      ${p.id ? '' : `<div class="row"><button class="btn small grow" data-act="photo" data-arg="camera">${ui('camera', 16)} Zrób zdjęcie</button><button class="btn small grow" data-act="photo" data-arg="gallery">${ui('gallery', 16)} Z galerii</button></div>`}
+      ${ocrCard}
       <div class="stack" style="gap:6px;padding-top:6px">
         <div class="amount" aria-live="polite">${esc(shown)}<small> zł</small></div>
         <div class="center small muted">kwota z paragonu</div>
@@ -82,6 +123,24 @@ export default {
   },
 
   actions: {
+    photo(c, kind) {
+      const inp = document.createElement('input');
+      inp.type = 'file';
+      inp.accept = 'image/*';
+      if (kind === 'camera') inp.setAttribute('capture', 'environment');
+      inp.style.display = 'none';
+      document.body.appendChild(inp);
+      inp.onchange = () => {
+        const f = inp.files && inp.files[0];
+        inp.remove();
+        if (f) scan(c, f);
+      };
+      inp.click();
+    },
+    cand(c, a) {
+      c.params.amount = String(a).replace('.', ',');
+      c.render();
+    },
     key(c, k) {
       const p = c.params;
       let a = p.amount || '';

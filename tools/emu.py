@@ -34,7 +34,20 @@ def shot(name):
     log("zrzut", name)
 
 
+def dismiss_anr():
+    # emulator bywa zamulony i pokazuje "... isn't responding" od launchera
+    xml = sh("adb shell uiautomator dump /sdcard/ui.xml && adb shell cat /sdcard/ui.xml", timeout=40)
+    if "isn't responding" in xml or "nie odpowiada" in xml:
+        m = re.search(r'text="Wait"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', xml)
+        if m:
+            x1, y1, x2, y2 = map(int, m.groups())
+            sh(f"adb shell input tap {(x1 + x2) // 2} {(y1 + y2) // 2}")
+            log("zamknięto okno ANR")
+            time.sleep(2)
+
+
 def nodes(save=None):
+    dismiss_anr()
     sh("adb shell uiautomator dump /sdcard/ui.xml", timeout=40)
     xml = sh("adb shell cat /sdcard/ui.xml")
     if save:
@@ -99,6 +112,9 @@ def typ(s):
 
 def main():
     log(sh("adb install -r groszek.apk", timeout=180))
+    time.sleep(40)  # niech launcher się rozkręci po starcie emulatora
+    sh("adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS")
+    dismiss_anr()
     sh("adb logcat -c")
     sh("adb shell am start -n pl.groszek.app/.MainActivity")
     time.sleep(15)

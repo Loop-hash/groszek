@@ -12,6 +12,8 @@ const plugins = {};
 export function plugin(name) {
   if (!native()) return null;
   if (plugins[name]) return plugins[name];
+  const known = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins[name];
+  if (known) { plugins[name] = known; return known; }
   const reg = (window.Capacitor && window.Capacitor.registerPlugin) || (window.capacitorExports && window.capacitorExports.registerPlugin);
   if (!reg) { console.error('Brak registerPlugin, wtyczka ' + name + ' niedostępna'); return null; }
   try { plugins[name] = reg(name); } catch (e) { console.error('Wtyczka ' + name + ': ' + e.message); return null; }

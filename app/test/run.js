@@ -80,6 +80,18 @@ await t('kolejność dopasowań', () => {
   assert.deepEqual(m.map((x) => x.id), ['b', 'a', 'c']);
 });
 
+await t('odczyt paragonu z tekstu', async () => {
+  const { parseReceipt } = await import('../www/js/receipt.js');
+  const a = parseReceipt(`JERONIMO MARTINS POLSKA S.A.\nBiedronka nr 1234\n2026-10-11 nr wydr. 123\nPARAGON FISKALNY\nMleko 2% 1 x3,99 3,99C\nChleb 1 x4,49 4,49C\nSPRZEDAZ OPODATK. C 8,48\nPTU C 5% 0,40\nSUMA PTU 0,40\nSUMA PLN 8,48\nKarta płatnicza 8,48`);
+  assert.equal(a.total, 8.48); assert.equal(a.store, 'Biedronka'); assert.equal(a.date, '2026-10-11');
+  const b = parseReceipt('Lidl sp. z o.o. sp. k.\n11.10.2026 18:22\nMasło 2,49 A\nDo zapłaty 12, 35\n');
+  assert.equal(b.total, 12.35); assert.equal(b.store, 'Lidl'); assert.equal(b.date, '2026-10-11');
+  const c2 = parseReceipt('KAUFLAND\nSUNA PLN 45.10\n');
+  assert.equal(c2.total, 45.1);
+  const d = parseReceipt('coś tam 3,50\ninne 12,00\n');
+  assert.equal(d.total, 12); assert.deepEqual(d.candidates, [3.5]);
+});
+
 const extra = await import('./more.js').catch((e) => (e.code === 'ERR_MODULE_NOT_FOUND' ? null : Promise.reject(e)));
 if (extra) await extra.default(t, assert);
 
