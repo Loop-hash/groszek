@@ -207,6 +207,36 @@ def main():
     shot("13-po-restarcie")
     screen_has("wydane 125,00")
 
+    # zdjęcie paragonu z galerii: wrzuć testowy paragon do telefonu i odczytaj
+    sh("adb push tools/test-paragon.jpg /sdcard/Pictures/paragon.jpg")
+    sh("adb shell content call --uri content://media/ --method scan_volume --arg external_primary")
+    time.sleep(3)
+    tap_text("Dodaj wydatek")
+    time.sleep(1.5)
+    tap_text("Z galerii")
+    time.sleep(4)
+    shot("15-wybor-zdjecia")
+    ns = nodes("15-wybor-zdjecia")
+    pick = [n for n in ns if "paragon" in (n["text"] + n["desc"]).lower()] or \
+        [n for n in ns if re.match(r"(photo|zdjęcie|image)", n["desc"], re.I)] or \
+        [n for n in ns if n["cls"].endswith("ImageView") and n["w"] > 150 and n["y"] > 300]
+    if pick:
+        sh(f"adb shell input tap {pick[0]['x']} {pick[0]['y']}")
+        log("wybrano zdjęcie", pick[0])
+        time.sleep(3)
+        for t in ["Done", "Gotowe", "Wybierz", "Select"]:
+            if screen_has(t):
+                tap_text(t, exact=True)
+                break
+        time.sleep(20)
+        shot("16-odczyt-paragonu")
+        screen_has("Odczytane z paragonu")
+        screen_has("35,25")
+    else:
+        log("nie znalazłem zdjęcia w wyborze")
+    back()
+    back()
+
     sh("adb shell cmd uimode night yes")
     time.sleep(4)
     shot("14-ciemny")
