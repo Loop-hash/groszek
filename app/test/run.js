@@ -88,6 +88,8 @@ await t('odczyt paragonu z tekstu', async () => {
   assert.equal(b.total, 12.35); assert.equal(b.store, 'Lidl'); assert.equal(b.date, '2026-10-11');
   const c2 = parseReceipt('KAUFLAND\nSUNA PLN 45.10\n');
   assert.equal(c2.total, 45.1);
+  assert.equal(parseReceipt('SUMA PLN 3O,25\n').total, 30.25);
+  assert.equal(parseReceipt('SUMA PLN 35 25\n').total, 35.25);
   const d = parseReceipt('coś tam 3,50\ninne 12,00\n');
   assert.equal(d.total, 12); assert.deepEqual(d.candidates, [3.5]);
 });

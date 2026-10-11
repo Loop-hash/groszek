@@ -121,6 +121,11 @@ function amounts(line) {
   return out;
 }
 
+// W wyrazach z cyframi OCR myli O z 0, I/l z 1, S z 5, B z 8.
+function fixDigits(line) {
+  return line.replace(/\S+/g, (w) => (/\d/.test(w) ? w.replace(/[OQ]/g, '0').replace(/[IL|]/g, '1').replace(/S/g, '5').replace(/B/g, '8') : w));
+}
+
 function up(s) {
   return s.toUpperCase().replace(/[ĄĆĘŁŃÓŚŹŻ]/g, (ch) => ({ Ą: 'A', Ć: 'C', Ę: 'E', Ł: 'L', Ń: 'N', Ó: 'O', Ś: 'S', Ź: 'Z', Ż: 'Z' }[ch]));
 }
@@ -134,7 +139,12 @@ export function parseReceipt(text) {
   const sumRe = /(^|[^A-Z])[S5][UV][MN]A\b|SUMA|DO ZAPLATY|RAZEM DO ZAPLATY/;
   for (let i = 0; i < U.length && total == null; i++) {
     if (!sumRe.test(U[i]) || /PTU|VAT|SPRZEDAZ OPODATK|RABAT|OSZCZ/.test(U[i])) continue;
-    const a = amounts(U[i]);
+    const a = amounts(fixDigits(U[i]));
+    if (!a.length) {
+      // "SUMA PLN 35 25" (OCR zgubił przecinek)
+      const m = /(\d{1,4})\s(\d{2})\s*$/.exec(fixDigits(U[i]));
+      if (m) a.push(Number(m[1] + '.' + m[2]));
+    }
     if (a.length) { total = a[a.length - 1]; how = 'suma'; break; }
     const next = U[i + 1] ? amounts(U[i + 1]) : [];
     if (next.length) { total = next[next.length - 1]; how = 'suma'; }
