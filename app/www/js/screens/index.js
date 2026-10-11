@@ -6,11 +6,10 @@ import promos from './promos.js';
 import settings from './settings.js';
 import level from './level.js';
 import onboarding from './onboarding.js';
-import { soon } from './soon.js';
+import recipes from './recipes.js';
+import recipe from './recipe.js';
+import recipeEdit from './recipeEdit.js';
+import planner from './planner.js';
+import composer from './composer.js';
 
-export const screens = {
-  home, add, history, list, promos, settings, level, onboarding,
-  recipes: soon('Przepisy', 'Przepisy dojadą w następnej wersji, jeszcze dziś. Apka sama zaproponuje aktualizację.'),
-  recipe: soon('Przepis', 'Przepisy dojadą w następnej wersji.'),
-  planner: soon('Planer', 'Planer z kaloriami i układanie miesiąca dojadą w następnej wersji, jeszcze dziś.'),
-};
+export const screens = { home, add, history, list, promos, settings, level, onboarding, recipes, recipe, recipeEdit, planner, composer };

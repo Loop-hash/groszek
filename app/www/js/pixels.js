@@ -159,7 +159,7 @@ export function recipeIcon(icon, size, cls = 'ico') {
   const b = icon && icon.badge ? FOOD[icon.badge] : null;
   let badge = '';
   if (b) {
-    badge = `<g transform="translate(9.6 9.6) scale(0.53)"><rect x="-1" y="-1" width="14" height="14" rx="3" class="px-paper"/>` +
+    badge = `<g transform="translate(8.7 8.7) scale(0.5)"><rect x="-1" y="-1" width="14" height="14" rx="3" class="px-paper"/>` +
       `<rect x="-1" y="-1" width="14" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.4" class="badge-ring"/>` +
       `<path class="px-ink" d="${pathOf(b, '#')}"/></g>`;
   }

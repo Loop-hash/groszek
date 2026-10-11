@@ -270,3 +270,6 @@ details.more > .stack { padding: 12px 0 14px; }
 .status-pill { font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
 button.card { background: var(--paper); color: var(--ink); }
 button.card.dark, .item-main.card.dark { background: var(--ink); color: var(--paper); }
+details.more > summary .pixel { white-space: nowrap; flex: none; }
+details.more > summary { gap: 10px; }
+.cal .day { font-size: 14px; }
