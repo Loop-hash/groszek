@@ -55,7 +55,7 @@ RECIPES = [
          "Posyp natką, podawaj z ziemniakami."]),
     D("es-croquetas", "Croquetas z szynką", ("patties", "sausage"), 3, 70, P, KOL, [
         ("maslo", 60), ("maka", 100), ("mleko", 600), ("szynka", 150), ("cebula", 55), ("jajka", 100), ("bulka_tarta", 100),
-        ("olej", 100), ("sol", 2)],
+        ("olej", 40, "do smażenia"), ("sol", 2)],
         ["Na maśle podsmaż cebulę i szynkę, wsyp mąkę i smaż minutę.",
          "Wlewaj mleko, mieszając, aż masa będzie bardzo gęsta. Przełóż i ostudź w lodówce 2 godziny.",
          "Formuj małe wałeczki, obtocz w jajku i bułce tartej.",
@@ -99,13 +99,13 @@ RECIPES = [
          "Na talerz: ryż, sos, jajko sadzone i smażony banan."],
         "Brzmi dziwnie, smakuje świetnie. W Hiszpanii je się to od pokoleń."),
     D("es-churros", "Churros z gorącą czekoladą", ("fries", "candy"), 2, 30, P, SN, [
-        ("maka", 150), ("olej", 100), ("cukier", 40), ("cynamon", 2), ("sol", 1), ("mleko", 400), ("kakao", 25), ("skrobia", 10)],
+        ("maka", 150), ("olej", 40, "do smażenia"), ("cukier", 40), ("cynamon", 2), ("sol", 1), ("mleko", 400), ("kakao", 25), ("skrobia", 10)],
         ["Zagotuj 250 ml wody z solą, wsyp mąkę i mieszaj, aż powstanie gładka kula.",
          "Przełóż do woreczka z uciętym rogiem (albo szprycy) i wyciskaj paski na gorący olej.",
          "Smaż na złoto, obtocz w cukrze z cynamonem.",
          "Czekolada: mleko zagotuj z kakao, cukrem i skrobią, aż zgęstnieje."]),
     D("es-berenjenas", "Smażony bakłażan z miodem", ("fries", "eggplant"), 2, 30, P, KOL, [
-        ("baklazan", 600), ("maka", 60), ("mleko", 100), ("olej", 80), ("miod", 30), ("sol", 3), ("bagietka", 150)],
+        ("baklazan", 600), ("maka", 60), ("mleko", 100), ("olej", 40, "do smażenia"), ("miod", 30), ("sol", 3), ("bagietka", 150)],
         ["Bakłażana pokrój w cienkie słupki, namocz w mleku na 15 minut.",
          "Obtocz w mące z solą.",
          "Smaż na gorącym oleju, aż będzie chrupiący.",

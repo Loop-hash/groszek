@@ -309,7 +309,7 @@ RECIPES = [
          "Posyp pokruszoną fetą i oregano, skrop cytryną.",
          "Maczaj w jogurcie. Klasyk greckich tawern."]),
     D("gr-loukoumades", "Loukoumades, pączuszki z miodem", ("cake", "nut"), 3, 90, P, SN, [
-        ("maka", 250), ("drozdze", 7), ("cukier", 10), ("olej", 100), ("miod", 60), ("cynamon", 2), ("orzechy_wloskie", 30), ("sol", 1)],
+        ("maka", 250), ("drozdze", 7), ("cukier", 10), ("olej", 40, "do smażenia"), ("miod", 60), ("cynamon", 2), ("orzechy_wloskie", 30), ("sol", 1)],
         ["Mąkę wymieszaj z drożdżami, cukrem, solą i 250 ml ciepłej wody na gęste, lepkie ciasto. Odstaw na godzinę.",
          "Nabieraj łyżką zamoczoną w oleju i wrzucaj na gorący olej.",
          "Smaż, obracając, aż będą złote.",

@@ -145,7 +145,7 @@ RECIPES = [
          "Jedz z bagietką."]),
     D("it-arancini", "Arancini, kulki z ryżu", ("meatballs", "rice"), 3, 60, P, OK, [
         ("ryz_risotto", 250), ("parmezan", 40), ("mozzarella", 125), ("jajka", 100), ("bulka_tarta", 80), ("maka", 30), ("bulion", 10),
-        ("passata", 300), ("olej", 100), ("sol", 2)],
+        ("passata", 300), ("olej", 40, "do smażenia"), ("sol", 2)],
         ["Ugotuj ryż w bulionie jak risotto, wmieszaj parmezan i ostudź.",
          "Formuj kule z kawałkiem mozzarelli w środku.",
          "Obtocz w mące, jajku i bułce tartej.",
