@@ -392,3 +392,8 @@ I.update({
     "ryz_jasminowy": dict(name="Ryż jaśminowy", icon="rice", cat="makarony i kasze", usda="Rice, white, long-grain, regular, raw, enriched",
                           n=[365, 7.1, 0.7, 80.0, 1.3, 0.01], kg=10.0, est=True, pkg=1000, kw=["ryz jasminowy"]),
 })
+
+I.update({
+    "bob": dict(name="Bób mrożony", icon="beans", cat="mrożonki", usda="Broadbeans, immature seeds, raw",
+                n=[72, 5.6, 0.6, 11.7, 4.2, 0.13], kg=14.0, est=True, pkg=450, kw=["bob"]),
+})
