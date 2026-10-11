@@ -1,0 +1,23 @@
+{
+  "name": "groszek",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Groszek: bud\u017cet na jedzenie, promocje, przepisy i plan miesi\u0105ca",
+  "scripts": {
+    "test": "node test/run.js"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.2",
+    "@capacitor/app": "8.1.1",
+    "@capacitor/core": "8.5.2",
+    "@capacitor/filesystem": "8.1.3",
+    "@capacitor/preferences": "8.0.1",
+    "@capacitor/share": "8.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.2",
+    "@fontsource/bricolage-grotesque": "^5.3.0",
+    "@fontsource/pixelify-sans": "^5.3.0"
+  },
+  "type": "module"
+}

@@ -1,0 +1,8 @@
+{
+  "appId": "pl.groszek.app",
+  "appName": "Groszek",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#FAFAF7"
+  }
+}
