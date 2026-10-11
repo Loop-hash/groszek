@@ -357,3 +357,8 @@ I.update({
     "kminek": dict(name="Kminek", icon="jar", cat="przyprawy", usda="Spices, caraway seed",
                    n=[333, 19.8, 14.6, 49.9, 38.0, 0.04], kg=100.0, est=True, pkg=20, pantry=True, kw=["kminek"]),
 })
+
+I.update({
+    "schab": dict(name="Schab bez kości", icon="mince", cat="mięso", usda=None, n=[172, 21.0, 9.5, 0.0, 0.0, 0.13],
+                  src="typowe wartości dla schabu wieprzowego", kg=22.0, est=True, pkg=500, flags=["meat", "pork", "wholecut"], kw=["schab"]),
+})

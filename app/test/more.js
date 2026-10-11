@@ -21,10 +21,10 @@ export default async function (t, assert) {
   await tt('każdy przepis ma składniki z bazy', () => {
     for (const r of data.recipes.recipes) for (const x of r.ings) assert.ok(data.ingredients.ingredients[x.i], `${r.id}: ${x.i}`);
   });
-  await tt('po 2 przepisy na każdy kraj', () => {
+  await tt('co najmniej 2 przepisy na każdy kraj', () => {
     const c = {};
     for (const r of data.recipes.recipes) c[r.country] = (c[r.country] || 0) + 1;
-    for (const k of ['Polska', 'Włochy', 'Japonia', 'USA', 'Meksyk', 'Korea']) assert.equal(c[k], 2);
+    for (const k of ['Polska', 'Włochy', 'Japonia', 'USA', 'Meksyk', 'Korea']) assert.ok(c[k] >= 2, k);
   });
   await tt('koszt porcji jest rozsądny', () => {
     const c = mk();

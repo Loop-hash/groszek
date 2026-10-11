@@ -214,9 +214,12 @@ function composeOnce(c, opts, varied) {
     cooks.sort((a, b) => val(b.r) * (b.m.batch || 1) * (b.m.mult || 1) - val(a.r) * (a.m.batch || 1) * (a.m.mult || 1));
     for (const ck of cooks) {
       const cur = val(ck.r);
-      const pool = pools[ck.m.slot].filter((x) => val(x) < cur * 0.85);
-      if (!pool.length) continue;
       const idx = dates.indexOf(ck.d);
+      // nigdy to samo danie dzień po dniu (poza gotowaniem na 2 dni)
+      const adj = new Set([dates[idx - 1], dates[idx + (ck.m.batch || 1)]].filter(Boolean)
+        .flatMap((d) => plan[d].filter((m) => m.slot === ck.m.slot).map((m) => m.id)));
+      const pool = pools[ck.m.slot].filter((x) => val(x) < cur * 0.85 && !adj.has(x.id));
+      if (!pool.length) continue;
       const near = new Set(dates.slice(Math.max(0, idx - 3), idx + 4).flatMap((d) => plan[d].map((m) => m.id)));
       // śniadania i kolacje: bez tej samej "bazy" dzień przed i dzień po (np. owsianka po owsiance)
       const famNear = ck.m.slot === 'obiad' || !varied ? new Set() : new Set([dates[idx - 1], dates[idx + 1]].filter(Boolean)
