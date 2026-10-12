@@ -208,6 +208,497 @@ def ando(c):
     ])
 
 
+
+# ---------- pomocnicze dla rekwizytów ----------
+
+def is_happy(c):
+    """Nastrój happy ma ręce w górze."""
+    return c[OY + 9][OX] == "#"
+
+
+def drop_arm(c, side):
+    """Usuwa podniesioną rękę (happy), gdy ta ręka trzyma rekwizyt."""
+    if side == "r":
+        clear(c, OX + 20, OY + 9, OX + 23, OY + 12)
+        c[OY + 13][OX + 20] = "."
+    else:
+        clear(c, OX, OY + 9, OX + 3, OY + 12)
+        c[OY + 13][OX + 3] = "."
+
+
+def arms_up(c):
+    """Ręce w górze (jak w nastroju happy) w każdym nastroju."""
+    put(c, OX, OY + 9, ["##", "##", ".#", "..#"])
+    put(c, OX + 20, OY + 9, ["..##", "..##", "..#.", ".#.."])
+
+
+def fill_rows(c, y0, y1, ch, x0=0, x1=W - 1):
+    for y in range(y0, y1 + 1):
+        interior(c, y, ch, x0, x1)
+
+
+# ---------- szkice 16 nowych przebrań ----------
+
+def kopernik(c):
+    """Polska: Kopernik z włosami do ramion i modelem Układu Słonecznego na kiju."""
+    sprout_off(c)
+    drop_arm(c, "r")
+    put(c, 7, 15, [
+        ".....########.....",
+        "....##########....",
+        "...############...",
+        "..##############..",
+        ".################.",
+        "###............###",
+        "##..............##",
+        "##..............##",
+        "##..............##",
+        "##..............##",
+        "##..............##",
+        "##..............##",
+        "##..............##",
+        ".#..............#.",
+    ])
+    put(c, 19, 0, [
+        "....#####....",
+        "..##.....##..",
+        ".#..#.#.#..#.",
+        "##...rrr...#.",
+        "###.#rrr#...#",
+        "##...rrr...#.",
+        ".#..#.#.#..#.",
+        "..##.....##..",
+        "....#####....",
+    ])
+    for y in range(9, 27):
+        c[y][25] = "#"
+    put(c, 24, 26, ["##"])
+
+
+def cezar(c):
+    """Włochy: Juliusz Cezar w wieńcu laurowym, z miską sałatki Cezar."""
+    sprout_off(c)
+    drop_arm(c, "r")
+    # gałązka wieńca biegnie tuż nad konturem głowy, listki co drugi piksel
+    laurel = [(8, 22), (8, 21), (8, 20), (8, 19), (9, 18), (10, 17), (11, 16), (12, 16), (13, 15)]
+    for sx, stem in ((-1, laurel), (1, [(W - 1 - x, y) for x, y in laurel])):
+        for i, (x, y) in enumerate(stem):
+            c[y][x] = "#"
+            if i % 2 == 0:
+                for d in (1, 2):
+                    if c[y - d][x + d * sx] == ".":
+                        c[y - d][x + d * sx] = "#"
+    put(c, 24, 26, ["##"])
+    put(c, 24, 19, [
+        ".##..##.",
+        "#oo##oo#",
+        "#o#oo#o#",
+        "########",
+        "#oooooo#",
+        "#oooooo#",
+        ".#oooo#.",
+        "..####..",
+    ])
+
+
+def donkichot(c):
+    """Hiszpania: Don Kichot z miednicą golibrody na głowie i kopią z proporcem."""
+    sprout_off(c)
+    put(c, 6, 11, [
+        "......######......",
+        "....##oooo#o##....",
+        "...#oooooooo#o#...",
+        "..#oooooooooooo#..",
+        "##################",
+        "......#....#......",
+    ])
+    for y in range(3, 37):
+        c[y][3] = "#"
+    put(c, 4, 3, ["rrrr", "rrr.", "rr..", "r..."])
+    if not is_happy(c):
+        put(c, 4, 26, ["####"])
+
+
+def beethoven(c):
+    """Niemcy: Beethoven z rozwichrzoną czupryną, dyryguje batutą."""
+    sprout_off(c)
+    drop_arm(c, "r")
+    put(c, 5, 10, [
+        "......#...#..#........",
+        "...#..##.##.##..#.....",
+        "....######.#######.#..",
+        ".#.################...",
+        "..##################.#",
+        "#####################.",
+        ".####################.",
+        "######################",
+        ".#####o#oo#oo#oo#####.",
+        "#####............#####",
+        ".###..............###.",
+        "###................###",
+        ".#..................#.",
+    ])
+    put(c, 24, 13, [
+        "......#",
+        ".....#.",
+        "....#..",
+        "...#...",
+        "..#....",
+        ".##....",
+        "##.....",
+        "#......",
+        "#......",
+        "#......",
+        "#......",
+        "##.....",
+    ])
+    put(c, 26, 3, ["..##", "..#.", "..#.", "###.", "##.."])
+
+
+def houdini(c):
+    """Węgry: Houdini z przedziałkiem, opleciony łańcuchem z czerwoną kłódką."""
+    sprout_off(c)
+    put(c, 10, 15, [
+        "...######...",
+        ".####oo####.",
+        "#####oo#####",
+        "####....####",
+    ])
+    put(c, 5, 27, [
+        ".##....##....##....##..",
+        "#oo####oo####oo####oo#.",
+        ".##....##....##....##..",
+    ])
+    put(c, 13, 29, [
+        ".####.",
+        "#o..o#",
+        "rrrrrr",
+        "rrorrr",
+        "rrorrr",
+        "rrrrrr",
+    ])
+
+
+def kozak(c):
+    """Ukraina: Kozak z osełedcem, długimi wąsami, czerwonym pasem i bandurą."""
+    sprout_off(c)
+    drop_arm(c, "r")
+    put(c, 7, 10, [
+        ".....####.",
+        "....######",
+        "...##...##",
+        "..##....##",
+        "..#.....##",
+        ".##.....##",
+        ".#........",
+        "##........",
+        "#.........",
+    ])
+    put(c, 12, 24, [
+        "..####..",
+        ".#....#.",
+        "#......#",
+        "#......#",
+    ])
+    fill_rows(c, 28, 29, "r")
+    put(c, 24, 25, ["#"])
+    put(c, 23, 11, [
+        "......#.#",
+        ".......##",
+        "......###",
+        ".....##..",
+        "....##...",
+        "...##....",
+        "..####...",
+        ".#o#o#o..",
+        "#oo#o#o#.",
+        "#oo#o#o#.",
+        "#oo#o#o#.",
+        "#oo#o#o#.",
+        "#oo###o#.",
+        ".#oooo#..",
+        "..####...",
+    ])
+
+
+def rycerz(c):
+    """Gruzja: Rycerz w tygrysiej skórze: kaptur z uszami i pręgami, pręgowany ogon."""
+    sprout_off(c)
+    put(c, 7, 12, [
+        "..#............#..",
+        "..##..........##..",
+        "..#r##########r#..",
+        "..#rr#rrrr#rr#r#..",
+        "..#rrr#rr#rrrrr#..",
+        ".#r#rrrrrrrr#rr#..",
+        ".#rrrrr#rr#rrr#r#.",
+        ".#r#rrrrrrrrrr#r#.",
+        "#rr#..........#rr#",
+        "#r#............#r#",
+        "#rr#..........#rr#",
+        ".#r#..........#r#.",
+    ])
+    for y in range(OY + 7, OY + 10):
+        interior(c, y, "r")
+    put(c, 22, 22, [
+        "......##",
+        ".....#r#",
+        ".....#r#",
+        "....#r#.",
+        "....#r#.",
+        "...#rr#.",
+        "..#r##..",
+        ".#rr#...",
+        "#r##....",
+        "##......",
+    ])
+
+
+def mehter(c):
+    """Turcja: muzyk orkiestry mehter w wysokiej czapce z opadającym rękawem, z bębnem davul."""
+    sprout_off(c)
+    drop_arm(c, "r")
+    put(c, 11, 1, [
+        "...######.....",
+        "..#oooooo#....",
+        "..#oooooo##...",
+        "..#oooooo#o#..",
+        "..#oooooo#oo#.",
+        "..#oooooo#oo#.",
+        "..#oooooo#oo#.",
+        ".#oooooooo#o#.",
+        ".#oooooooo#o#.",
+        ".#oooooooo#o#.",
+        ".#oooooooo#o#.",
+        ".#oooooooo#oo#",
+        "rrrrrrrrrrr#o#",
+        "############o#",
+        "..........#oo#",
+        "..........#o#.",
+        "...........#..",
+    ])
+    put(c, 6, 27, [
+        "####################",
+        "#oooooooooooooooooo#",
+        "#o#ooo#ooo#ooo#ooo##",
+        "#oo#o#o#o#o#o#o#o#o#",
+        "#ooo#ooo#ooo#ooo#oo#",
+        "#oooooooooooooooooo#",
+        "####################",
+    ])
+    put(c, 24, 20, ["....##", "....##", "...#..", "..#...", ".#....", "#....."])
+
+
+def fenicjanin(c):
+    """Liban: fenicki żeglarz w łodzi pod purpurowym żaglem."""
+    sprout_off(c)
+    clear(c, 0, 31, W - 1, H - 1)
+    for y in range(0, 16):
+        c[y][15] = "#"
+        c[y][16] = "#"
+    put(c, 5, 1, [
+        "######################",
+        ".#rrrrrrrrrrrrrrrrrr#.",
+        ".#rrrrrrrrrrrrrrrrrr#.",
+        ".#r################r#.",
+        ".#rrrrrrrrrrrrrrrrrr#.",
+        ".#rrrrrrrrrrrrrrrrrr#.",
+        ".#r################r#.",
+        ".#rrrrrrrrrrrrrrrrrr#.",
+        "..#rrrrrrrrrrrrrrrr#..",
+        "...################...",
+    ])
+    put(c, 0, 25, [
+        "##..............................",
+        "#o#............................#",
+        ".#o#..........................##",
+        "..#o#........................#o#",
+        "...#o########################o#.",
+        "...#oooooooooooooooooooooooooo#.",
+        "....#o#oo#oo#oo#oo#oo#oo#oo#o#..",
+        ".....########################...",
+    ])
+
+
+def battuta(c):
+    """Maroko: Ibn Battuta z rozwiniętym zwojem mapy i kijem podróżnym."""
+    drop_arm(c, "r")
+    put(c, 4, 26, [
+        "###.................###",
+        "#o###################o#",
+        "#o#ooooooooooooooror#o#",
+        "#o#ooooooooo##ooooro#o#",
+        "#o#ooooo##oooooooror#o#",
+        "#o#oo##ooooooooooooo#o#",
+        "#o#ooooooooooooooooo#o#",
+        "#o###################o#",
+        "###.................###",
+    ])
+    for y in range(7, 37):
+        c[y][29] = "#"
+    c[7][30] = "#"
+
+
+def brahmagupta(c):
+    """Indie: Brahmagupta z tabliczką, na której wypisał zero."""
+    drop_arm(c, "r")
+    put(c, 23, 15, [
+        "#########",
+        "#########",
+        "###ooo###",
+        "##o###o##",
+        "##o###o##",
+        "##o###o##",
+        "##o###o##",
+        "###ooo###",
+        "#########",
+        "#########",
+    ])
+    put(c, 24, 25, ["#"])
+
+
+def muaythai(c):
+    """Tajlandia: bokser muay thai w opasce mongkhon, w gardzie, w czerwonych rękawicach i spodenkach."""
+    sprout_off(c)
+    clear(c, 0, OY + 9, OX + 3, OY + 13)
+    clear(c, OX + 20, OY + 9, W - 1, OY + 13)
+    fill_rows(c, 18, 19, "r")
+    put(c, 17, 12, ["....##", "...#..", "..#...", ".#....", "#....."])
+    put(c, 2, 17, [
+        ".####.",
+        "#rrrr#",
+        "#rrrr#",
+        "#rrrr#",
+        ".####.",
+        "...#..",
+        "...#..",
+        "....#.",
+        ".....#",
+    ])
+    put(c, 24, 17, [
+        ".####.",
+        "#rrrr#",
+        "#rrrr#",
+        "#rrrr#",
+        ".####.",
+        "..#...",
+        "..#...",
+        ".#....",
+        "#.....",
+    ])
+    fill_rows(c, 28, 30, "r")
+
+
+def pho(c):
+    """Wietnam: sprzedawca phở w kapeluszu nón lá, z parującą miską i pałeczkami."""
+    sprout_off(c)
+    drop_arm(c, "r")
+    put(c, 4, 9, [
+        "...........##...........",
+        ".........##oo##.........",
+        ".......##oooooo##.......",
+        ".....##oooooooooo##.....",
+        "...##oooooooooooooo##...",
+        ".##oooooooooooooooooo##.",
+        "########################",
+    ])
+    put(c, 24, 26, ["##"])
+    put(c, 24, 17, [
+        "..#.....",
+        ".#....#.",
+        "..#..#.#",
+        ".#..#.#.",
+        "...#.#..",
+        "########",
+        "#oooooo#",
+        "#oooooo#",
+        ".#oooo#.",
+        "..####..",
+    ])
+
+
+def terakota(c):
+    """Chiny: wojownik z terakotowej armii na postumencie: kok z boku głowy i zbroja z nitami."""
+    sprout_off(c)
+    put(c, 17, 13, [
+        ".##.",
+        "####",
+        "####",
+    ])
+    for y in range(27, 31):
+        interior(c, y, "r")
+    for y in (28, 30):
+        for x in range(W):
+            if c[y][x] == "r" and (x + (y // 2) * 2) % 4 == 0:
+                c[y][x] = "o"
+    put(c, 8, 34, [
+        "################",
+        "#oooooooooooooo#",
+        "################",
+    ])
+
+
+def sejong(c):
+    """Korea: król Sejong w czarnej czapce ze skrzydełkami i czerwonej szacie, z tabliczką hangul."""
+    sprout_off(c)
+    drop_arm(c, "r")
+    put(c, 4, 11, [
+        "..........####..........",
+        "........########........",
+        ".####..##########..####.",
+        "#oooo##############oooo#",
+        ".####.############.####.",
+        "......############......",
+    ])
+    for y in range(28, 31):
+        interior(c, y, "r")
+    put(c, 24, 26, ["#"])
+    put(c, 24, 18, [
+        "########",
+        "#oooooo#",
+        "####o#o#",
+        "#oo#o###",
+        "#oo#o#o#",
+        "#o#oo#o#",
+        "#oooooo#",
+        "########",
+    ])
+
+
+def skoczek(c):
+    """Bośnia: skoczek ze Starego Mostu w Mostarze: czerwone kąpielówki, ręce w górze, stoi na łuku mostu."""
+    arms_up(c)
+    clear(c, 0, 32, W - 1, H - 1)
+    fill_rows(c, 28, 30, "r")
+    put(c, 12, 32, ["#......#"])
+    put(c, 0, 33, [
+        "........################........",
+        "....########################....",
+        "##########............##########",
+        "#######..................#######",
+        "#####......................#####",
+    ])
+
+
+DRAFT = {
+    "Polska": ("kopernik", kopernik, "Kopernik"),
+    "Włochy": ("cezar", cezar, "Juliusz Cezar"),
+    "Hiszpania": ("donkichot", donkichot, "Don Kichot"),
+    "Niemcy": ("beethoven", beethoven, "Beethoven"),
+    "Węgry": ("houdini", houdini, "Houdini"),
+    "Ukraina": ("kozak", kozak, "Kozak"),
+    "Gruzja": ("rycerz", rycerz, "Rycerz w tygrysiej skórze"),
+    "Turcja": ("mehter", mehter, "Muzyk mehter"),
+    "Liban": ("fenicjanin", fenicjanin, "Fenicki żeglarz"),
+    "Maroko": ("battuta", battuta, "Ibn Battuta"),
+    "Indie": ("brahmagupta", brahmagupta, "Brahmagupta"),
+    "Tajlandia": ("muaythai", muaythai, "Bokser muay thai"),
+    "Wietnam": ("pho", pho, "Sprzedawca phở"),
+    "Chiny": ("terakota", terakota, "Wojownik z terakoty"),
+    "Korea": ("sejong", sejong, "Król Sejong"),
+    "Bośnia": ("skoczek", skoczek, "Skoczek z Mostaru"),
+}
+
 # kuchnia -> (klucz, rysowanie, podpis)
 COSTUMES = {
     "Francja": ("napoleon", napoleon, "Napoleon"),
@@ -218,9 +709,9 @@ COSTUMES = {
 }
 
 
-def build():
+def build(which=None):
     out = {}
-    for country, (key, draw, label) in COSTUMES.items():
+    for country, (key, draw, label) in (which or COSTUMES).items():
         moods = {}
         for mood in MOODS:
             c = base(mood)
@@ -267,5 +758,5 @@ if __name__ == "__main__":
     data = build()
     write_js(data)
     if len(sys.argv) > 1:
-        preview(data, sys.argv[1])
+        preview(build(DRAFT) if "--szkice" in sys.argv else data, sys.argv[1])
     print(f"{len(data)} przebrań -> {os.path.relpath(OUT)}")
