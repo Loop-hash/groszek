@@ -10,9 +10,10 @@ android {
         versionCode((System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInteger() + 100)
         versionName "0.1." + (System.getenv("GITHUB_RUN_NUMBER") ?: "0")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        // ML Kit ma biblioteki natywne; bez starego 32-bitowego x86 apka jest mniejsza
+        // ML Kit ma biblioteki natywne po ~10 MB na architekturę: tylko telefony (ARM).
+        // Emulator x86_64 w teście uruchamia je przez tłumaczenie ARM.
         ndk {
-            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86_64'
+            abiFilters 'arm64-v8a', 'armeabi-v7a'
         }
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

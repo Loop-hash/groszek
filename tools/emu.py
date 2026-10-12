@@ -132,13 +132,26 @@ def ocr_bench():
     if not name:
         log("ocr: brak gniazda debugera WebView")
         return
-    sh(f"adb forward tcp:9222 localabstract:{name}")
-    try:
-        pages = json.loads(urllib.request.urlopen("http://127.0.0.1:9222/json", timeout=20).read())
-        page = next(p for p in pages if p.get("type") == "page")
-        ws = websocket.create_connection(page["webSocketDebuggerUrl"], timeout=240, suppress_origin=True)
-    except Exception as e:  # noqa: BLE001
-        log("ocr: nie połączyłem się z WebView", e)
+    log("ocr: gniazdo", name, "pid", pid, "wszystkie", socks)
+    log("ocr: forward", sh(f"adb forward tcp:9222 localabstract:{name}"), sh("adb forward --list"))
+    ws = None
+    for attempt in range(3):
+        try:
+            raw = urllib.request.urlopen("http://127.0.0.1:9222/json", timeout=20).read()
+            log("ocr: /json", raw[:600])
+            pages = json.loads(raw)
+            page = next(p for p in pages if p.get("type") == "page")
+            url = page["webSocketDebuggerUrl"]
+            try:
+                ws = websocket.create_connection(url, timeout=240, suppress_origin=True)
+            except Exception as e:  # noqa: BLE001
+                log("ocr: websocket bez origin", repr(e))
+                ws = websocket.create_connection(url, timeout=240)
+            break
+        except Exception as e:  # noqa: BLE001
+            log("ocr: nie połączyłem się z WebView", repr(e))
+            time.sleep(5)
+    if ws is None:
         return
     n = [0]
 

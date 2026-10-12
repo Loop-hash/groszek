@@ -410,7 +410,9 @@ export async function readReceipt(file, onProgress) {
   }
   progressCb = null;
   const text = rows.map((r) => r.text).join('\n');
-  return { text, engine, cropped: !!box, ...parseReceipt(rows) };
+  const res = { text, engine, cropped: !!box, ...parseReceipt(rows) };
+  console.log(`Paragon: ${engine}, suma ${res.total} (${res.how}), ${rows.length} wierszy`);
+  return res;
 }
 
 // ---------- rozbiór tekstu (bez DOM, testowane w test/run.js) ----------
