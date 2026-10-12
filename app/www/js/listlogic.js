@@ -42,7 +42,7 @@ export function angry(c, name, cls, done) {
     shake: true,
     render: () => `<h2>${title}</h2><p>„${esc(name)}” to ${esc(label)}. W trybie ostrym tego nie dopiszę.</p>` +
       '<button class="btn dark block" data-act="sheet-close">No dobra</button>' +
-      '<p class="tiny">Groszek się pomylił? Popraw to w Ustawieniach, w sekcji Tryb ostry.</p>',
+      '<p class="tiny">Groszosław się pomylił? Popraw to w Ustawieniach, w sekcji Tryb ostry.</p>',
     onClose: () => { if (done) done(false); },
   });
 }
@@ -108,7 +108,7 @@ export function addToList(c, rawName, extra = {}, opts = {}) {
   return true;
 }
 
-// Wpis z pola na liście: może mieć kilka rzeczy ("masło, 2 mleka i chleb"). Gdy przy którejś Groszek
+// Wpis z pola na liście: może mieć kilka rzeczy ("masło, 2 mleka i chleb"). Gdy przy którejś Groszosław
 // pyta albo się złości, reszta dopisuje się po zamknięciu arkusza. onDone(ile dopisano) na końcu.
 export function addEntries(c, raw, onDone) {
   const parts = splitEntries(raw);

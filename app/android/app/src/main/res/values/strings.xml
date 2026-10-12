@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Groszek</string>
-    <string name="title_activity_main">Groszek</string>
+    <string name="app_name">Do Pierwszego</string>
+    <string name="title_activity_main">Do Pierwszego</string>
     <string name="package_name">pl.groszek.app</string>
     <string name="custom_url_scheme">pl.groszek.app</string>
 </resources>

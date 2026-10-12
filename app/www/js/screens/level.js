@@ -90,9 +90,4 @@ export default {
     `;
   },
   summarySheet,
-  peek(c) {
-    const lvl = levelFor(totalExp(c.state));
-    const next = LEVELS[lvl.level];
-    return next ? { text: `Jeszcze ${next.at - lvl.exp} exp do poziomu „${next.name}”!`, mood: 'happy' } : { text: 'Jesteśmy legendą!', mood: 'happy' };
-  },
 };

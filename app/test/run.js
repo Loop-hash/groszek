@@ -246,6 +246,34 @@ await t('lista: wszystkie sposoby wpisania ilości', async () => {
   assert.equal(addToList(c, 'masło', {}, {}), false); // z przepisu: już jest, bez dodawania
 });
 
+await t('ciekawostki: bez powtórek, dopóki nie pokażą się wszystkie', async () => {
+  const { FACTS, nextFactIndex } = await import('../www/js/facts.js');
+  assert.ok(FACTS.length >= 100);
+  const st = {};
+  const seen = new Set();
+  for (let k = 0; k < FACTS.length; k++) seen.add(nextFactIndex(st));
+  assert.equal(seen.size, FACTS.length);
+  const again = nextFactIndex(st); // nowe losowanie po komplecie
+  assert.ok(again >= 0 && again < FACTS.length); assert.equal(st.facts.pos, 1);
+  for (const f of FACTS) assert.ok(f.t.length <= 150, f.t);
+});
+
+await t('przebrania: kuchnia z planu z ostatnich 30 dni', async () => {
+  const { topCuisine, costumeFor } = await import('../www/js/costumes.js');
+  const { today, addDays } = await import('../www/js/budget.js');
+  const recipes = [{ id: 'a', country: 'Francja' }, { id: 'b', country: 'Polska' }, { id: 'c', country: 'USA' }];
+  const plan = { [today()]: [{ id: 'a' }, { id: 'b' }], [addDays(today(), -3)]: [{ id: 'a' }], [addDays(today(), -40)]: [{ id: 'c' }, { id: 'c' }, { id: 'c' }] };
+  const c = { state: { plan, customRecipes: [], settings: {} }, data: { recipes: { recipes } } };
+  assert.equal(topCuisine(c), 'Francja');
+  assert.equal(costumeFor(c).key, 'napoleon');
+  c.state.settings.costume = false; assert.equal(costumeFor(c), null);
+  c.state.settings.costume = true; c.state.plan = { [today()]: [{ id: 'b' }] };
+  assert.equal(costumeFor(c), null); // Polska jeszcze bez przebrania
+  const { pixelSvg, sprite } = await import('../www/js/pixels.js');
+  assert.ok(sprite('happy', 40).includes('px-cheek'));
+  assert.ok(pixelSvg(['#rco'], 8).includes('px-red'));
+});
+
 await t('aktualizacja: sama strona albo APK', async () => {
   const D2 = await import('../www/js/data.js');
   const real = globalThis.fetch;

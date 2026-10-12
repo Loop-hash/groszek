@@ -1,7 +1,6 @@
-// Groszek: start apki, nawigacja między ekranami, arkusze, dymki i przycisk wstecz.
+// Do Pierwszego: start apki, nawigacja między ekranami, arkusze, dymki i przycisk wstecz.
 import * as store from './store.js';
 import * as dataApi from './data.js';
-import { sprite } from './pixels.js';
 import { esc } from './ui.js';
 import { today, period, previousPeriod } from './budget.js';
 import { screens } from './screens/index.js';
@@ -13,7 +12,10 @@ const app = {
   sheetCfg: null,
   build: { build: 0 },
   update: null,
-  peekTimer: null,
+  fact: null, // ciekawostka Groszosława na starcie: { i, at }
+  factPending: false,
+  factTimer: null,
+  hiddenAt: 0,
   day: today(),
 };
 window.groszek = app; // pomocne przy szukaniu błędów
@@ -45,7 +47,6 @@ export function go(name, params = {}, opts = {}) {
   app.stack.push({ name, params: { ...params }, scroll: 0, key: Math.random().toString(36).slice(2) });
   closeSheet(true);
   render();
-  if (!opts.quiet) peekFor(name);
 }
 
 export function replace(name, params = {}) {
@@ -53,7 +54,6 @@ export function replace(name, params = {}) {
   app.stack.push({ name, params: { ...params }, scroll: 0, key: Math.random().toString(36).slice(2) });
   closeSheet(true);
   render();
-  peekFor(name);
 }
 
 export function back() {
@@ -64,7 +64,6 @@ export function back() {
     if (s && s.onLeave) s.onLeave(ctx(leaving));
     app.stack.pop();
     render();
-    peekFor(top().name);
     return true;
   }
   return false;
@@ -164,41 +163,16 @@ export function toast(text) {
   toastTimer = setTimeout(() => { root.innerHTML = ''; }, 2600);
 }
 
-function peekFor(name) {
-  const s = screens[name];
-  if (!s || !s.peek) { hidePeek(true); return; }
-  let p = null;
-  try { p = s.peek(ctx()); } catch (e) { p = null; }
-  if (!p) { hidePeek(true); return; }
-  if (typeof p === 'string') p = { text: p };
-  peek(p.text, p.mood);
-}
-
-export function peek(text, mood = 'pea') {
-  const root = $('peek-root');
-  clearTimeout(app.peekTimer);
-  if (!app.state.settings.peek || !text) { root.innerHTML = ''; return; }
-  root.innerHTML = `<div class="bubble" role="status">${esc(text)}</div>` +
-    `<button class="peek" data-act="peek-hide" aria-label="Schowaj Groszka">${sprite(mood, 144)}</button>`;
-  app.peekTimer = setTimeout(() => hidePeek(), 9000);
-}
-
-function hidePeek(now = false) {
-  const root = $('peek-root');
-  clearTimeout(app.peekTimer);
-  const p = root.querySelector('.peek');
-  if (!p || now) { root.innerHTML = ''; return; }
-  const b = root.querySelector('.bubble');
-  if (b) b.classList.add('hide');
-  p.classList.add('hide');
-  setTimeout(() => { if (p.isConnected) root.innerHTML = ''; }, 420);
+// Krótkie komunikaty po akcjach (dawniej dymek Groszka zza rogu, który zasłaniał przyciski)
+export function peek(text) {
+  if (text) toast(text);
 }
 
 // ---------- aktualizacja ----------
 
 const mb = (b) => (b / 1048576).toFixed(b < 10485760 ? 1 : 0).replace('.', ',');
 
-// Aktualizacja jednym przyciskiem. Gdy część androidowa się nie zmieniła, Groszek pobiera samą
+// Aktualizacja jednym przyciskiem. Gdy część androidowa się nie zmieniła, apka pobiera samą
 // stronę (zwykle poniżej 1 MB) i przeładowuje się na nią: Android o nic nie pyta. Inaczej pobiera
 // APK i instaluje je w tle (Android 12+ nie pyta o zgodę). Po takiej instalacji Android zamyka apkę
 // i nie pozwala jej otworzyć się samej, więc trzeba dotknąć ikonki.
@@ -216,7 +190,7 @@ export async function installUpdate() {
   if (!can) {
     sheet({
       mascot: 'pea',
-      render: () => '<h2>Jedno pozwolenie</h2><p>Android musi pozwolić Groszkowi instalować aktualizacje. ' +
+      render: () => '<h2>Jedno pozwolenie</h2><p>Android musi pozwolić apce instalować aktualizacje. ' +
         'W ustawieniach włącz „Zezwalaj z tego źródła” i wróć tutaj. To tylko raz.</p>' +
         '<div class="row"><button class="btn grow" data-act="open">Otwórz ustawienia</button><button class="btn dark grow" data-act="go">Aktualizuj</button></div>',
       actions: {
@@ -263,7 +237,7 @@ function onProgress(e) {
 }
 
 async function webUpdate(up, u) {
-  const cfg = updateSheet('Aktualizuję Groszka…', 'Za chwilę uruchomi się ponownie. Twoje dane zostają.');
+  const cfg = updateSheet('Aktualizuję apkę…', 'Za chwilę uruchomi się ponownie. Twoje dane zostają.');
   let handle = null;
   try {
     handle = await up.addListener('progress', onProgress);
@@ -287,7 +261,7 @@ async function webUpdate(up, u) {
 async function apkUpdate(up, u, info) {
   const silent = info && info.silent;
   const cfg = updateSheet('Pobieram nową wersję…', silent
-    ? 'Tym razem zmieniła się część androidowa: Groszek zainstaluje się w tle i zamknie. Potem otwórz go ikonką.'
+    ? 'Tym razem zmieniła się część androidowa: apka zainstaluje się w tle i zamknie. Potem otwórz ją ikonką.'
     : 'Potem Android poprosi o zgodę na instalację.');
   let handle = null;
   let statusHandle = null;
@@ -307,7 +281,7 @@ async function apkUpdate(up, u, info) {
     await up.downloadAndInstall({ url: u.url, size: u.size || 0 });
     const bar = $('upd-bar');
     if (bar) bar.style.width = '100%';
-    updateText('Instaluję…', silent ? 'Za chwilę Groszek się zamknie. Otwórz go ponownie ikonką.' : '');
+    updateText('Instaluję…', silent ? 'Za chwilę apka się zamknie. Otwórz ją ponownie ikonką.' : '');
     await store.flush();
   } catch (e) {
     if (app.sheetCfg === cfg) closeSheet(true);
@@ -350,7 +324,6 @@ const GLOBAL = {
   home: () => { app.stack = [app.stack[0]]; render(); },
   go: (c, arg) => go(arg),
   'sheet-close': () => closeSheet(),
-  'peek-hide': () => hidePeek(),
   url: (c, arg) => openUrl(arg),
   update: () => installUpdate(),
 };
@@ -403,6 +376,7 @@ export function applyTheme() {
   const th = app.state.settings.theme;
   const root = document.documentElement;
   if (th === 'light' || th === 'dark') root.dataset.theme = th; else delete root.dataset.theme;
+  if (app.state.settings.accent) root.dataset.accent = 'red'; else delete root.dataset.accent;
   const dark = th === 'dark' || (th !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.content = dark ? '#121211' : '#FAFAF7';
@@ -450,9 +424,15 @@ function maybeSummary() {
   if (screens.level && screens.level.summarySheet) screens.level.summarySheet(ctx(), prev, p.start);
 }
 
+// Powrót do apki po co najmniej 30 minutach liczy się jak nowe otwarcie (nowa ciekawostka)
+const AWAY = 30 * 60000;
+
 function onResume() {
   const d = today();
-  if (d !== app.day) { app.day = d; render(); maybeSummary(); }
+  const away = app.hiddenAt && Date.now() - app.hiddenAt >= AWAY;
+  app.hiddenAt = 0;
+  if (away && !app.fact) app.factPending = true;
+  if (d !== app.day) { app.day = d; render(); maybeSummary(); } else if (top() && top().name === 'home') render();
   refreshData(false);
   checkForUpdate().catch(() => {});
 }
@@ -469,16 +449,13 @@ async function boot() {
   app.data = await dataApi.loadLocal();
   app.stack = [{ name: app.state.onboarded ? 'home' : 'onboarding', params: {}, scroll: 0, key: 'root' }];
   render();
-  if (app.state.onboarded) peekFor('home');
+  app.factPending = true; // ciekawostka przy otwarciu apki
 
   document.addEventListener('click', onClick);
   document.addEventListener('input', onInput);
   document.addEventListener('change', onChange);
   document.addEventListener('submit', onSubmit);
   // Groszek zza rogu nigdy nie blokuje przycisków: znika przy pierwszym dotknięciu albo przewinięciu
-  const hideIfPeeking = () => { if ($('peek-root').firstChild) hidePeek(); };
-  document.addEventListener('pointerdown', hideIfPeeking, true);
-  document.addEventListener('scroll', hideIfPeeking, true);
   // pole z kursorem przewijane na środek, żeby klawiatura go nie zasłoniła
   document.addEventListener('focusin', (e) => {
     const el = e.target;
@@ -509,12 +486,12 @@ async function boot() {
   if (App) {
     App.addListener('backButton', () => { if (!back()) App.exitApp(); });
     App.addListener('resume', onResume);
-    App.addListener('pause', () => store.flush());
+    App.addListener('pause', () => { app.hiddenAt = app.hiddenAt || Date.now(); store.flush(); });
   } else {
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape') back(); });
   }
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) store.flush(); else onResume();
+    if (document.hidden) { app.hiddenAt = app.hiddenAt || Date.now(); store.flush(); } else onResume();
   });
 
   maybeSummary();
@@ -524,5 +501,5 @@ async function boot() {
 
 boot().catch((e) => {
   console.error(e);
-  $('app').innerHTML = `<main class="screen"><div class="empty-state">Groszek nie wystartował.<br><span class="small">${esc(e && e.message)}</span></div></main>`;
+  $('app').innerHTML = `<main class="screen"><div class="empty-state">Apka nie wystartowała.<br><span class="small">${esc(e && e.message)}</span></div></main>`;
 });

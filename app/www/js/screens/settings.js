@@ -1,4 +1,4 @@
-// Ustawienia: budżet, kalorie, kuchnia, sklepy, Groszek, tryb ostry, kopia danych.
+// Ustawienia: budżet, kalorie, kuchnia, sklepy, Groszosław i wygląd, tryb ostry, kopia danych.
 import { fmt, today } from '../budget.js';
 import { ui, sprite } from '../pixels.js';
 import { esc, topbar, toggle, chip, settingRow, plural } from '../ui.js';
@@ -75,7 +75,7 @@ function learnedSheet(c) {
   c.sheet({
     render(cc) {
       const items = Object.entries(cc.state.learned || {}).sort((a, b) => label(...a).localeCompare(label(...b), 'pl'));
-      if (!items.length) return '<h3>Zapamiętane produkty</h3><p>Pusto. Groszek zapyta o nieznane rzeczy, gdy włączysz tryb ostry.</p><button class="btn block" data-act="sheet-close">Zamknij</button>';
+      if (!items.length) return '<h3>Zapamiętane produkty</h3><p>Pusto. Groszosław zapyta o nieznane rzeczy, gdy włączysz tryb ostry.</p><button class="btn block" data-act="sheet-close">Zamknij</button>';
       const rows = items.map(([k, v]) => `<div class="row between learned-row" data-name="${esc(norm(label(k, v)))}" ${shown(k, v) ? '' : 'hidden'}>` +
         `<span class="grow">${esc(label(k, v))}</span>` +
         `<button class="pill" data-act="flip" data-arg="${esc(k)}" style="background:${v.treat ? 'var(--ink)' : 'var(--paper)'};color:${v.treat ? 'var(--paper)' : 'var(--ink)'}">${v.treat ? 'zachcianka' : 'podstawa'}</button>` +
@@ -100,13 +100,13 @@ function learnedSheet(c) {
 
 async function exportBackup(c) {
   const json = exportJson(c.state);
-  const name = `groszek-kopia-${today()}.json`;
+  const name = `do-pierwszego-kopia-${today()}.json`;
   const fs = plugin('Filesystem');
   const share = plugin('Share');
   if (fs && share) {
     try {
       const r = await fs.writeFile({ path: name, data: json, directory: 'CACHE', encoding: 'utf8' });
-      await share.share({ title: 'Kopia Groszka', files: [r.uri], dialogTitle: 'Zapisz albo wyślij kopię' });
+      await share.share({ title: 'Kopia danych Do Pierwszego', files: [r.uri], dialogTitle: 'Zapisz albo wyślij kopię' });
     } catch (e) {
       if (!/cancel/i.test(String(e && e.message))) c.toast('Nie udało się: ' + (e && e.message));
     }
@@ -116,7 +116,7 @@ async function exportBackup(c) {
   try {
     const file = new File([json], name, { type: 'application/json' });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: 'Kopia Groszka' });
+      await navigator.share({ files: [file], title: 'Kopia danych Do Pierwszego' });
       return;
     }
   } catch (e) {
@@ -140,7 +140,7 @@ function importBackup(c) {
     try {
       next = importJson(await f.text());
     } catch (e) {
-      c.toast('To nie jest kopia Groszka');
+      c.toast('To nie jest kopia danych z tej apki');
       return;
     }
     c.sheet({
@@ -204,18 +204,20 @@ export default {
         ${settingRow('Biedronka', 'wkrótce: promocje są tylko jako obrazki', '<span class="pill dashed">wkrótce</span>')}
       </div>
 
-      <span class="label">Groszek</span>
+      <span class="label">Groszosław i wygląd</span>
       <div class="rows">
-        ${settingRow('Groszek zza rogu', 'wygląda przy zmianie ekranu i coś podpowiada', toggle('peek', !!s.peek, 'Groszek zza rogu'))}
+        ${settingRow('Ciekawostki', 'przy otwarciu apki Groszosław opowie jedną ciekawostkę o jedzeniu', toggle('peek', s.peek !== false, 'Ciekawostki'))}
+        ${settingRow('Przebrania', 'Groszosław przebiera się za postać z kuchni, z której najczęściej gotujesz', toggle('costume', s.costume !== false, 'Przebrania'))}
+        ${settingRow('Czerwone akcenty', 'rumieńce i iskry Groszosława, czysto dla ozdoby', toggle('accent', !!s.accent, 'Czerwone akcenty'))}
         <div class="item col"><span class="name">Wygląd</span>
           <div class="seg">${[['system', 'Jak telefon'], ['light', 'Jasny'], ['dark', 'Ciemny']].map(([v, l]) => `<button class="${s.theme === v ? 'on' : ''}" data-act="theme" data-arg="${v}">${l}</button>`).join('')}</div></div>
       </div>
 
       <span class="label">Tryb ostry</span>
       <div class="rows">
-        ${settingRow(`<span class="row" style="gap:8px">${sprite('angry', 26)} Tryb ostry</span>`, 'Groszek nie pozwoli dopisać zachcianek do listy', toggle('strict', !!s.strict, 'Tryb ostry'))}
+        ${settingRow(`<span class="row" style="gap:8px">${sprite('angry', 26)} Tryb ostry</span>`, 'Groszosław nie pozwoli dopisać zachcianek do listy', toggle('strict', !!s.strict, 'Tryb ostry'))}
         ${TREAT_CATS.map((k) => settingRow(esc(CAT_LABEL[k]), '', toggle('strictCat', !!s.strictCats[k], CAT_LABEL[k], k))).join('')}
-        ${settingRow('Zapamiętane produkty', learned.length ? `${learned.length} ${plural(learned.length, 'produkt', 'produkty', 'produktów')} · podstawy i zachcianki` : 'jeszcze nic. Groszek zapyta o nieznane rzeczy, gdy włączysz tryb ostry',
+        ${settingRow('Zapamiętane produkty', learned.length ? `${learned.length} ${plural(learned.length, 'produkt', 'produkty', 'produktów')} · podstawy i zachcianki` : 'jeszcze nic. Groszosław zapyta o nieznane rzeczy, gdy włączysz tryb ostry',
           learned.length ? '<button class="btn small" data-act="learnedSheet">Pokaż</button>' : '')}
       </div>
 
@@ -228,13 +230,14 @@ export default {
       <span class="label">O apce</span>
       <div class="rows">
         ${c.app.native && !c.app.native()
-          ? settingRow('Wersja', `Groszek ${esc(build.build || 0)} · aktualizuje się sama`, '')
-          : settingRow('Wersja', `Groszek 0.1.${esc(build.build || 0)}${upd ? (upd.newer ? ' · jest nowsza wersja!' : ' · masz najnowszą') : ''}`,
+          ? settingRow('Wersja', `Do Pierwszego ${esc(build.build || 0)} · aktualizuje się sama`, '')
+          : settingRow('Wersja', `Do Pierwszego 0.1.${esc(build.build || 0)}${upd ? (upd.newer ? ' · jest nowsza wersja!' : ' · masz najnowszą') : ''}`,
             upd && upd.newer ? '<button class="btn small dark" data-act="update">Aktualizuj</button>' : '<button class="btn small" data-act="checkUpd">Sprawdź</button>')}
         ${settingRow('Odśwież dane', 'promocje i przepisy z GitHuba', `<button class="btn small" data-act="refresh">${ui('refresh', 14)}</button>`)}
         <div class="item col"><span class="sub">Promocje: strony Kauflandu, Lidla i Aldi, pobierane automatycznie dwa razy w tygodniu. Wartości odżywcze: USDA FoodData Central. Ceny składników są szacunkowe, a te z promocji pochodzą ze sklepów.</span></div>
         <div class="item"><button class="btn small block" data-act="reset">Wyczyść wszystkie dane</button></div>
       </div>
+      <p class="tiny muted center sign">stworzone przez ∞, od studenta dla studentów</p>
     `;
   },
 
@@ -264,10 +267,22 @@ export default {
     store(c, id) { const s = c.state.settings; s.stores[id] = s.stores[id] === false; c.save(); c.render(); },
     peek(c) {
       const s = c.state.settings;
-      s.peek = !s.peek;
+      s.peek = s.peek === false;
       c.save();
       c.render();
-      if (s.peek) c.peek('Hej, jestem! Będę zaglądać od czasu do czasu.', 'happy'); else c.peek('');
+    },
+    costume(c) {
+      const s = c.state.settings;
+      s.costume = s.costume === false;
+      c.save();
+      c.render();
+    },
+    accent(c) {
+      const s = c.state.settings;
+      s.accent = !s.accent;
+      c.save();
+      c.app.applyTheme();
+      c.render();
     },
     theme(c, v) { c.state.settings.theme = v; c.save(); c.app.applyTheme(); c.render(); },
     strict(c) {
@@ -312,5 +327,4 @@ export default {
     },
   },
 
-  peek: () => ({ text: 'Tu ustawisz budżet, kuchnię i tryb ostry.', mood: 'pea' }),
 };

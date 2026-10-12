@@ -113,11 +113,4 @@ export default {
     q(c, v) { c.params.q = v; c.params.limit = 60; c.render(); },
   },
 
-  peek(c) {
-    const base = offersFor(c.data, c.state.settings).filter((o) => isActive(o));
-    if (!base.length) return 'Jeszcze nie mam promocji. Odśwież, jak złapiesz internet.';
-    const best = base.filter((o) => o.oldPrice).sort((a, b) => pct(b) - pct(a))[0];
-    if (best && Math.random() < 0.5) return { text: `Hit: ${meta(best).name} za ${fmt(best.price)} zł zamiast ${fmt(best.oldPrice)} zł.`, mood: 'happy' };
-    return `${base.length} promocji na teraz. Dotknij, żeby dopisać do listy.`;
-  },
 };

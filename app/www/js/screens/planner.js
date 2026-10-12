@@ -152,12 +152,4 @@ export default {
       c.render();
     },
   },
-  peek(c) {
-    const t = today();
-    const meals = dayMeals(c, t);
-    if (!meals.length) return 'Pusto w planie. Mogę ułożyć cały miesiąc za podaną kwotę!';
-    const tot = dayTotals(c, t);
-    const s = nutStatus(tot.kcal, targets(c.state.settings).kcal);
-    return s === 'ok' ? { text: 'Dziś kalorie w normie. Pięknie!', mood: 'happy' } : s === 'low' ? { text: 'Dziś trochę za mało kalorii. Może jakaś kanapka?', mood: 'worried' } : { text: 'Dziś sporo kalorii. Jutro lżej?', mood: 'worried' };
-  },
 };

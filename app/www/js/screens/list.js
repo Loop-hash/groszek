@@ -268,19 +268,4 @@ export default {
     promos(c) { c.go('promos'); },
   },
 
-  peek(c) {
-    const st = c.state;
-    const m = listMatches(st, c.data);
-    const pending = st.list.filter((i) => !i.done);
-    if (!pending.length) return st.settings.strict ? { text: 'Tryb ostry włączony. Pilnuję listy!', mood: 'angry' } : 'Lista pusta. Dopisz, czego brakuje.';
-    const counts = {};
-    let n = 0;
-    for (const i of pending) {
-      const o = offerForItem(i, m.get(i.id));
-      if (o) { n++; counts[o.store] = (counts[o.store] || 0) + 1; }
-    }
-    if (!n) return st.settings.strict ? { text: 'Tryb ostry włączony. Pilnuję listy!', mood: 'angry' } : 'Nic z listy nie jest teraz w promocji.';
-    const best = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
-    return { text: `${n} ${plural(n, 'rzecz', 'rzeczy', 'rzeczy')} z listy ${plural(n, 'jest', 'są', 'jest')} w promocji. Najwięcej ${IN_STORE[best] || ''}.`, mood: 'happy' };
-  },
 };

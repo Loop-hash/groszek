@@ -64,7 +64,7 @@ export default {
         <div class="row between"><b style="font-size:18px">Wydane</b><span class="big" style="font-size:28px">${fmt(total)} zł</span></div>
         <div class="row between small"><span class="muted">z budżetu ${fmt(budget, 0)} zł</span><span class="bold">${total <= budget ? `zostało ${fmt(budget - total)} zł` : `ponad o ${fmt(total - budget)} zł`}</span></div>
       </div>
-      ${noItems && off === 0 ? '<div class="tiny muted center">Zrób zdjęcie paragonu przy dodawaniu wydatku, a Groszek wypisze tu kupione produkty.</div>' : ''}
+      ${noItems && off === 0 ? '<div class="tiny muted center">Zrób zdjęcie paragonu przy dodawaniu wydatku, a Groszosław wypisze tu kupione produkty.</div>' : ''}
       ${items.length ? `<div class="stack" style="gap:0">${rows}</div>` : empty('W tym miesiącu nie ma jeszcze wydatków.')}
       ${off === 0 ? `<button class="cta" data-act="add">${ui('plus', 18)}<span>Dodaj wydatek</span>${ui('arrow', 18, 'flip')}</button>` : ''}
     `;

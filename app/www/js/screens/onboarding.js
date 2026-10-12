@@ -10,8 +10,8 @@ export default {
     const perDay = Math.round((Number(p.budget) || 0) / 30 * 100) / 100;
     return `
       <div class="hero" style="height:190px;margin-top:20px">${spark(20, 'left:14%;top:12%')}${spark(12, 'right:18%;top:8%')}${spark(14, 'right:12%;bottom:18%')}${sprite('happy', 170)}</div>
-      <h1 class="hello">Cześć! Jestem Groszek.</h1>
-      <p class="center muted" style="margin:0;line-height:1.45">Pomogę ci pilnować budżetu na jedzenie, znajdę promocje do twojej listy i podsunę, co ugotować.</p>
+      <h1 class="hello">Cześć! Jestem Groszosław.</h1>
+      <p class="center muted" style="margin:0;line-height:1.45">Pomogę ci przeżyć do pierwszego: popilnuję budżetu na jedzenie, znajdę promocje do twojej listy i podsunę, co ugotować.</p>
       <div class="card stack" style="gap:12px">
         <label class="stack" style="gap:6px"><span class="label">Ile wydajesz na jedzenie w miesiącu?</span>
           <span class="numrow"><input id="ob-budget" class="field num" type="number" inputmode="decimal" min="0" value="${esc(p.budget)}" data-in="budget" style="flex:1;width:auto"><b>zł</b></span>

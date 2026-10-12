@@ -80,10 +80,4 @@ export default {
   inputs: {
     q(c, v) { c.params.q = v; c.render(); },
   },
-  peek(c) {
-    const vis = allRecipes(c).filter((r) => !blockReason(r, c.state.settings, c.state.ratings) && (r.meal || []).includes('obiad'));
-    if (!vis.length) return null;
-    const cheapest = vis.map((r) => [r, recipeCost(c, r).perPortion]).sort((a, b) => a[1] - b[1])[0];
-    return { text: `Najtaniej dziś: ${cheapest[0].name}, ${fmt(cheapest[1])} zł za porcję.`, mood: 'happy' };
-  },
 };

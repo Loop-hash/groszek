@@ -80,11 +80,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          NOTES="Groszek 0.1.${GITHUB_RUN_NUMBER}
+          NOTES="Do Pierwszego 0.1.${GITHUB_RUN_NUMBER}
 
           Pobierz plik groszek.apk niżej i otwórz go na telefonie z Androidem.
           Przy pierwszej instalacji telefon zapyta o zgodę na instalowanie z tego źródła.
-          Później Groszek aktualizuje się sam przyciskiem w Ustawieniach.
+          Później apka aktualizuje się sama przyciskiem w Ustawieniach.
 
           build: ${GITHUB_RUN_NUMBER}
           native: ${NATIVE}"
@@ -106,9 +106,9 @@ jobs:
             swap groszek-vendor.zip
             swap groszek-www.zip
             swap groszek.apk
-            gh release edit najnowsza --title "Groszek 0.1.${GITHUB_RUN_NUMBER}" --notes "$NOTES"
+            gh release edit najnowsza --title "Do Pierwszego 0.1.${GITHUB_RUN_NUMBER}" --notes "$NOTES"
           else
-            gh release create najnowsza groszek.apk groszek-www.zip groszek-vendor.zip --title "Groszek 0.1.${GITHUB_RUN_NUMBER}" --notes "$NOTES" --target "$GITHUB_SHA"
+            gh release create najnowsza groszek.apk groszek-www.zip groszek-vendor.zip --title "Do Pierwszego 0.1.${GITHUB_RUN_NUMBER}" --notes "$NOTES" --target "$GITHUB_SHA"
           fi
 
       - name: Logi na gałąź ci-apk

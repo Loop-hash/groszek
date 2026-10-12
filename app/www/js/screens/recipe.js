@@ -112,7 +112,7 @@ export default {
         <span class="tiny muted">Tych, które ci nie smakują, nie będę podsuwać w planie.</span>
       </div>
       <button class="btn block" data-act="ania">${ui('web', 16)} Szukaj u Ani Gotuje</button>
-      ${r.custom ? '<button class="btn small block" data-act="del">Usuń mój przepis</button>' : '<div class="tiny muted center">Przepis napisany dla Groszka. Wartości odżywcze: USDA FoodData Central.</div>'}
+      ${r.custom ? '<button class="btn small block" data-act="del">Usuń mój przepis</button>' : '<div class="tiny muted center">Przepis napisany dla tej apki. Wartości odżywcze: USDA FoodData Central.</div>'}
     `;
   },
   actions: {
@@ -145,12 +145,5 @@ export default {
         },
       });
     },
-  },
-  peek(c) {
-    const r = findRecipe(c, c.params.id);
-    if (!r) return null;
-    const cost = recipeCost(c, r);
-    if (cost.promo.length) return { text: `${cost.promo.length} ${plural(cost.promo.length, 'składnik jest', 'składniki są', 'składników jest')} teraz w promocji!`, mood: 'happy' };
-    return r.tip ? null : 'Smacznego!';
   },
 };

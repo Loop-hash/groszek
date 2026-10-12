@@ -1,6 +1,9 @@
 // Start: ile możesz dziś wydać, pasek budżetu i skróty do reszty apki.
 import { status, fmt, totalExp, levelFor, addDays, today } from '../budget.js';
 import { sprite, spark, ui, dish } from '../pixels.js';
+import { FACTS, nextFactIndex } from '../facts.js';
+import { costumeFor, costumeSvg } from '../costumes.js';
+import { findRecipe } from '../recipes.js';
 import { esc, plural } from '../ui.js';
 import { listMatches } from '../offers.js';
 import { todayMeals } from '../plan.js';
@@ -10,7 +13,58 @@ const arrowRight = () => ui('arrow', 18, 'flip');
 
 function sparks(mood) {
   if (mood !== 'happy') return '';
-  return spark(18, 'left:18%;top:8%') + spark(12, 'left:28%;bottom:10%') + spark(14, 'right:20%;top:14%') + spark(10, 'right:26%;bottom:18%');
+  return spark(18, 'left:-16%;top:4%') + spark(12, 'left:-8%;bottom:8%') + spark(14, 'right:-14%;top:12%') + spark(10, 'right:-8%;bottom:18%');
+}
+
+// ---------- ciekawostka przy otwarciu apki ----------
+// Groszosław przechodzi ze środka na bok, przez minutę pokazuje ciekawostkę i wraca.
+const WALK = 900;
+const SHOW = 60000;
+
+function nextFact(c) {
+  const i = nextFactIndex(c.state);
+  c.save();
+  return i;
+}
+
+function factPhase(app) {
+  const f = app.fact;
+  if (!f) return { phase: 'center' };
+  const e = Date.now() - f.at;
+  if (e < 0) return { phase: 'center', next: -e };
+  if (e < WALK) return { phase: 'walk-in', e, next: WALK - e };
+  if (e < WALK + SHOW) return { phase: 'side', e: e - WALK, next: WALK + SHOW - e };
+  if (e < 2 * WALK + SHOW) return { phase: 'walk-out', e: e - WALK - SHOW, next: 2 * WALK + SHOW - e };
+  return { phase: 'done' };
+}
+
+function factBubble(c, f, e) {
+  const r = f.r ? findRecipe(c, f.r) : null;
+  return `<div class="fact" style="animation-delay:-${Math.round(e)}ms" role="status">` +
+    `<button class="fact-text" data-act="factHide" aria-label="Schowaj ciekawostkę"><span class="fact-label pixel">Ciekawostka</span><span>${esc(f.t)}</span></button>` +
+    (r ? `<button class="fact-link" data-act="factRecipe" data-arg="${esc(r.id)}">Przepis: ${esc(r.name.split(',')[0])}${ui('arrow', 12, 'flip')}</button>` : '') +
+    '</div>';
+}
+
+function hero(c, s, small) {
+  const app = c.app;
+  const st = c.state;
+  if (app.factPending && st.onboarded && st.settings.peek !== false && !app.fact && FACTS.length) {
+    app.factPending = false;
+    app.fact = { i: nextFact(c), at: Date.now() + 700 };
+  }
+  let ph = factPhase(app);
+  if (ph.phase === 'done') { app.fact = null; ph = { phase: 'center' }; }
+  const peaW = small ? 112 : 140;
+  const cos = costumeFor(c);
+  const art = cos ? costumeSvg(cos, s.mood, peaW) : sprite(s.mood, peaW);
+  const w = cos ? Math.round((peaW * 32) / 24) : peaW;
+  const delay = ph.e != null && ph.phase !== 'side' ? ` style="animation-delay:-${Math.round(ph.e)}ms"` : '';
+  const fact = ph.phase === 'side' && app.fact ? FACTS[app.fact.i] : null;
+  // przebranie jest szersze (kapelusze, rekwizyty), więc na boku zmniejsza się bardziej
+  return `<div class="hero home-hero ${ph.phase}" style="--walker:${w}px;--side:${cos ? 0.68 : 0.8}">` +
+    `<div class="walker"${delay}><div class="bob">${sparks(s.mood)}${art}</div></div>` +
+    (fact ? factBubble(c, fact, ph.e) : '') + '</div>';
 }
 
 export default {
@@ -26,8 +80,8 @@ export default {
     const ahead = s.aheadBy;
     const notchOut = s.fracPlan > s.fracRemaining;
     const upd = c.app.update && c.app.update.newer
-      ? `<div class="card dashed row between"><div class="stack" style="gap:2px"><b>Nowa wersja Groszka</b><span class="small muted">Zainstaluje się na starą, dane zostają.</span></div>` +
-        `<button class="btn small dark" data-act="update">Pobierz${c.app.update.size ? ` <span class="tiny">${Math.round(c.app.update.size / 1048576)} MB</span>` : ''}</button></div>` : '';
+      ? `<div class="card dashed row between"><div class="stack" style="gap:2px"><b>Nowa wersja apki</b><span class="small muted">Jeden przycisk, twoje dane zostają.</span></div>` +
+        '<button class="btn small dark" data-act="update">Aktualizuj</button></div>' : '';
 
     const meals = todayMeals(c);
     let planned = false;
@@ -43,11 +97,11 @@ export default {
     return `
       <header class="topbar">
         <button class="sq" data-act="go" data-arg="settings" aria-label="Ustawienia">${ui('sliders', 22)}</button>
-        <div class="title"><b>Groszek</b><span>${esc(p.label)} · dzień ${p.dayIndex + 1}/${p.days}</span></div>
+        <div class="title"><b>Do pierwszego</b><span>${esc(p.label)} · dzień ${p.dayIndex + 1}/${p.days}</span></div>
         <button class="lvl" data-act="go" data-arg="level" aria-label="Twój poziom: ${lvl.level}"><small>LVL</small><strong>${lvl.level}</strong></button>
       </header>
       ${upd}
-      <div class="hero" style="height:${upd ? 118 : 150}px">${sparks(s.mood)}${sprite(s.mood, upd ? 112 : 140)}</div>
+      ${hero(c, s, !!upd)}
       <div class="stack center" style="gap:4px">
         <div class="label">${over ? 'Dziś ponad plan o' : 'Na dziś możesz wydać'}</div>
         <div class="big" style="font-size:64px">${fmt(Math.abs(s.todayLeft))}<span style="font-size:26px"> zł</span></div>
@@ -80,19 +134,27 @@ export default {
 
   actions: {
     recipe: (c, id) => c.go('recipe', { id }),
+    factHide(c) {
+      const ph = factPhase(c.app);
+      if (ph.phase !== 'side') return;
+      c.app.fact.at = Date.now() - WALK - SHOW;
+      c.render();
+    },
+    factRecipe(c, id) {
+      c.app.fact = null;
+      c.go('recipe', { id });
+    },
   },
 
-  peek(c) {
-    const st = c.state;
-    const s = status(st);
-    const m = listMatches(st, c.data);
-    const inPromo = st.list.filter((i) => !i.done && (m.get(i.id) || []).length).length;
-    const opts = [];
-    if (s.remaining < 0) return { text: 'Budżet się skończył. Od teraz tylko to, co naprawdę trzeba.', mood: 'worried' };
-    if (s.todayLeft < 0) opts.push({ text: 'Dziś trochę za dużo. Jutro odrobimy.', mood: 'worried' });
-    else if (s.aheadBy > s.budget * 0.02) opts.push({ text: `Jesteś ${fmt(s.aheadBy)} zł przed planem. Tak trzymaj!`, mood: 'happy' });
-    else opts.push({ text: `Dziś możesz wydać ${fmt(s.todayLeft)} zł.`, mood: 'pea' });
-    if (inPromo) opts.push({ text: `${inPromo} ${plural(inPromo, 'rzecz', 'rzeczy', 'rzeczy')} z listy ${plural(inPromo, 'jest', 'są', 'jest')} teraz w promocji.`, mood: 'happy' });
-    return opts[Math.floor(Math.random() * opts.length)];
+  // przejścia Groszosława: odśwież ekran na początku każdej fazy
+  mounted(c) {
+    clearTimeout(c.app.factTimer);
+    const ph = factPhase(c.app);
+    if (ph.next == null) return;
+    c.app.factTimer = setTimeout(() => {
+      const top = c.app.stack[c.app.stack.length - 1];
+      if (top && top.name === 'home' && !document.hidden) c.render();
+    }, ph.next + 30);
   },
+
 };

@@ -55,7 +55,9 @@ export function defaults() {
       gear: { '1 palnik': true, '2 palniki': false, 'Piekarnik': false, 'Opiekacz': true, 'Toster': true, 'Air fryer': false, 'Mikrofala': false, 'Blender': false },
       avoid: {},
       cuisines: Object.fromEntries(DEFAULT_CUISINES.map((c) => [c, true])),
-      peek: true,
+      peek: true, // ciekawostki Groszosława przy otwarciu apki
+      costume: true, // Groszosław w przebraniu z ulubionej kuchni
+      accent: false, // czerwone akcenty dla ozdoby
       strict: false,
       strictCats: { 'słodycze': true, 'chipsy i przekąski': true, 'słodkie napoje': true, 'energetyki': true, 'alkohol': true, 'fast food': false, 'gotowe dania': false },
       stores: { kaufland: true, lidl: true, aldi: true, biedronka: true },
@@ -75,6 +77,7 @@ export function defaults() {
     trips: [],
     closedPeriods: [],
     seenSummary: null,
+    facts: { order: [], pos: 0 },
   };
 }
 
@@ -119,7 +122,7 @@ export function exportJson(state) {
 export function importJson(text) {
   const data = JSON.parse(text);
   const s = data && data.app === 'groszek' ? data.state : data;
-  if (!s || typeof s !== 'object' || !s.settings) throw new Error('To nie jest kopia Groszka.');
+  if (!s || typeof s !== 'object' || !s.settings) throw new Error('To nie jest kopia danych z tej apki.');
   return merge(defaults(), s);
 }
 

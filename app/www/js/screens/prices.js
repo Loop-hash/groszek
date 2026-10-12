@@ -61,8 +61,4 @@ export default {
       });
     },
   },
-  peek(c) {
-    const n = Object.values(c.state.prices || {}).reduce((a, s) => a + Object.keys(s).length, 0);
-    return n ? `Znam ${n} cen z Twoich paragonów.` : 'Ceny zbieram z paragonów.';
-  },
 };

@@ -1,10 +1,10 @@
 // Pikselowe grafiki Groszka. '#' = tusz, 'o' = papier, '.' = przezroczyste.
 
 export const SPRITES = {
-  pea: ['........................', '.............###........', '............#ooo#.......', '...........##oo#........', '...........#.##.........', '...........#............', '.........######.........', '.......##oooooo##.......', '......#oooooooooo#......', '.....#oooooooooooo#.....', '.....#oooooooooooo#.....', '....#oooo#oooo#oooo#....', '....#oooo#oooo#oooo#....', '....#oooooooooooooo#....', '....#oooooooooooooo#....', '....#oooo#oooo#oooo#....', '....#ooooo####ooooo#....', '.....#oooooooooooo#.....', '.....#oooooooooooo#.....', '......#oooooooooo#......', '.......##oooooo##.......', '.........######.........', '.........#....#.........', '........##....##........'],
-  happy: ['........................', '.............###........', '............#ooo#.......', '...........##oo#........', '...........#.##.........', '...........#............', '.........######.........', '.......##oooooo##.......', '......#oooooooooo#......', '##...#oooooooooooo#...##', '##...#oooooooooooo#...##', '.#..#oooo#oooo#oooo#..#.', '..#.#ooo#o#oo#o#ooo#.#..', '...##oooooooooooooo##...', '....#oooooooooooooo#....', '....#oooo######oooo#....', '....#ooooo####ooooo#....', '.....#oooooooooooo#.....', '.....#oooooooooooo#.....', '......#oooooooooo#......', '.......##oooooo##.......', '.........######.........', '........#......#........', '.......##......##.......'],
-  angry: ['........................', '.............###........', '............#ooo#.......', '...........##oo#...#.#..', '...........#.##...##.##.', '...........#............', '.........######...##.##.', '.......##oooooo##..#.#..', '......#oooooooooo#......', '.....#o##oooooo##o#.....', '.....#ooo##oo##ooo#.....', '....#oooo#oooo#oooo#....', '....#oooo#oooo#oooo#....', '...##oooooooooooooo##...', '..#.#oooooooooooooo#.#..', '...##ooooo####ooooo##...', '....#oooo#oooo#oooo#....', '.....#oooooooooooo#.....', '.....#oooooooooooo#.....', '......#oooooooooo#......', '.......##oooooo##.......', '.........######.........', '.........#....#.........', '........##....##........'],
-  worried: ['........................', '.............###........', '............#ooo#.......', '...........##oo#........', '...........#.##.........', '...........#............', '.........######.........', '.......##oooooo##.......', '......#oooooooooo#......', '.....#oooooooooooo#.....', '.....#oo##oooo##oo#.....', '....#oooo#oooo#oooo#....', '....#oooo#oooo#oooo#....', '....#oooooooooooooo#....', '....#oooooooooooooo#....', '....#ooooo####ooooo#....', '....#oooo#oooo#oooo#....', '.....#oooooooooooo#.....', '.....#oooooooooooo#.....', '......#oooooooooo#......', '.......##oooooo##.......', '.........######.........', '.........#....#.........', '........##....##........'],
+  pea: ['........................', '.............###........', '............#ooo#.......', '...........##oo#........', '...........#.##.........', '...........#............', '.........######.........', '.......##oooooo##.......', '......#oooooooooo#......', '.....#oooooooooooo#.....', '.....#oooooooooooo#.....', '....#oooo#oooo#oooo#....', '....#oooo#oooo#oooo#....', '....#oooooooooooooo#....', '....#occoooooooocco#....', '....#oooo#oooo#oooo#....', '....#ooooo####ooooo#....', '.....#oooooooooooo#.....', '.....#oooooooooooo#.....', '......#oooooooooo#......', '.......##oooooo##.......', '.........######.........', '.........#....#.........', '........##....##........'],
+  happy: ['........................', '.............###........', '............#ooo#.......', '...........##oo#........', '...........#.##.........', '...........#............', '.........######.........', '.......##oooooo##.......', '......#oooooooooo#......', '##...#oooooooooooo#...##', '##...#oooooooooooo#...##', '.#..#oooo#oooo#oooo#..#.', '..#.#ooo#o#oo#o#ooo#.#..', '...##oooooooooooooo##...', '....#occoooooooocco#....', '....#oooo######oooo#....', '....#ooooo####ooooo#....', '.....#oooooooooooo#.....', '.....#oooooooooooo#.....', '......#oooooooooo#......', '.......##oooooo##.......', '.........######.........', '........#......#........', '.......##......##.......'],
+  angry: ['........................', '.............###........', '............#ooo#.......', '...........##oo#...#.#..', '...........#.##...##.##.', '...........#............', '.........######...##.##.', '.......##oooooo##..#.#..', '......#oooooooooo#......', '.....#o##oooooo##o#.....', '.....#ooo##oo##ooo#.....', '....#oooo#oooo#oooo#....', '....#oooo#oooo#oooo#....', '...##oooooooooooooo##...', '..#.#occoooooooocco#.#..', '...##ooooo####ooooo##...', '....#oooo#oooo#oooo#....', '.....#oooooooooooo#.....', '.....#oooooooooooo#.....', '......#oooooooooo#......', '.......##oooooo##.......', '.........######.........', '.........#....#.........', '........##....##........'],
+  worried: ['........................', '.............###........', '............#ooo#.......', '...........##oo#........', '...........#.##.........', '...........#............', '.........######.........', '.......##oooooo##.......', '......#oooooooooo#......', '.....#oooooooooooo#.....', '.....#oo##oooo##oo#.....', '....#oooo#oooo#oooo#....', '....#oooo#oooo#oooo#....', '....#oooooooooooooo#....', '....#occoooooooocco#....', '....#ooooo####ooooo#....', '....#oooo#oooo#oooo#....', '.....#oooooooooooo#.....', '.....#oooooooooooo#.....', '......#oooooooooo#......', '.......##oooooo##.......', '.........######.........', '.........#....#.........', '........##....##........'],
 };
 
 export const UI = {
@@ -196,12 +196,17 @@ function dims(rows) {
   return { w: Math.max(...rows.map((r) => r.length)), h: rows.length };
 }
 
+// Znaki w duszkach: '#' tusz, 'o' papier, 'c' rumieniec (czerwony przy akcentach, inaczej papier),
+// 'r' czerwony detal przebrania (przy akcentach czerwony, inaczej tusz)
 export function pixelSvg(rows, width, cls = '', extra = '') {
   const { w, h } = dims(rows);
   const height = Math.round((width * h) / w);
-  const paper = pathOf(rows, 'o');
-  return `<svg class="${cls}" ${extra} viewBox="0 0 ${w} ${h}" width="${width}" height="${height}" shape-rendering="crispEdges" aria-hidden="true">` +
-    (paper ? `<path class="px-paper" d="${paper}"/>` : '') + `<path class="px-ink" d="${pathOf(rows, '#')}"/></svg>`;
+  let body = '';
+  for (const [ch, k] of [['o', 'px-paper'], ['c', 'px-cheek'], ['r', 'px-red'], ['#', 'px-ink']]) {
+    const d = pathOf(rows, ch);
+    if (d) body += `<path class="${k}" d="${d}"/>`;
+  }
+  return `<svg class="${cls}" ${extra} viewBox="0 0 ${w} ${h}" width="${width}" height="${height}" shape-rendering="crispEdges" aria-hidden="true">${body}</svg>`;
 }
 
 export const sprite = (name, size, cls = '') => pixelSvg(SPRITES[name] || SPRITES.pea, size, cls);
@@ -224,7 +229,7 @@ export function recipeIcon(icon, size, cls = 'ico') {
 }
 
 export function spark(size, style = '', cls = 'spark') {
-  return `<svg class="${cls}" style="${style}" viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true"><path class="px-ink" d="${STAR}"/></svg>`;
+  return `<svg class="${cls}" style="${style}" viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true"><path class="px-spark" d="${STAR}"/></svg>`;
 }
 
 export function searchIcon() {

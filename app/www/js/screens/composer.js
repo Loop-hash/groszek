@@ -1,4 +1,4 @@
-// Składanie miesiąca: podajesz kwotę, Groszek układa dania na każdy dzień i rozpisuje zakupy.
+// Składanie miesiąca: podajesz kwotę, Groszosław układa dania na każdy dzień i rozpisuje zakupy.
 import { status, today, addDays, fmt, dayLabel, dowShort, period, diffDays } from '../budget.js';
 import { ui, recipeIcon, food, sprite } from '../pixels.js';
 import { esc, topbar, toggle, plural } from '../ui.js';
@@ -144,7 +144,6 @@ export default {
     },
   },
   onLeave(c) { c.app.composed = null; },
-  peek: () => ({ text: 'Podaj kwotę, a ja ułożę jedzenie na każdy dzień.', mood: 'pea' }),
 };
 
 function this_run(c) {

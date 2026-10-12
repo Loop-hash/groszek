@@ -1,7 +1,7 @@
 {
-  "name": "Groszek",
-  "short_name": "Groszek",
-  "description": "Budżet na jedzenie, promocje, przepisy i plan miesiąca",
+  "name": "Do Pierwszego",
+  "short_name": "Do Pierwszego",
+  "description": "Jak przeżyć do pierwszego: budżet na jedzenie, promocje, przepisy i plan miesiąca",
   "lang": "pl",
   "start_url": "./",
   "scope": "./",
