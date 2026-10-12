@@ -554,6 +554,9 @@ export function cleanName(raw) {
 
 const letterCount = (s) => (s.match(/\p{L}/gu) || []).length;
 
+// "xl2,99" i "xll, 99": l, I, | po znaku mnożenia to jedynki
+const fixPrice = (f) => f.replace(/([X*×][\s._]?)([LI|!\d]{1,4})(?=\s?[,.]\s?\d)/g, (m, x, d) => x + d.replace(/[LI|!]/g, '1'));
+
 // Wiersz pozycji: "NAZWA C  2SZT * 4,49 8,98 C", "Nazwa t 0,516KG x36,99 19,09C".
 // Ilość, cena i wartość sprawdzają się nawzajem, więc jedną źle odczytaną liczbę da się odtworzyć.
 function itemRow(t, f) {
@@ -563,7 +566,7 @@ function itemRow(t, f) {
   while ((m = PRICE_RE.exec(f))) {
     const before = f.slice(0, m.index).replace(/\s+$/, '');
     const qtyTok = (/(\S+)$/.exec(before) || ['', ''])[1];
-    if (/\d|SZT|KG|SZ/.test(qtyTok)) hit = { m, qtyTok, at: before.length - qtyTok.length };
+    if (/\d|SZT|KG|SZ|^[LI|!]$/.test(qtyTok)) hit = { m, qtyTok: qtyTok.replace(/^[LI|!]$/, '1'), at: before.length - qtyTok.length };
   }
   if (!hit) return null;
   // cena z jedną cyfrą po przecinku ("x3,9") to zgubiona cyfra: odtworzymy ją z wartości
@@ -641,8 +644,9 @@ function mergeSame(items) {
 export function parseItems(rows) {
   const R = rows.map((r) => (typeof r === 'string' ? r : r.text) || '');
   const U = R.map(up);
-  const F = U.map(fixDigits);
+  const F = U.map((u) => fixPrice(fixDigits(u)));
   let i0 = U.findIndex((u) => START_RE.test(u));
+  const header = i0 >= 0;
   if (i0 < 0) i0 = F.findIndex((f, i) => itemRow(R[i], f));
   if (i0 < 0) return { items: [], discTotal: null };
   const items = [];
@@ -673,7 +677,7 @@ export function parseItems(rows) {
     // pozycja bez ilości i ceny jednostkowej: "Torba 0,89 A"; nazwa może być w wierszu wyżej
     const one = /(\d{1,4})\s?[,.]\s?(\d{2})\s?[A-GX€(]\s*$/.exec(f);
     const own = letterCount(R[i].slice(0, one ? one.index : 0).replace(/(^|\s)[A-Za-z](\s|$)/g, ' '));
-    if (one && (own >= 3 || pending) && items.length) {
+    if (one && (own >= 3 || pending) && (items.length || header)) {
       const v = Number(one[1] + '.' + one[2]);
       items.push({ name: cleanName(own >= 3 ? R[i].slice(0, one.index) : pending), qty: 1, unit: 'szt', price: v, total: v });
       pending = null;
