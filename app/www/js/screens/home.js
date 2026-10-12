@@ -2,7 +2,7 @@
 import { status, fmt, totalExp, levelFor, addDays, today } from '../budget.js';
 import { sprite, spark, ui, dish } from '../pixels.js';
 import { FACTS, pickOpening } from '../facts.js';
-import { costumeFor, costumeByKey, costumeSvg, randomRecipe } from '../costumes.js';
+import { costumeByKey, costumeSvg, randomRecipe } from '../costumes.js';
 import { findRecipe } from '../recipes.js';
 import { esc, plural } from '../ui.js';
 import { listMatches } from '../offers.js';
@@ -69,7 +69,7 @@ function hero(c, s, small) {
   const peaW = small ? 112 : 140;
   // przebranie postaci tylko na czas ciekawostki o niej, potem zwykły wygląd
   const dressed = app.fact && app.fact.k && ph.phase !== 'center' && st.settings.costume !== false;
-  const cos = dressed ? costumeByKey(app.fact.k) : costumeFor(c);
+  const cos = dressed ? costumeByKey(app.fact.k) : null;
   const art = cos ? costumeSvg(cos, s.mood, peaW) : sprite(s.mood, peaW);
   const w = cos ? Math.round((peaW * 32) / 24) : peaW;
   const delay = ph.e != null && ph.phase !== 'side' ? ` style="animation-delay:-${Math.round(ph.e)}ms"` : '';

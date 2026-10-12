@@ -311,24 +311,7 @@ await t('przebrania: 21 postaci, każda z ciekawostką i kuchnią z przepisami',
   assert.equal(costumeByKey('nikt'), null);
 });
 
-await t('przebrania: kuchnia z planu z ostatnich 30 dni', async () => {
-  const { topCuisine, costumeFor } = await import('../www/js/costumes.js');
-  const { today, addDays } = await import('../www/js/budget.js');
-  const recipes = [{ id: 'a', country: 'Francja' }, { id: 'b', country: 'Polska' }, { id: 'c', country: 'USA' }, { id: 'p', country: 'Podstawy' }];
-  const plan = { [today()]: [{ id: 'a' }, { id: 'b' }], [addDays(today(), -3)]: [{ id: 'a' }], [addDays(today(), -40)]: [{ id: 'c' }, { id: 'c' }, { id: 'c' }] };
-  const c = { state: { plan, customRecipes: [], settings: {} }, data: { recipes: { recipes } } };
-  assert.equal(topCuisine(c), 'Francja');
-  assert.equal(costumeFor(c).key, 'napoleon');
-  c.state.settings.costume = false; assert.equal(costumeFor(c), null);
-  c.state.settings.costume = true; c.state.plan = { [today()]: [{ id: 'b' }] };
-  assert.equal(costumeFor(c).key, 'kopernik');
-  // Podstawy się nie liczą, remis wygrywa danie zjedzone później
-  c.state.plan = { [today()]: [{ id: 'p' }, { id: 'p' }, { id: 'c' }], [addDays(today(), -5)]: [{ id: 'a' }] };
-  assert.equal(topCuisine(c), 'USA');
-  c.state.plan = { [addDays(today(), -1)]: [{ id: 'b' }], [addDays(today(), -2)]: [{ id: 'a' }] };
-  assert.equal(topCuisine(c), 'Polska');
-  c.state.plan = { [addDays(today(), -2)]: [{ id: 'b' }], [addDays(today(), -1)]: [{ id: 'a' }] };
-  assert.equal(topCuisine(c), 'Francja');
+await t('piksele: rumieńce i czerwone detale', async () => {
   const { pixelSvg, sprite } = await import('../www/js/pixels.js');
   assert.ok(sprite('happy', 40).includes('px-cheek'));
   assert.ok(pixelSvg(['#rco'], 8).includes('px-red'));

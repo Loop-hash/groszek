@@ -56,7 +56,7 @@ export function defaults() {
       avoid: {},
       cuisines: Object.fromEntries(DEFAULT_CUISINES.map((c) => [c, true])),
       peek: true, // ciekawostki Groszosława przy otwarciu apki
-      costume: true, // Groszosław w przebraniu z ulubionej kuchni
+      costume: true, // Groszosław przebiera się przy ciekawostkach o postaciach
       accent: false, // czerwone akcenty dla ozdoby
       strict: false,
       strictCats: { 'słodycze': true, 'chipsy i przekąski': true, 'słodkie napoje': true, 'energetyki': true, 'alkohol': true, 'fast food': false, 'gotowe dania': false },

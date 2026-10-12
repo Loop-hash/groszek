@@ -2,7 +2,7 @@
 
 Do Pierwszego to apka dla studentów, która pomaga przeżyć miesiąc za niewiele pieniędzy: pilnuje budżetu na jedzenie. Mówi, ile możesz dziś wydać, znajduje promocje z Twojej listy zakupów, podsuwa tanie przepisy i układa plan posiłków na cały miesiąc za podaną kwotę.
 
-Jest darmowa, nie ma reklam ani kont. Wszystkie dane zostają w telefonie. Po apce oprowadza Groszosław, pikselowy groszek, który przy otwarciu opowiada jedną ciekawostkę o jedzeniu i przebiera się za postać z kuchni, z której najczęściej gotujesz.
+Jest darmowa, nie ma reklam ani kont. Wszystkie dane zostają w telefonie. Po apce oprowadza Groszosław, pikselowy groszek, który przy otwarciu opowiada jedną ciekawostkę o jedzeniu, a czasem przebiera się za postać, o której opowiada (21 postaci z kuchni świata).
 
 <p>
   <img src="docs/start.png" width="180" alt="Ekran startowy: ile możesz dziś wydać">

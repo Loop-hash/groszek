@@ -207,7 +207,7 @@ export default {
       <span class="label">Groszosław i wygląd</span>
       <div class="rows">
         ${settingRow('Ciekawostki', 'przy otwarciu apki Groszosław opowie jedną ciekawostkę o jedzeniu', toggle('peek', s.peek !== false, 'Ciekawostki'))}
-        ${settingRow('Przebrania', 'Groszosław przebiera się za postać z kuchni, z której najczęściej gotujesz, a czasem za kogoś, o kim opowiada', toggle('costume', s.costume !== false, 'Przebrania'))}
+        ${settingRow('Przebrania', 'czasem Groszosław przebiera się za postać, o której opowiada ciekawostkę', toggle('costume', s.costume !== false, 'Przebrania'))}
         ${settingRow('Czerwone akcenty', 'rumieńce i iskry Groszosława, czysto dla ozdoby', toggle('accent', !!s.accent, 'Czerwone akcenty'))}
         <div class="item col"><span class="name">Wygląd</span>
           <div class="seg">${[['system', 'Jak telefon'], ['light', 'Jasny'], ['dark', 'Ciemny']].map(([v, l]) => `<button class="${s.theme === v ? 'on' : ''}" data-act="theme" data-arg="${v}">${l}</button>`).join('')}</div></div>
