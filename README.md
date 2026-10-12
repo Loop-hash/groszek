@@ -50,6 +50,7 @@ Groszek pojawi się z własną ikonką i będzie otwierał się na pełnym ekran
 
 **Planer**
 - Podajesz kwotę i liczbę dni, a Groszek układa śniadania, obiady i kolacje tak, żeby zmieścić się w budżecie i w dziennej liczbie kalorii.
+- Plan zaczyna się od wybranego dnia: dziś, jutro albo dowolnego dnia z kalendarza, np. od poniedziałku albo od dnia stypendium. Wystarczy zaznaczyć dzień w planerze i nacisnąć „Ułóż plan za kwotę”.
 - Plan od razu zamienia się w listę zakupów, z uwzględnieniem tego, co jest w promocji.
 - Obiad można ugotować raz na dwa dni.
 

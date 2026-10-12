@@ -131,7 +131,7 @@ export default {
       c.save();
       c.render();
     },
-    composer(c) { c.go('composer'); },
+    composer(c) { const d = c.params.sel; c.go('composer', d && d >= today() ? { start: d } : {}); },
     mult(c, idx) {
       const m = (c.state.plan[c.params.sel] || [])[Number(idx)];
       if (!m) return;

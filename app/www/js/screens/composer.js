@@ -15,17 +15,35 @@ function defaults(c) {
   const late = new Date().getHours() >= 12;
   p.from = late ? addDays(today(), 1) : today();
   p.days = Math.max(1, s.period.daysLeft - (late ? 1 : 0)) || 30;
+  // z planera: plan od dnia zaznaczonego w kalendarzu, do końca okresu
+  if (p.start && p.start >= today()) {
+    p.from = p.start;
+    p.days = Math.max(1, Math.min(62, diffDays(p.start, s.period.end) + 1));
+  }
   p.meals = { sniadanie: true, obiad: true, kolacja: true };
   p.cook2 = true;
   p.seed = 1;
   return p;
 }
 
+// Zmiana dnia startu: jeśli liczby dni nie wpisano ręcznie, plan sięga do końca okresu budżetu.
+function setFrom(c, d) {
+  const p = c.params;
+  p.from = d;
+  if (!p.daysTouched) {
+    const end = status(c.state).period.end;
+    if (d <= end) p.days = Math.max(1, Math.min(62, diffDays(d, end) + 1));
+  }
+  c.app.composed = null;
+  c.render();
+}
+
 export default {
   render(c) {
     const p = defaults(c);
     const res = c.app.composed;
-    const fromOpts = [0, 1, 2].map((i) => addDays(today(), i));
+    const fromOpts = [0, 1].map((i) => addDays(today(), i));
+    if (!fromOpts.includes(p.from)) fromOpts.push(p.from);
     let out = '';
     if (res) {
       const ok = res.total <= p.amount + 0.5;
@@ -64,7 +82,8 @@ export default {
       <div class="card stack" style="gap:12px">
         <label class="row between"><span class="bold">Kwota</span><span class="numrow"><input id="cp-amount" class="field small num" type="number" inputmode="decimal" value="${esc(p.amount)}" data-ch="amount" style="width:120px"><span>zł</span></span></label>
         <label class="row between"><span class="bold">Na ile dni</span><span class="numrow"><input id="cp-days" class="field small num" type="number" inputmode="numeric" min="1" max="62" value="${esc(p.days)}" data-ch="days" style="width:120px"><span style="width:18px"></span></span></label>
-        <div class="stack" style="gap:6px"><span class="bold">Od kiedy</span><div class="seg">${fromOpts.map((d, i) => `<button class="${p.from === d ? 'on' : ''}" data-act="from" data-arg="${d}">${i === 0 ? 'Dziś' : i === 1 ? 'Jutro' : dowShort(d) + ' ' + Number(d.slice(8))}</button>`).join('')}</div></div>
+        <div class="stack" style="gap:6px"><span class="bold">Od kiedy</span><div class="seg">${fromOpts.map((d, i) => `<button class="${p.from === d ? 'on' : ''}" data-act="from" data-arg="${d}">${i === 0 ? 'Dziś' : i === 1 ? 'Jutro' : dowShort(d) + ' ' + Number(d.slice(8))}</button>`).join('')}` +
+          `<label class="segbtn">Inny dzień<input id="cp-from" type="date" min="${today()}" max="${addDays(today(), 90)}" value="${esc(p.from)}" data-ch="fromDate" aria-label="Wybierz dzień startu planu"></label></div></div>
         <div class="stack" style="gap:6px"><span class="bold">Posiłki</span><div class="wrap">${Object.entries(MEALS).map(([k, v]) => `<button class="chip ${p.meals[k] ? 'on' : ''}" data-act="meal" data-arg="${k}">${v}</button>`).join('')}</div></div>
         <div class="row between"><span><b>Gotuję na 2 dni</b><br><span class="small muted">jeden obiad starcza na dwa dni</span></span>${toggle('cook2', p.cook2, 'Gotuję na 2 dni')}</div>
         <div class="small muted">${p.days ? `To ${fmt(p.amount / Math.max(1, p.days))} zł dziennie. ` : ''}Cel: ${fmt(c.state.settings.kcal, 0)} kcal dziennie (zmienisz w Ustawieniach).</div>
@@ -76,10 +95,11 @@ export default {
   changes: {
     // bez przerysowania, gdy nie ma wyniku: inaczej dotknięcie przycisku zaraz po wpisaniu kwoty mogłoby nie zadziałać
     amount(c, v) { c.params.amount = Math.max(0, Number(String(v).replace(',', '.')) || 0); if (c.app.composed) { c.app.composed = null; c.render(); } },
-    days(c, v) { c.params.days = Math.max(1, Math.min(62, Math.round(Number(v) || 1))); if (c.app.composed) { c.app.composed = null; c.render(); } },
+    days(c, v) { c.params.days = Math.max(1, Math.min(62, Math.round(Number(v) || 1))); c.params.daysTouched = true; if (c.app.composed) { c.app.composed = null; c.render(); } },
+    fromDate(c, v) { if (v && v >= today()) setFrom(c, v); },
   },
   actions: {
-    from(c, d) { c.params.from = d; c.app.composed = null; c.render(); },
+    from(c, d) { setFrom(c, d); },
     meal(c, k) {
       const m = c.params.meals;
       m[k] = !m[k];
