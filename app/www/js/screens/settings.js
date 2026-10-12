@@ -230,7 +230,7 @@ export default {
         ${c.app.native && !c.app.native()
           ? settingRow('Wersja', `Groszek ${esc(build.build || 0)} · aktualizuje się sama`, '')
           : settingRow('Wersja', `Groszek 0.1.${esc(build.build || 0)}${upd ? (upd.newer ? ' · jest nowsza wersja!' : ' · masz najnowszą') : ''}`,
-            upd && upd.newer ? '<button class="btn small dark" data-act="update">Pobierz</button>' : '<button class="btn small" data-act="checkUpd">Sprawdź</button>')}
+            upd && upd.newer ? '<button class="btn small dark" data-act="update">Aktualizuj</button>' : '<button class="btn small" data-act="checkUpd">Sprawdź</button>')}
         ${settingRow('Odśwież dane', 'promocje i przepisy z GitHuba', `<button class="btn small" data-act="refresh">${ui('refresh', 14)}</button>`)}
         <div class="item col"><span class="sub">Promocje: strony Kauflandu, Lidla i Aldi, pobierane automatycznie dwa razy w tygodniu. Wartości odżywcze: USDA FoodData Central. Ceny składników są szacunkowe, a te z promocji pochodzą ze sklepów.</span></div>
         <div class="item"><button class="btn small block" data-act="reset">Wyczyść wszystkie dane</button></div>

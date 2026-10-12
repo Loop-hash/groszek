@@ -198,21 +198,26 @@ function hidePeek(now = false) {
 
 const mb = (b) => (b / 1048576).toFixed(b < 10485760 ? 1 : 0).replace('.', ',');
 
-// Nowa wersja pobiera się do pamięci apki (jeden plik, nadpisywany) i od razu otwiera instalator.
-// Przez przeglądarkę każde pobranie zostawiało kolejny groszek.apk w Pobranych.
+// Aktualizacja jednym przyciskiem. Gdy część androidowa się nie zmieniła, Groszek pobiera samą
+// stronę (zwykle poniżej 1 MB) i przeładowuje się na nią: Android o nic nie pyta. Inaczej pobiera
+// APK i instaluje je w tle (Android 12+ nie pyta o zgodę), a potem otwiera się sam.
 export async function installUpdate() {
   const u = app.update;
   if (!u) return;
   const up = store.plugin('Updater');
   if (!up || !/\.apk(\?|$)/.test(u.url || '')) { openUrl(u.url); return; }
+  let info = {};
+  try { info = (await up.info()) || {}; } catch (e) { /* starsza wersja wtyczki */ }
+  const sameNative = !!(u.web && u.native && info.native && u.native === info.native);
+  if (sameNative && Number(info.badWeb) !== Number(u.build)) { webUpdate(up, u); return; }
   let can = true;
   try { can = (await up.canInstall()).allowed !== false; } catch (e) { /* starsza wersja wtyczki */ }
   if (!can) {
     sheet({
       mascot: 'pea',
       render: () => '<h2>Jedno pozwolenie</h2><p>Android musi pozwolić Groszkowi instalować aktualizacje. ' +
-        'W ustawieniach włącz „Zezwalaj z tego źródła” i wróć tutaj.</p>' +
-        '<div class="row"><button class="btn grow" data-act="open">Otwórz ustawienia</button><button class="btn dark grow" data-act="go">Pobierz</button></div>',
+        'W ustawieniach włącz „Zezwalaj z tego źródła” i wróć tutaj. To tylko raz.</p>' +
+        '<div class="row"><button class="btn grow" data-act="open">Otwórz ustawienia</button><button class="btn dark grow" data-act="go">Aktualizuj</button></div>',
       actions: {
         open() { up.openInstallSettings().catch(() => {}); },
         async go() {
@@ -226,33 +231,92 @@ export async function installUpdate() {
     });
     return;
   }
+  apkUpdate(up, u, info);
+}
+app.installUpdate = installUpdate;
+
+function updateSheet(title, note) {
   const cfg = {
     mascot: 'pea',
-    render: () => `<h2>Pobieram nową wersję…</h2><p id="upd-status">${u.size ? `0 z ${mb(u.size)} MB` : 'zaczynam'}</p>` +
+    render: () => `<h2>${title}</h2><p id="upd-status">zaczynam</p>` +
       '<div class="bar"><div class="fill" id="upd-bar" style="width:3%"></div></div>' +
-      '<p class="tiny">Plik zostaje w apce, a nie w Pobranych, i znika po instalacji.</p>',
+      `<p class="tiny" id="upd-note">${note}</p>`,
     actions: {},
   };
   sheet(cfg);
+  return cfg;
+}
+
+function updateText(status, note) {
+  const st = $('upd-status');
+  if (st && status != null) st.textContent = status;
+  const nt = $('upd-note');
+  if (nt && note != null) nt.textContent = note;
+}
+
+function onProgress(e) {
+  const bar = $('upd-bar');
+  if (bar && e.progress >= 0) bar.style.width = Math.max(3, e.progress) + '%';
+  const what = e.phase === 'vendor' ? 'czytnik paragonów: ' : '';
+  if (e.total > 0) updateText(`${what}${mb(e.done)} z ${mb(e.total)} MB`);
+}
+
+async function webUpdate(up, u) {
+  const cfg = updateSheet('Aktualizuję Groszka…', 'Za chwilę uruchomi się ponownie. Twoje dane zostają.');
   let handle = null;
   try {
-    handle = await up.addListener('progress', (e) => {
-      const bar = $('upd-bar');
-      const st = $('upd-status');
-      if (bar && e.progress >= 0) bar.style.width = Math.max(3, e.progress) + '%';
-      if (st && e.total > 0) st.textContent = `${mb(e.done)} z ${mb(e.total)} MB`;
+    handle = await up.addListener('progress', onProgress);
+    await store.flush();
+    await up.applyWeb({
+      url: u.web.url, size: u.web.size || 0, build: Number(u.build),
+      vendorUrl: u.vendor ? u.vendor.url : '', vendorSize: u.vendor ? u.vendor.size || 0 : 0,
     });
-    await up.downloadAndInstall({ url: u.url, size: u.size || 0 });
+    const bar = $('upd-bar');
+    if (bar) bar.style.width = '100%';
+    updateText('Gotowe, uruchamiam ponownie…');
+    await store.flush();
+  } catch (e) {
     if (app.sheetCfg === cfg) closeSheet(true);
-    toast('Zatwierdź instalację w okienku Androida');
+    toast((e && e.message) || 'Nie udało się pobrać aktualizacji');
+  } finally {
+    if (handle) handle.remove();
+  }
+}
+
+async function apkUpdate(up, u, info) {
+  const silent = info && info.silent;
+  const cfg = updateSheet('Pobieram nową wersję…', silent
+    ? 'Potem Groszek zainstaluje się sam, zamknie na chwilę i otworzy ponownie.'
+    : 'Potem Android poprosi o zgodę na instalację.');
+  let handle = null;
+  let statusHandle = null;
+  try {
+    handle = await up.addListener('progress', onProgress);
+    try {
+      statusHandle = await up.addListener('status', (e) => {
+        if (e.state === 'confirm') updateText('Potwierdź instalację w okienku Androida', '');
+        if (e.state === 'failed') {
+          if (app.sheetCfg === cfg) closeSheet(true);
+          toast('Nie udało się zainstalować' + (e.message ? ': ' + e.message : ''));
+        }
+      });
+    } catch (e) { /* starsza wersja wtyczki */ }
+    await store.flush();
+    if (u.size) updateText(`0 z ${mb(u.size)} MB`);
+    await up.downloadAndInstall({ url: u.url, size: u.size || 0 });
+    const bar = $('upd-bar');
+    if (bar) bar.style.width = '100%';
+    updateText('Instaluję…', silent ? 'Groszek zamknie się na chwilę i otworzy ponownie.' : '');
+    await store.flush();
   } catch (e) {
     if (app.sheetCfg === cfg) closeSheet(true);
     toast((e && e.message) || 'Nie udało się pobrać');
   } finally {
     if (handle) handle.remove();
   }
+  // statusHandle zostaje: odpowiedź instalatora przychodzi później
+  void statusHandle;
 }
-app.installUpdate = installUpdate;
 
 // ---------- wersja w przeglądarce (iPhone) ----------
 
@@ -433,9 +497,12 @@ async function boot() {
 
   if (!native()) registerWebApp();
 
-  // po aktualizacji pobrany plik nie jest już potrzebny
+  // po aktualizacji pobrany plik nie jest już potrzebny, a nowa strona wystartowała poprawnie
   const upd = store.plugin('Updater');
-  if (upd) upd.cleanup().catch(() => {});
+  if (upd) {
+    upd.cleanup().catch(() => {});
+    try { upd.webReady().catch(() => {}); } catch (e) { /* starsza wersja wtyczki */ }
+  }
 
   const App = store.plugin('App');
   if (App) {

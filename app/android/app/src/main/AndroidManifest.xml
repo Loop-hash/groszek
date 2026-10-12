@@ -25,6 +25,15 @@
 
         </activity>
 
+        <!-- wynik instalacji nowej wersji i otwarcie apki po aktualizacji -->
+        <receiver
+            android:name=".UpdateReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -41,4 +50,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- aktualizacja z apki: pobrany plik trafia do pamięci podręcznej apki, nie do Pobranych -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- Android 12+: aktualizacja samej siebie bez okienka z pytaniem -->
+    <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
 </manifest>

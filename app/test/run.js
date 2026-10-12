@@ -175,6 +175,26 @@ await t('lista: ilości, odmiany i literówki', async () => {
   assert.equal(c.state.list.length, 1); assert.equal(c.state.list[0].qty, 3);
 });
 
+await t('aktualizacja: sama strona albo APK', async () => {
+  const D2 = await import('../www/js/data.js');
+  const real = globalThis.fetch;
+  const asset = (name, size) => ({ name, size, browser_download_url: 'https://x/' + name });
+  globalThis.fetch = async () => ({ ok: true, json: async () => ({
+    name: 'Groszek 0.1.40', body: 'Groszek 0.1.40\n\nbuild: 40\nnative: 3f2a9c01bd77',
+    assets: [asset('nowa-groszek.apk', 1), asset('groszek.apk', 60e6), asset('groszek-www.zip', 4e5), asset('groszek-vendor.zip', 5e6)],
+  }) });
+  try {
+    const u = await D2.checkUpdate(39);
+    assert.equal(u.build, 40); assert.equal(u.newer, true); assert.equal(u.native, '3f2a9c01bd77');
+    assert.equal(u.url, 'https://x/groszek.apk'); assert.equal(u.web.url, 'https://x/groszek-www.zip'); assert.equal(u.vendor.size, 5e6);
+    globalThis.fetch = async () => ({ ok: true, json: async () => ({ body: 'build: 41', assets: [asset('groszek.apk', 1)] }) });
+    const old = await D2.checkUpdate(40);
+    assert.equal(old.native, ''); assert.equal(old.web, null); assert.equal(old.newer, true);
+  } finally {
+    globalThis.fetch = real;
+  }
+});
+
 const extra = await import('./more.js').catch((e) => (e.code === 'ERR_MODULE_NOT_FOUND' ? null : Promise.reject(e)));
 if (extra) await extra.default(t, assert);
 

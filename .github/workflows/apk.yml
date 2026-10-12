@@ -52,8 +52,18 @@ jobs:
           for f in promos recipes ingredients; do
             if [ -f ../data/$f.json ]; then cp ../data/$f.json www/data/; fi
           done
-          printf '{"build": %s, "sha": "%s", "date": "%s"}\n' "$GITHUB_RUN_NUMBER" "${GITHUB_SHA::7}" "$(date -u +%Y-%m-%dT%H:%MZ)" > www/build.json
+          # odcisk części androidowej: gdy się nie zmienił, telefon bierze samą stronę (groszek-www.zip)
+          # zamiast całego APK i nie musi niczego instalować
+          NATIVE=$(cd .. && git ls-files app/android app/package.json app/package-lock.json app/capacitor.config.json | sort | xargs sha256sum | sha256sum | cut -c1-12)
+          # czytnik paragonów (kilkanaście MB) ma osobną paczkę i pobiera się tylko, gdy się zmienił
+          VENDOR=$(cd www/js/vendor && find . -type f | sort | xargs sha256sum | sha256sum | cut -c1-12)
+          printf '{"build": %s, "sha": "%s", "date": "%s", "native": "%s", "vendor": "%s"}\n' "$GITHUB_RUN_NUMBER" "${GITHUB_SHA::7}" "$(date -u +%Y-%m-%dT%H:%MZ)" "$NATIVE" "$VENDOR" > www/build.json
+          echo "NATIVE=$NATIVE" >> "$GITHUB_ENV"
           cat www/build.json
+          cd www
+          zip -qrX ../../groszek-www.zip . -x 'js/vendor/*'
+          zip -qrX ../../groszek-vendor.zip js/vendor
+          ls -la ../../groszek-www.zip ../../groszek-vendor.zip
 
       - name: Budowanie APK
         working-directory: app
@@ -74,20 +84,31 @@ jobs:
 
           Pobierz plik groszek.apk niżej i otwórz go na telefonie z Androidem.
           Przy pierwszej instalacji telefon zapyta o zgodę na instalowanie z tego źródła.
+          Później Groszek aktualizuje się sam przyciskiem w Ustawieniach.
 
-          build: ${GITHUB_RUN_NUMBER}"
-          if gh release view najnowsza >/dev/null 2>&1; then
-            # Podmiana bez przerwy: najpierw cała nowa wersja pod inną nazwą, potem szybka zamiana nazw.
-            # Wcześniej stary plik znikał na czas wgrywania nowego i pobieranie w tym momencie się psuło.
-            cp groszek.apk groszek-nowa.apk
-            gh release upload najnowsza groszek-nowa.apk --clobber
-            OLD=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/najnowsza" -q '.assets[] | select(.name=="groszek.apk") | .id')
-            NEW=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/najnowsza" -q '.assets[] | select(.name=="groszek-nowa.apk") | .id')
+          build: ${GITHUB_RUN_NUMBER}
+          native: ${NATIVE}"
+          # Podmiana bez przerwy: najpierw cały nowy plik pod inną nazwą, potem szybka zamiana nazw.
+          # Wcześniej stary plik znikał na czas wgrywania nowego i pobieranie w tym momencie się psuło.
+          swap() {
+            cp "$1" "nowa-$1"
+            gh release upload najnowsza "nowa-$1" --clobber
+            OLD=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/najnowsza" -q ".assets[] | select(.name==\"$1\") | .id")
+            NEW=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/najnowsza" -q ".assets[] | select(.name==\"nowa-$1\") | .id")
             if [ -n "$OLD" ]; then gh api -X DELETE "repos/$GITHUB_REPOSITORY/releases/assets/$OLD"; fi
-            gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/assets/$NEW" -f name=groszek.apk > /dev/null
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/assets/$NEW" -f name="$1" > /dev/null
+          }
+          if gh release view najnowsza >/dev/null 2>&1; then
+            # stara nazwa tymczasowa z poprzednich wersji tego kroku
+            STALE=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/najnowsza" -q '.assets[] | select(.name=="groszek-nowa.apk") | .id')
+            if [ -n "$STALE" ]; then gh api -X DELETE "repos/$GITHUB_REPOSITORY/releases/assets/$STALE"; fi
+            # notatki (numer wersji) zmieniają się na końcu, gdy wszystkie pliki są już nowe
+            swap groszek-vendor.zip
+            swap groszek-www.zip
+            swap groszek.apk
             gh release edit najnowsza --title "Groszek 0.1.${GITHUB_RUN_NUMBER}" --notes "$NOTES"
           else
-            gh release create najnowsza groszek.apk --title "Groszek 0.1.${GITHUB_RUN_NUMBER}" --notes "$NOTES" --target "$GITHUB_SHA"
+            gh release create najnowsza groszek.apk groszek-www.zip groszek-vendor.zip --title "Groszek 0.1.${GITHUB_RUN_NUMBER}" --notes "$NOTES" --target "$GITHUB_SHA"
           fi
 
       - name: Logi na gałąź ci-apk

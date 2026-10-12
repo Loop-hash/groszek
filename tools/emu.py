@@ -113,70 +113,141 @@ def typ(s):
     time.sleep(0.5)
 
 
-def update_test(ev):
-    """Aktualizacja z apki: plik ma się pobrać do pamięci apki i otworzyć instalator, bez śladu w Pobranych."""
-    before = sh("adb shell ls /sdcard/Download").split()
-    sh("adb shell appops set pl.groszek.app REQUEST_INSTALL_PACKAGES allow")
-    r = ev("(async () => { const g = window.groszek; const u = await g.checkForUpdate(); if (!u) return 'brak'; "
-           "g.update = Object.assign({}, u, { newer: true }); g.installUpdate(); return JSON.stringify(g.update); })()")
-    log("aktualizacja: start", r.get("result", {}).get("result", {}).get("value"))
-    found = False
-    for _ in range(36):
-        time.sleep(5)
-        xml = sh("adb shell uiautomator dump /sdcard/ui.xml && adb shell cat /sdcard/ui.xml", timeout=40)
-        if "packageinstaller" in xml:
-            found = True
+def web_update_test():
+    """Aktualizacja samej strony: pobranie paczki, przeładowanie bez instalatora, odczyt paragonu na nowej stronie."""
+    ws, ev = connect()
+    if ws is None:
+        log("aktualizacja strony: brak połączenia")
+        return
+    r = val(ev("(async () => { const g = window.groszek; const u = await g.checkForUpdate(); if (!u) return 'brak wydania';"
+               " const info = await Capacitor.Plugins.Updater.info(); g.update = Object.assign({}, u, { newer: true });"
+               " g.installUpdate(); return JSON.stringify({ build: u.build, native: u.native, web: u.web, info }); })()"))
+    log("aktualizacja strony: start", r)
+    # w trakcie przeładowania połączenie z debugerem może zawisnąć: nowe po chwili
+    try:
+        ws.close()
+    except Exception:  # noqa: BLE001
+        pass
+    time.sleep(25)
+    ws, ev = connect(start=False)
+    if ws is None:
+        log("aktualizacja strony: ŹLE, brak połączenia po przeładowaniu")
+        return
+    got = None
+    for _ in range(20):
+        time.sleep(4)
+        try:
+            v = val(ev("(async () => { const i = await Capacitor.Plugins.Updater.info();"
+                       " const b = await (await fetch('build.json', { cache: 'no-store' })).json();"
+                       " const t = await fetch('js/vendor/tesseract/tesseract.min.js');"
+                       " return JSON.stringify({ webPath: i.webPath, build: b.build, vendor: t.status, screen: !!document.querySelector('#app main') }); })()"))
+        except Exception as e:  # noqa: BLE001
+            v = "błąd " + repr(e)
+        if isinstance(v, str) and '"webPath":"/' in v:
+            got = v
             break
-    shot("17-instalator")
-    after = sh("adb shell ls /sdcard/Download").split()
-    log("aktualizacja: instalator", "jest" if found else "BRAK", "| nowe pliki w Pobranych:", sorted(set(after) - set(before)) or "brak")
-    sh("adb shell input keyevent KEYCODE_BACK")
+    shot("17-po-aktualizacji-strony")
+    installer = "packageinstaller" in sh("adb shell uiautomator dump /sdcard/ui.xml && adb shell cat /sdcard/ui.xml", timeout=40)
+    log("aktualizacja strony:", "OK" if got else "ŹLE", got, "| okienko instalatora:", "TAK" if installer else "nie")
+    if got:
+        time.sleep(3)
+        b64 = base64.b64encode(open("tools/test-paragon.jpg", "rb").read()).decode()
+        v = val(ev("(async () => { const m = await import('./js/receipt.js'); m.opts.engine = 'auto';"
+                   " const b = await (await fetch('data:image/jpeg;base64,%s')).blob();"
+                   " const r = await m.readReceipt(b); return JSON.stringify({ total: r.total, engine: r.engine }); })()" % b64))
+        log("aktualizacja strony: paragon na nowej stronie", v)
+    ws.close()
+    # po ponownym uruchomieniu dalej nowa strona (webReady potwierdził, że działa)
+    sh("adb shell am force-stop pl.groszek.app")
     time.sleep(2)
+    ws, ev = connect()
+    if ws is not None:
+        v = val(ev("(async () => JSON.stringify(await Capacitor.Plugins.Updater.info()))()"))
+        log("aktualizacja strony: po restarcie", v)
+        ws.close()
 
 
-def ocr_bench():
-    """Czyta wygenerowane paragony (tools/paragony.py) silnikiem ML Kit i Tesseract przez debuger WebView."""
+def apk_update_test():
+    """Aktualizacja APK z apki: ma się zainstalować bez okienek i otworzyć sama."""
+    ws, ev = connect()
+    if ws is None:
+        log("aktualizacja APK: brak połączenia")
+        return
+    sh("adb shell appops set pl.groszek.app REQUEST_INSTALL_PACKAGES allow")
+    before = sh("adb shell dumpsys package pl.groszek.app | grep lastUpdateTime").strip()
+    pid0 = sh("adb shell pidof pl.groszek.app").strip()
+    sh("adb logcat -c")
+    r = val(ev("(async () => { const g = window.groszek; const u = await g.checkForUpdate(); if (!u) return 'brak wydania';"
+               " g.update = Object.assign({}, u, { newer: true, web: null }); g.installUpdate(); return u.url; })()"))
+    log("aktualizacja APK: start", r, "| przed:", before, "pid", pid0)
+    try:
+        ws.close()
+    except Exception:  # noqa: BLE001
+        pass
+    installer = False
+    updated = False
+    reopened = False
+    for i in range(40):
+        time.sleep(4)
+        xml = sh("adb shell uiautomator dump /sdcard/ui.xml && adb shell cat /sdcard/ui.xml", timeout=40)
+        if "packageinstaller" in xml or "permissioncontroller" in xml:
+            if not installer:
+                shot("18-instalator")
+            installer = True
+        now = sh("adb shell dumpsys package pl.groszek.app | grep lastUpdateTime").strip()
+        updated = updated or (now != before and bool(now))
+        top = sh("adb shell dumpsys activity activities | grep -E 'topResumedActivity|mResumedActivity'")
+        pid = sh("adb shell pidof pl.groszek.app").strip()
+        if updated and "pl.groszek.app" in top and pid and pid != pid0:
+            reopened = True
+            break
+        if updated and i > 25:
+            break
+    shot("18-po-aktualizacji-apk")
+    log("aktualizacja APK: zainstalowana", "TAK" if updated else "NIE", "| okienko instalatora:", "TAK" if installer else "nie",
+        "| otworzyła się sama:", "TAK" if reopened else "NIE")
+    log("aktualizacja APK: logcat", sh("adb logcat -d -v brief | grep -E 'GroszekUpdate|Background activity|BAL|abort.*groszek|PackageInstaller.*groszek' | tail -25", timeout=60))
+
+
+def connect(start=True):
+    """Połączenie z debugerem WebView apki; zwraca (ws, ev) albo (None, None)."""
     try:
         import websocket  # websocket-client
     except ImportError:
-        log("ocr: brak websocket-client")
-        return
-    truth = {}
-    folder = os.path.join(OUT, "paragony")
-    if os.path.exists(os.path.join(folder, "wyniki.json")):
-        truth = json.load(open(os.path.join(folder, "wyniki.json")))
-    files = [(os.path.join(folder, k), v) for k, v in truth.items()]
-    files.append(("tools/test-paragon.jpg", {"total": 35.25, "store": "Biedronka"}))
-    # po dwóch "wstecz" apka mogła się zamknąć, a WebView w tle nie pokazuje stron debugerowi
-    sh("adb shell am start -n pl.groszek.app/.MainActivity")
-    time.sleep(8)
+        log("cdp: brak websocket-client")
+        return None, None
+    if start:
+        # po dwóch "wstecz" apka mogła się zamknąć, a WebView w tle nie pokazuje stron debugerowi
+        sh("adb shell am start -n pl.groszek.app/.MainActivity")
+        time.sleep(8)
     pid = sh("adb shell pidof pl.groszek.app").strip()
     socks = re.findall(r"@(webview_devtools_remote_\d+)", sh("adb shell cat /proc/net/unix"))
     name = f"webview_devtools_remote_{pid}" if f"webview_devtools_remote_{pid}" in socks else (socks[-1] if socks else "")
     if not name:
-        log("ocr: brak gniazda debugera WebView")
-        return
-    log("ocr: gniazdo", name, "pid", pid, "wszystkie", socks)
-    log("ocr: forward", sh(f"adb forward tcp:9222 localabstract:{name}"), sh("adb forward --list"))
+        log("cdp: brak gniazda debugera WebView")
+        return None, None
+    log("cdp: gniazdo", name, "pid", pid, "wszystkie", socks)
+    sh("adb forward --remove-all")
+    log("cdp: forward", sh(f"adb forward tcp:9222 localabstract:{name}"))
     ws = None
     for attempt in range(3):
         try:
             raw = urllib.request.urlopen("http://127.0.0.1:9222/json", timeout=20).read()
-            log("ocr: /json", raw[:600])
+            log("cdp: /json", raw[:400])
             pages = json.loads(raw)
             page = next(p for p in pages if p.get("type") == "page")
             url = page["webSocketDebuggerUrl"]
             try:
                 ws = websocket.create_connection(url, timeout=240, suppress_origin=True)
             except Exception as e:  # noqa: BLE001
-                log("ocr: websocket bez origin", repr(e))
+                log("cdp: websocket bez origin", repr(e))
                 ws = websocket.create_connection(url, timeout=240)
             break
         except Exception as e:  # noqa: BLE001
-            log("ocr: nie połączyłem się z WebView", repr(e))
+            log("cdp: nie połączyłem się z WebView", repr(e))
             time.sleep(5)
     if ws is None:
-        return
+        return None, None
     n = [0]
 
     def ev(expr):
@@ -188,6 +259,28 @@ def ocr_bench():
             if m.get("id") == n[0]:
                 return m
 
+    return ws, ev
+
+
+def val(res):
+    """Wartość z odpowiedzi Runtime.evaluate (albo opis błędu)."""
+    r = (res or {}).get("result", {})
+    if "exceptionDetails" in r:
+        return "WYJĄTEK " + json.dumps(r["exceptionDetails"])[:300]
+    return r.get("result", {}).get("value")
+
+
+def ocr_bench():
+    """Czyta wygenerowane paragony (tools/paragony.py) silnikiem ML Kit i Tesseract przez debuger WebView."""
+    truth = {}
+    folder = os.path.join(OUT, "paragony")
+    if os.path.exists(os.path.join(folder, "wyniki.json")):
+        truth = json.load(open(os.path.join(folder, "wyniki.json")))
+    files = [(os.path.join(folder, k), v) for k, v in truth.items()]
+    files.append(("tools/test-paragon.jpg", {"total": 35.25, "store": "Biedronka"}))
+    ws, ev = connect()
+    if ws is None:
+        return
     results = []
     score = {}
     for eng in ("auto", "tesseract"):
@@ -217,7 +310,6 @@ def ocr_bench():
                 r.get("how"), r.get("store"), r.get("ms"), "ms", "pozycje", len(r.get("items") or []), "/", t.get("items"),
                 "zgodne" if r.get("itemsOk") else "niezgodne", r.get("error", ""))
             results.append({"file": os.path.basename(path), "want": t, "got": r})
-    update_test(ev)
     ws.close()
     json.dump(results, open(os.path.join(OUT, "ocr.json"), "w"), ensure_ascii=False, indent=1)
     for k, (a, b) in score.items():
@@ -358,6 +450,10 @@ def main():
     shot("14-ciemny")
     sh("adb shell cmd uimode night no")
     open(os.path.join(OUT, "logcat.txt"), "w").write(sh("adb logcat -d -v brief", timeout=60))
+
+    web_update_test()
+    apk_update_test()
+    open(os.path.join(OUT, "logcat-aktualizacja.txt"), "w").write(sh("adb logcat -d -v brief", timeout=60))
     log("koniec")
 
 

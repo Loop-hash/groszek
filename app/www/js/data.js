@@ -71,12 +71,19 @@ export async function checkUpdate(currentBuild) {
     const r = await fetch(RELEASE_API, { cache: 'no-store', headers: { Accept: 'application/vnd.github+json' } });
     if (!r.ok) return null;
     const rel = await r.json();
-    const m = /build[:\s]+(\d+)/i.exec(rel.body || '');
+    const body = rel.body || '';
+    const m = /build[:\s]+(\d+)/i.exec(body);
     const build = m ? Number(m[1]) : 0;
-    const asset = (rel.assets || []).find((a) => /\.apk$/.test(a.name));
+    // odcisk części androidowej: ten sam co w telefonie, to wystarczy pobrać samą stronę
+    const nat = /native[:\s]+([0-9a-f]{6,})/i.exec(body);
+    const assets = rel.assets || [];
+    const by = (n) => assets.find((a) => a.name === n);
+    const asset = by('groszek.apk') || assets.find((a) => /\.apk$/.test(a.name) && !/^nowa-/.test(a.name));
+    const pack = (a) => (a ? { url: a.browser_download_url, size: a.size } : null);
     return {
       build, newer: build > (Number(currentBuild) || 0), url: asset ? asset.browser_download_url : RELEASE_PAGE,
       size: asset ? asset.size : 0, name: rel.name,
+      native: nat ? nat[1] : '', web: pack(by('groszek-www.zip')), vendor: pack(by('groszek-vendor.zip')),
     };
   } catch (e) {
     return null;
