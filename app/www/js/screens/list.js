@@ -3,8 +3,8 @@ import { fmt, today, r2, shortDate } from '../budget.js';
 import { ui, food, sprite, FOOD } from '../pixels.js';
 import { esc, topbar, check, empty, plural } from '../ui.js';
 import { listMatches, offerForItem, STORES, whenLabel, saving, isActive, tidy } from '../offers.js';
-import { addToList } from '../listlogic.js';
-import { norm } from '../dict.js';
+import { addEntries } from '../listlogic.js';
+import { norm, qtyText, gramsOf, setQty, stepLabel } from '../dict.js';
 import { uid } from '../store.js';
 import { pricesFor } from '../prices.js';
 
@@ -25,7 +25,8 @@ function itemRow(c, i, matches) {
     sub = [STORES[o.store] || o.store, whenLabel(o), o.cond].filter(Boolean).join(' · ');
     price = `<span class="offer-price"><span class="price">${fmt(o.price)} zł</span>${o.oldPrice ? `<span class="old">${fmt(o.oldPrice)} zł</span>` : ''}</span>`;
   }
-  const q = i.amount ? ` <span class="qty">${esc(i.amount)}</span>` : i.qty > 1 ? ` <span class="qty">×${i.qty}</span>` : '';
+  const qt = qtyText(i);
+  const q = qt ? ` <span class="qty">${esc(qt)}</span>` : '';
   const plus = i.done ? '' : `<button class="qty-plus" data-act="more" data-arg="${esc(i.id)}" aria-label="Jeszcze jedno: ${esc(i.name)}">${ui('plus', 14)}</button>`;
   return `<div class="item ${i.done ? 'done' : ''}">${check('tick', i.done, (i.done ? 'Odznacz ' : 'Odhacz ') + i.name, i.id)}` +
     `<button class="item-main" data-act="open" data-arg="${esc(i.id)}">${food(i.ico, 30)}<span class="grow stack"><span class="name">${esc(i.name)}${q}</span>` +
@@ -39,9 +40,10 @@ function priceOf(c, i, matches) {
   if (o && o.price && isActive(o)) return { price: r2(o.price * qty), store: o.store, src: 'promo' };
   // cena z Twoich paragonów
   const known = pricesFor(c.state, i.name)[0];
+  // waga z ilości ("2 kg", "2 × 1 kg"); opakowania i sztuki są już w qty
+  const grams = gramsOf(i.amount);
   if (known && known.paid) {
-    const kg = /([\d.,]+)\s*(kg|g|dag|dkg)\b/i.exec(i.amount || '');
-    const w = kg ? Number(kg[1].replace(',', '.')) / ({ kg: 1, g: 1000, dag: 100, dkg: 100 }[kg[2].toLowerCase()]) : 0.5;
+    const w = (grams ? grams / 1000 : 0.5) * qty;
     return { price: r2(known.paid * (known.unit === 'kg' ? w : qty)), store: known.store.toLowerCase(), src: 'twoje' };
   }
   const all = (c.data.ingredients && c.data.ingredients.ingredients) || {};
@@ -55,8 +57,8 @@ function priceOf(c, i, matches) {
     }
   }
   if (!best || !best.kg) return null;
-  const grams = best.pkg || 500; // bez opakowania (warzywa na wagę): pół kilo
-  return { price: r2((best.kg * grams) / 1000 * qty), store: '', src: 'szac' };
+  const g = grams || best.pkg || 500; // bez opakowania (warzywa na wagę): pół kilo
+  return { price: r2((best.kg * g) / 1000 * qty), store: '', src: 'szac' };
 }
 
 // Kupione, a jeszcze nie w wydatkach: suma, sklep z największą liczbą rzeczy i lista nazw
@@ -92,8 +94,7 @@ function toExpenses(c) {
 function changeQty(c, id, d) {
   const i = c.state.list.find((x) => x.id === id);
   if (!i) return;
-  i.qty = Math.max(1, Math.min(99, (i.qty || 1) + d));
-  if (i.qty === 1) delete i.qty;
+  setQty(i, (i.qty || 1) + d);
   c.save();
   c.render();
 }
@@ -116,7 +117,7 @@ function itemSheet(c, id) {
       const known = pricesFor(cc.state, i.name).slice(0, 4);
       const mine = known.length ? `<span class="label">Twoje ceny z paragonów</span><div class="rows">${known.map((k) => `<div class="item"><span class="grow stack"><span class="name">${esc(k.store)}</span><span class="sub">${esc(k.name)} · ${shortDate(k.date)}${k.promo ? ' · w promocji' : ''}</span></span><b class="pixel">${fmt(k.paid)} zł${k.unit === 'kg' ? '/kg' : ''}</b></div>`).join('')}</div>` : '';
       return `<div class="row">${food(i.ico, 44)}<h3 class="grow">${esc(i.name)}</h3></div>` +
-        `<div class="row between"><span class="bold">Ile sztuk</span><span class="stepper">` +
+        `<div class="row between"><span class="bold">${esc(stepLabel(i))}</span><span class="stepper">` +
         `<button class="sq" data-act="less" aria-label="Mniej" ${qty <= 1 ? 'aria-disabled="true"' : ''}>${ui('minus', 18)}</button>` +
         `<b class="pixel">${qty}</b><button class="sq" data-act="more" aria-label="Więcej">${ui('plus', 18)}</button></span></div>` +
         (matches.length
@@ -198,7 +199,7 @@ export default {
       ${topbar('Moja lista', `${pending.length} do kupienia`, { right: `<button class="sq" data-act="promos" aria-label="Promocje">${ui('tag', 22)}</button>` })}
       <form class="list-add" data-submit="add" autocomplete="off">
         <label class="sr" for="list-new">Nowy produkt</label>
-        <input id="list-new" class="field" type="text" placeholder="Dopisz, np. jogurt" enterkeyhint="done" autocapitalize="sentences">
+        <input id="list-new" class="field" type="text" placeholder="Dopisz, np. 3 jogurty" enterkeyhint="done" autocapitalize="sentences">
         <button class="sq" type="submit" aria-label="Dopisz">${ui('plus', 20)}</button>
       </form>
       ${st.settings.strict ? `<div class="card dark row" style="padding:10px 14px">${sprite('angry', 34)}<span class="small grow">Tryb ostry: zachcianek nie dopiszę.</span></div>` : ''}
@@ -213,10 +214,10 @@ export default {
       const inp = document.getElementById('list-new');
       const v = inp ? inp.value : '';
       if (!v.trim()) return;
-      const ok = addToList(c, v, {}, { typed: true });
       if (inp) inp.value = '';
+      const ok = addEntries(c, v) > 0;
       c.render();
-      if (ok) {
+      if (ok && !c.app.sheetCfg) {
         const again = document.getElementById('list-new');
         if (again) again.focus();
       }

@@ -1,5 +1,6 @@
 // Nowy wydatek: klawiatura, sklep, dzień. Ten sam ekran poprawia i usuwa stary wydatek.
 import { status, fmt, today, addDays, r2, dayLabel } from '../budget.js';
+import { qtyText } from '../dict.js';
 import { ui, food, sprite } from '../pixels.js';
 import { esc, topbar, chip, plural, toggle, settingRow } from '../ui.js';
 import { uid } from '../store.js';
@@ -44,7 +45,7 @@ function init(c) {
   if (p.fromList && p.listStore && SHOPS.includes(p.listStore)) p.store = p.listStore;
 }
 
-const itemLabel = (x) => x.name + (x.amount ? ' ' + x.amount : x.qty > 1 ? ' ×' + x.qty : '');
+const itemLabel = (x) => { const q = qtyText(x); return x.name + (q ? ' ' + q : ''); };
 
 // Promocje z gazetki sprawdzamy w dniu z paragonu (albo wybranym dniu), w wybranym sklepie.
 // Liczymy od nowa, gdy zmieni się sklep albo dzień.

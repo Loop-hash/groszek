@@ -175,6 +175,77 @@ await t('lista: ilości, odmiany i literówki', async () => {
   assert.equal(c.state.list.length, 1); assert.equal(c.state.list[0].qty, 3);
 });
 
+await t('lista: wszystkie sposoby wpisania ilości', async () => {
+  const q = (s) => { const p = D.parseEntry(s); return `${D.canonical(p.text, {}).name} | ${p.qty} | ${p.amount}`; };
+  const cases = {
+    // liczba przed nazwą, ze spacją i bez, z x, ×, *, szt.
+    '3 masło': 'masło | 3 | ', '3masło': 'masło | 3 | ', '3maslo': 'masło | 3 | ', '3 MASŁO': 'masło | 3 | ',
+    '3x masło': 'masło | 3 | ', '3 x masło': 'masło | 3 | ', '3× masło': 'masło | 3 | ', '3* masło': 'masło | 3 | ',
+    'x3 masło': 'masło | 3 | ', '3szt masło': 'masło | 3 | ', '3 szt. masło': 'masło | 3 | ', '3 sztuki masła': 'masło | 3 | ',
+    // liczba za nazwą
+    'masło 3': 'masło | 3 | ', 'masło3': 'masło | 3 | ', 'maslo3': 'masło | 3 | ', 'MASŁO3': 'masło | 3 | ',
+    'masło x3': 'masło | 3 | ', 'masło 3x': 'masło | 3 | ', 'masło3x': 'masło | 3 | ', 'masło ×3': 'masło | 3 | ',
+    'masło 3szt': 'masło | 3 | ', 'masło 3 sztuki': 'masło | 3 | ', 'masło szt. 3': 'masło | 3 | ', 'masło x 3 szt': 'masło | 3 | ',
+    'masło (3)': 'masło | 3 | ', 'masło(3)': 'masło | 3 | ', 'masło (3 szt.)': 'masło | 3 | ', 'masło [3]': 'masło | 3 | ',
+    'masło - 3': 'masło | 3 | ', 'masło-3': 'masło | 3 | ', 'masło: 3': 'masło | 3 | ', 'masło = 3': 'masło | 3 | ',
+    'masło x': 'masło | 1 | ', '- masło 3': 'masło | 3 | ', '• masło': 'masło | 1 | ',
+    // słownie
+    'trzy masła': 'masło | 3 | ', 'dwa mleka': 'mleko | 2 | ', 'pięć jajek': 'jajka | 5 | ', 'piec jajek': 'jajka | 5 | ',
+    'tuzin jajek': 'jajka | 12 | ', 'pół tuzina jajek': 'jajka | 6 | ', '2 tuziny jajek': 'jajka | 24 | ', 'jedna cebula': 'cebula | 1 | ',
+    '2-3 jabłka': 'jabłka | 3 | ', 'kilka jabłek': 'jabłka | 1 | kilka', 'pół arbuza': 'arbuz | 1 | pół',
+    '10 jaj': 'jajka | 10 | ', 'jaja 10': 'jajka | 10 | ', '5 marchewek': 'marchew | 5 | ', '2 masełka': 'masło | 2 | ',
+    // waga i objętość
+    '2 kg ziemniaków': 'ziemniaki | 1 | 2 kg', '2kg ziemniaków': 'ziemniaki | 1 | 2 kg', 'ziemniaki 2kg': 'ziemniaki | 1 | 2 kg',
+    'dwa kilo ziemniaków': 'ziemniaki | 1 | 2 kg', 'kilo ziemniaków': 'ziemniaki | 1 | 1 kg', 'pół kilo sera': 'ser | 1 | 0,5 kg',
+    'półtora kilo ziemniaków': 'ziemniaki | 1 | 1,5 kg', '0.5kg sera': 'ser | 1 | 0,5 kg', '1/2 kg sera': 'ser | 1 | 0,5 kg',
+    '500g sera': 'ser | 1 | 500 g', 'ser 50dag': 'ser | 1 | 50 dag', '10 deko szynki': 'szynka | 1 | 10 dag', 'szynka 20 dkg': 'szynka | 1 | 20 dag',
+    'mleko 2l': 'mleko | 1 | 2 l', 'dwa litry mleka': 'mleko | 1 | 2 l', 'litr mleka': 'mleko | 1 | 1 l', 'pół litra śmietany': 'śmietana | 1 | 0,5 l',
+    'około 2 kg ziemniaków': 'ziemniaki | 1 | 2 kg', 'ziemniaki ok. 2 kg': 'ziemniaki | 1 | 2 kg', '2 kg cukru': 'cukier | 1 | 2 kg',
+    // sztuki razy waga
+    '6x1,5l woda': 'woda | 6 | 1,5 l', 'woda 6x1,5l': 'woda | 6 | 1,5 l', '2 x 1 kg cukru': 'cukier | 2 | 1 kg',
+    'cukier 1kg x2': 'cukier | 2 | 1 kg', 'mleko 2 l 3': 'mleko | 3 | 2 l', '3 x 2 l mleka': 'mleko | 3 | 2 l',
+    // opakowania
+    '2 opak. jajek': 'jajka | 2 | 2 opakowania', '2op jajek': 'jajka | 2 | 2 opakowania', 'jajka 2 opak.': 'jajka | 2 | 2 opakowania',
+    '3 puszki pomidorów': 'pomidory | 3 | 3 puszki', 'pomidory 3 puszki': 'pomidory | 3 | 3 puszki', 'puszka pomidorów': 'pomidory | 1 | 1 puszka',
+    '5 puszek pomidorów': 'pomidory | 5 | 5 puszek', 'dwie kostki masła': 'masło | 2 | 2 kostki', 'pół kostki masła': 'masło | 1 | pół kostki',
+    '2 puszki pomidorów po 400 g': 'pomidory | 2 | 2 puszki po 400 g', '2 zgrzewki wody 1,5l': 'woda | 2 | 2 zgrzewki po 1,5 l',
+    // liczby, które są częścią nazwy
+    'mleko 3,2%': 'mleko 3,2% | 1 | ', 'mleko 3,2% 2': 'mleko 3,2% | 2 | ', '2 mleko 3,2%': 'mleko 3,2% | 2 | ', 'jogurt 0%': 'jogurt 0% | 1 | ',
+    '7up': '7up | 1 | ', '2 7up': '7up | 2 | ', '3bit': '3bit | 1 | ', 'chleb 5 zbóż': 'chleb 5 zbóż | 1 | ', 'chleb 5 zbóż 2': 'chleb 5 zbóż | 2 | ',
+    'tran omega 3': 'tran omega 3 | 1 | ', 'kawa 3w1': 'kawa 3w1 | 1 | ', 'witamina d3': 'witamina d3 | 1 | ',
+    'pepsi 0,5': 'pepsi 0,5 | 1 | ', 'pepsi 0,5 2': 'pepsi 0,5 | 2 | ', 'cola 0,5l': 'cola | 1 | 0,5 l', 'masło 100': 'masło 100 | 1 | ',
+    'mleko 2% 1l': 'mleko 2% | 1 | 1 l', '3': '3 | 1 | ',
+  };
+  for (const [inp, want] of Object.entries(cases)) assert.equal(q(inp), want, inp);
+  // kilka rzeczy w jednym wpisie
+  const sp = (s) => D.splitEntries(s).map(q);
+  assert.deepEqual(sp('masło, 2 mleka i chleb'), ['masło | 1 | ', 'mleko | 2 | ', 'chleb | 1 | ']);
+  assert.deepEqual(sp('3 masła 2 mleka'), ['masło | 3 | ', 'mleko | 2 | ']);
+  assert.deepEqual(sp('masło 3 mleko 2'), ['masło | 3 | ', 'mleko | 2 | ']);
+  assert.deepEqual(sp('2 kg ziemniaków 3 masła'), ['ziemniaki | 1 | 2 kg', 'masło | 3 | ']);
+  assert.deepEqual(sp('masło 82% 2 mleko 3,2% 3'), ['masło 82% | 2 | ', 'mleko 3,2% | 3 | ']);
+  assert.deepEqual(sp('masło, 3'), ['masło | 3 | ']);
+  assert.deepEqual(sp('mleko 3,2%, chleb'), ['mleko 3,2% | 1 | ', 'chleb | 1 | ']);
+  assert.deepEqual(sp('masło\nmleko; chleb + sól'), ['masło | 1 | ', 'mleko | 1 | ', 'chleb | 1 | ', 'sól | 1 | ']);
+  // ta sama rzecz drugi raz: sztuki, opakowania i waga się sumują
+  const { addToList, addEntries } = await import('../www/js/listlogic.js');
+  const c = { state: { list: [], learned: {}, icons: {}, settings: { strict: false, strictCats: {} } }, save() {}, toast() {}, sheet() {}, render() {} };
+  const add = (s) => addEntries(c, s);
+  const item = (n) => c.state.list.find((i) => i.name === n);
+  add('3maslo'); add('maslo3'); assert.equal(item('masło').qty, 6);
+  add('3 puszki pomidorów'); add('2 puszki pomidorów'); assert.equal(item('pomidory').amount, '5 puszek'); assert.equal(item('pomidory').qty, 5);
+  add('pomidory'); assert.equal(item('pomidory').amount, '6 puszek');
+  add('2 kg ziemniaków'); add('ziemniaki 500g'); assert.equal(item('ziemniaki').amount, '2,5 kg');
+  add('mleko 1l'); add('500 ml mleka'); assert.equal(item('mleko').amount, '1,5 l');
+  add('szynka 20 dag'); add('10 dag szynki'); assert.equal(item('szynka').amount, '30 dag');
+  add('chleb, 2 bułki i jajka 10'); assert.ok(item('chleb') && item('bułki').qty === 2 && item('jajka').qty === 10);
+  assert.equal(D.qtyText({ qty: 2, amount: '1 kg' }), '2 × 1 kg'); assert.equal(D.qtyText({ qty: 3 }), '×3');
+  assert.equal(D.qtyText({ qty: 3, amount: '3 puszki' }), '3 puszki');
+  const it = { qty: 2, amount: '2 puszki po 400 g' }; D.setQty(it, 5); assert.equal(it.amount, '5 puszek po 400 g');
+  assert.equal(D.stepLabel({ qty: 2, amount: '2 puszki' }), 'Ile puszek');
+  assert.equal(addToList(c, 'masło', {}, {}), false); // z przepisu: już jest, bez dodawania
+});
+
 await t('aktualizacja: sama strona albo APK', async () => {
   const D2 = await import('../www/js/data.js');
   const real = globalThis.fetch;

@@ -1,5 +1,5 @@
 // Dopisywanie do listy zakupów z pilnowaniem trybu ostrego.
-import { classify, norm, CAT_LABEL, nameKey, parseEntry, canonical } from './dict.js';
+import { classify, norm, CAT_LABEL, nameKey, parseEntry, canonical, splitEntries, mergeQty, qtyText } from './dict.js';
 import { uid } from './store.js';
 import { today } from './budget.js';
 import { esc } from './ui.js';
@@ -27,16 +27,14 @@ function push(c, name, cls, extra) {
   c.save();
 }
 
-// Komunikat po dopisaniu: ile sztuk i czy Groszek poprawił nazwę
-function addedToast(c, name, qty, can, typed) {
-  const parts = [];
-  if (can && can.changed && can.how === 'literówka') parts.push(`Poprawiłem „${typed}” na „${name}”`);
-  else parts.push('Dopisano: ' + name);
-  if (qty > 1) parts[0] += ` ×${qty}`;
-  c.toast(parts.join(''));
+// Komunikat po dopisaniu: ile i czy Groszek poprawił nazwę
+function addedToast(c, item, can, typed) {
+  const q = qtyText(item);
+  if (can && can.changed && can.how === 'literówka') c.toast(`Poprawiłem „${typed}” na „${item.name}”${q ? ' ' + q : ''}`);
+  else c.toast('Dopisano: ' + item.name + (q ? ' ' + q : ''));
 }
 
-export function angry(c, name, cls) {
+export function angry(c, name, cls, done) {
   const label = cls.learned ? 'zachcianka' : (CAT_LABEL[cls.cat] || cls.cat).toLowerCase();
   const title = NO[Math.floor(Math.random() * NO.length)];
   c.sheet({
@@ -45,6 +43,7 @@ export function angry(c, name, cls) {
     render: () => `<h2>${title}</h2><p>„${esc(name)}” to ${esc(label)}. W trybie ostrym tego nie dopiszę.</p>` +
       '<button class="btn dark block" data-act="sheet-close">No dobra</button>' +
       '<p class="tiny">Groszek się pomylił? Popraw to w Ustawieniach, w sekcji Tryb ostry.</p>',
+    onClose: () => { if (done) done(false); },
   });
 }
 
@@ -58,24 +57,25 @@ function askOnce(c, name, extra, done, qty = 1) {
         cc.state.learned[norm(name)] = { treat: false, ico: 'bag', name };
         cc.closeSheet(true);
         push(cc, name, classify(name, cc.state.learned), { ...extra, qty });
-        cc.toast('Dopisano: ' + name + (qty > 1 ? ` ×${qty}` : ''));
+        const q = qtyText({ qty, amount: extra.amount });
+        cc.toast('Dopisano: ' + name + (q ? ' ' + q : ''));
         cc.render();
         if (done) done(true);
       },
       treat: (cc) => {
         cc.state.learned[norm(name)] = { treat: true, ico: 'candy', name };
         cc.save();
-        angry(cc, name, classify(name, cc.state.learned));
+        angry(cc, name, classify(name, cc.state.learned), done);
         cc.render();
-        if (done) done(false);
       },
     },
+    onClose: () => { if (done) done(false); },
   });
 }
 
 // Zwraca true, jeśli dopisano od razu. Przy pytaniu albo blokadzie pokazuje arkusz.
-// Z klawiatury (opts.typed) rozumie ilości ("3 masło", "fasola x 3", "2 kg ziemniaków"),
-// poprawia odmiany i literówki, a ta sama rzecz wpisana drugi raz zwiększa licznik.
+// Z klawiatury (opts.typed) rozumie ilości ("3 masło", "masło3", "fasola x 3", "2 kg ziemniaków", "dwie kostki masła"),
+// poprawia odmiany i literówki, a ta sama rzecz wpisana drugi raz zwiększa licznik (albo dodaje wagę).
 export function addToList(c, rawName, extra = {}, opts = {}) {
   const st = c.state;
   const typedAll = String(rawName || '').trim().replace(/\s+/g, ' ');
@@ -93,18 +93,47 @@ export function addToList(c, rawName, extra = {}, opts = {}) {
       if (!opts.quiet) c.toast('„' + name + '” już jest na liście');
       return false;
     }
-    if (parsed.amount) have.amount = parsed.amount;
-    else have.qty = Math.min(99, (have.qty || 1) + qty);
+    mergeQty(have, parsed);
     c.save();
-    c.toast(parsed.amount ? `${have.name}: ${parsed.amount}` : `${have.name}: ${have.qty} szt.`);
+    c.toast(`${have.name}: ${have.amount ? qtyText(have) : `${have.qty || 1} szt.`}`);
     return true;
   }
   const cls = classify(name, st.learned);
   if (st.settings.strict) {
     if (!cls.known) { askOnce(c, name, ex, opts.done, qty); return false; }
-    if (blocked(cls, st.settings)) { angry(c, name, cls); return false; }
+    if (blocked(cls, st.settings)) { angry(c, name, cls, opts.done); return false; }
   }
   push(c, name, cls, { ...ex, qty });
-  if (opts.typed && (can.changed || qty > 1 || parsed.amount)) addedToast(c, name + (parsed.amount ? ' ' + parsed.amount : ''), qty, can, parsed.text);
+  if (opts.typed && (can.changed || qty > 1 || parsed.amount)) addedToast(c, { name, qty, amount: parsed.amount }, can, parsed.text);
   return true;
+}
+
+// Wpis z pola na liście: może mieć kilka rzeczy ("masło, 2 mleka i chleb"). Gdy przy którejś Groszek
+// pyta albo się złości, reszta dopisuje się po zamknięciu arkusza. onDone(ile dopisano) na końcu.
+export function addEntries(c, raw, onDone) {
+  const parts = splitEntries(raw);
+  let added = 0;
+  const run = (i) => {
+    for (; i < parts.length; i++) {
+      let waiting = true;
+      const next = i + 1;
+      const ok = addToList(c, parts[i], {}, {
+        typed: true,
+        done: (r) => {
+          if (!waiting) return;
+          waiting = false;
+          if (r) added++;
+          c.render();
+          run(next);
+        },
+      });
+      if (ok) { waiting = false; added++; continue; }
+      if (c.state && c.app && c.app.sheetCfg) return; // czeka na odpowiedź w arkuszu
+      waiting = false;
+    }
+    if (parts.length > 1 && added > 1) c.toast(`Dopisano ${added} rzeczy`);
+    if (onDone) onDone(added);
+  };
+  run(0);
+  return added;
 }
