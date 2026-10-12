@@ -77,7 +77,14 @@ jobs:
 
           build: ${GITHUB_RUN_NUMBER}"
           if gh release view najnowsza >/dev/null 2>&1; then
-            gh release upload najnowsza groszek.apk --clobber
+            # Podmiana bez przerwy: najpierw cała nowa wersja pod inną nazwą, potem szybka zamiana nazw.
+            # Wcześniej stary plik znikał na czas wgrywania nowego i pobieranie w tym momencie się psuło.
+            cp groszek.apk groszek-nowa.apk
+            gh release upload najnowsza groszek-nowa.apk --clobber
+            OLD=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/najnowsza" -q '.assets[] | select(.name=="groszek.apk") | .id')
+            NEW=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/najnowsza" -q '.assets[] | select(.name=="groszek-nowa.apk") | .id')
+            if [ -n "$OLD" ]; then gh api -X DELETE "repos/$GITHUB_REPOSITORY/releases/assets/$OLD"; fi
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/assets/$NEW" -f name=groszek.apk > /dev/null
             gh release edit najnowsza --title "Groszek 0.1.${GITHUB_RUN_NUMBER}" --notes "$NOTES"
           else
             gh release create najnowsza groszek.apk --title "Groszek 0.1.${GITHUB_RUN_NUMBER}" --notes "$NOTES" --target "$GITHUB_SHA"
