@@ -171,6 +171,7 @@ public class UpdaterPlugin extends Plugin {
                 if (!tmp.renameTo(dir)) throw new Exception("nie udało się zapisać plików");
 
                 final String path = dir.getAbsolutePath();
+                final String prev = curIsFile ? cur : "";
                 prefs().edit().putInt("pendingWeb", build).putInt("pendingTries", 0).commit();
                 getContext().getSharedPreferences(WebView.WEBVIEW_PREFS_NAME, Context.MODE_PRIVATE)
                     .edit().putString(WebView.CAP_SERVER_PATH, path).commit();
@@ -184,6 +185,15 @@ public class UpdaterPlugin extends Plugin {
                     }
                     bridge.setServerBasePath(path);
                 }, 600);
+                // nowa strona nie dała znaku życia: od razu wracamy do poprzedniej
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    if (prefs().getInt("pendingWeb", 0) != build) return;
+                    prefs().edit().remove("pendingWeb").remove("pendingTries").putInt("badWeb", build).commit();
+                    getContext().getSharedPreferences(WebView.WEBVIEW_PREFS_NAME, Context.MODE_PRIVATE)
+                        .edit().putString(WebView.CAP_SERVER_PATH, prev).commit();
+                    if (prev.isEmpty()) bridge.setServerAssetPath("public");
+                    else bridge.setServerBasePath(prev);
+                }, 30000);
             } catch (Exception e) {
                 deleteRec(tmp);
                 zip.delete();
