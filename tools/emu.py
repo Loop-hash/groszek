@@ -126,6 +126,9 @@ def ocr_bench():
         truth = json.load(open(os.path.join(folder, "wyniki.json")))
     files = [(os.path.join(folder, k), v) for k, v in truth.items()]
     files.append(("tools/test-paragon.jpg", {"total": 35.25, "store": "Biedronka"}))
+    # po dwóch "wstecz" apka mogła się zamknąć, a WebView w tle nie pokazuje stron debugerowi
+    sh("adb shell am start -n pl.groszek.app/.MainActivity")
+    time.sleep(8)
     pid = sh("adb shell pidof pl.groszek.app").strip()
     socks = re.findall(r"@(webview_devtools_remote_\d+)", sh("adb shell cat /proc/net/unix"))
     name = f"webview_devtools_remote_{pid}" if f"webview_devtools_remote_{pid}" in socks else (socks[-1] if socks else "")
