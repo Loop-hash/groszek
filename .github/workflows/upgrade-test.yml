@@ -1,0 +1,97 @@
+name: Test aktualizacji
+
+# Instaluje starą wersję apki, a potem nową na nią, i zapisuje dokładny komunikat Androida.
+# Wyniki na gałęzi ci-upgrade.
+
+on:
+  workflow_dispatch:
+    inputs:
+      old_ref:
+        description: 'commit starej wersji'
+        default: '386beed'
+      old_run:
+        description: 'numer starej wersji (0.1.X)'
+        default: '19'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        which: [old, new]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.which == 'old' && inputs.old_ref || 'main' }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Budowanie
+        working-directory: app
+        run: |
+          npm ci
+          mkdir -p www/data
+          echo '{"build": 0}' > www/build.json
+          npx cap sync android
+          cd android
+          chmod +x gradlew
+          if [ "${{ matrix.which }}" = old ]; then export GITHUB_RUN_NUMBER=${{ inputs.old_run }}; else export GITHUB_RUN_NUMBER=900; fi
+          ./gradlew assembleRelease --no-daemon
+          cp app/build/outputs/apk/release/app-release.apk ../../${{ matrix.which }}.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.which }}
+          path: ${{ matrix.which }}.apk
+
+  emu:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [35, 36]
+    steps:
+      - name: Włącz KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - name: Instalacja starej i nowej
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: |
+            mkdir -p wyniki
+            adb install old.apk > wyniki/1-stara.txt 2>&1 || true
+            adb shell dumpsys package pl.groszek.app | grep -E "versionCode|versionName|primaryCpuAbi|flags=" > wyniki/2-zainstalowana.txt 2>&1 || true
+            adb install -r new.apk > wyniki/3-nowa.txt 2>&1 || true
+            adb shell dumpsys package pl.groszek.app | grep -E "versionCode|versionName|primaryCpuAbi" > wyniki/4-po.txt 2>&1 || true
+            adb logcat -d | grep -iE "PackageManager|PackageInstaller|INSTALL_FAILED|pl.groszek" | tail -80 > wyniki/5-logcat.txt 2>&1 || true
+      - name: Wyniki
+        if: always()
+        run: |
+          mkdir -p wyniki && cd wyniki
+          echo "api ${{ matrix.api }}" > api.txt
+          tail -n +1 *.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wyniki-${{ matrix.api }}
+          path: wyniki
