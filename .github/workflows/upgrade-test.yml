@@ -8,7 +8,7 @@ on:
     inputs:
       old_ref:
         description: 'commit starej wersji'
-        default: '386beed'
+        default: '386beedd5abe96a0f192f4442a9f1dcab14d71ef'
       old_run:
         description: 'numer starej wersji (0.1.X)'
         default: '19'
@@ -26,6 +26,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ matrix.which == 'old' && inputs.old_ref || 'main' }}
+          fetch-depth: 0
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
