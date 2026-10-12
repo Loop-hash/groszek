@@ -25,6 +25,7 @@ export default {
       if (meal === 'lekkie' && !(r.meal || []).some((m) => m === 'sniadanie' || m === 'kolacja')) return false;
       if (country === 'moje' && !r.custom) return false;
       if (country !== 'all' && country !== 'moje' && r.country !== country) return false;
+      if (p.prep && !r.prep) return false;
       if (q && !q.split(' ').every((w) => norm(r.name + ' ' + r.country).includes(w))) return false;
       return true;
     });
@@ -60,6 +61,7 @@ export default {
       ${search('rec-q', p.q || '', 'Szukaj, np. curry', 'q')}
       <div class="seg"><button class="${meal === 'all' ? 'on' : ''}" data-act="meal" data-arg="all">Wszystko</button><button class="${meal === 'obiad' ? 'on' : ''}" data-act="meal" data-arg="obiad">Obiady</button><button class="${meal === 'lekkie' ? 'on' : ''}" data-act="meal" data-arg="lekkie">Śniad. i kolacje</button></div>
       <div class="scroller">${countryChips.join('')}</div>
+      <div class="row between small"><span class="muted">Dania, które przetrwają kilka dni w lodówce</span>${chip('prep', 'Food prep', !!p.prep, '1')}</div>
       <div class="row between small"><span class="muted">Sortuj:</span><span class="row" style="gap:6px">${chip('sort', 'Najtańsze', sort === 'cheap', 'cheap')}${chip('sort', 'Najszybsze', sort === 'fast', 'fast')}${chip('sort', 'A–Z', sort === 'az', 'az')}</span></div>
       ${list.length ? `<div class="grid2">${cards}</div>` : empty(all.length ? 'Nic tu nie pasuje.' : 'Przepisy jeszcze się nie pobrały.<br>Połącz się z internetem.')}
       ${hidden ? `<button class="btn small block" data-act="settings">${hidden} ${plural(hidden, 'przepis ukryty', 'przepisy ukryte', 'przepisów ukrytych')} przez ustawienia</button>` : ''}
@@ -71,6 +73,7 @@ export default {
     meal(c, m) { c.params.meal = m; c.render(); },
     country(c, k) { c.params.country = k; c.render(); },
     sort(c, k) { c.params.sort = k; c.render(); },
+    prep(c) { c.params.prep = !c.params.prep; c.render(); },
     new(c) { c.go('recipeEdit', {}, { quiet: true }); },
     settings(c) { c.go('settings'); },
   },

@@ -37,6 +37,7 @@ Groszek pojawi się z własną ikonką i będzie otwierał się na pełnym ekran
 - W historii są wszystkie wydatki. Za trzymanie się limitu i kupowanie w promocjach Groszek zbiera doświadczenie i wbija kolejne poziomy.
 
 **Lista zakupów i promocje**
+- Wpisujesz jak zwykle: „3 masło”, „fasola x 3”, „2 kg ziemniaków”. Groszek rozumie ilości, poprawia odmiany i literówki, a ta sama rzecz wpisana drugi raz zwiększa licznik zamiast dublować się na liście.
 - Promocje z Kauflandu, Lidla i Aldi pobierają się same dwa razy w tygodniu.
 - Przy rzeczach z Twojej listy Groszek pokazuje, gdzie są taniej i ile oszczędzisz.
 - Tryb ostry nie pozwala dopisać do listy zachcianek, takich jak słodycze czy chipsy.
@@ -52,7 +53,7 @@ Groszek pojawi się z własną ikonką i będzie otwierał się na pełnym ekran
 - Podajesz kwotę i liczbę dni, a Groszek układa śniadania, obiady i kolacje tak, żeby zmieścić się w budżecie i w dziennej liczbie kalorii.
 - Plan zaczyna się od wybranego dnia: dziś, jutro albo dowolnego dnia z kalendarza, np. od poniedziałku albo od dnia stypendium. Wystarczy zaznaczyć dzień w planerze i nacisnąć „Ułóż plan za kwotę”.
 - Plan od razu zamienia się w listę zakupów, z uwzględnieniem tego, co jest w promocji.
-- Obiad można ugotować raz na dwa dni.
+- Obiad można ugotować raz na dwa dni albo zrobić **food prep**: jedno gotowanie na 2–5 dni, tylko z dań, które dobrze znoszą lodówkę i odgrzewanie (gulasze, curry, zupy, zapiekanki, kasze z mięsem, pierogi). Takie dania mają też własny filtr w przepisach.
 
 **Twoje dane**
 - Wszystko jest zapisane tylko w telefonie.

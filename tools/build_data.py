@@ -12,6 +12,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from ingredients_src import I  # noqa: E402
 from recipes_src import RECIPES as BASE  # noqa: E402
+from prep import is_prep  # noqa: E402
 import glob  # noqa: E402
 import importlib.util  # noqa: E402
 
@@ -153,6 +154,8 @@ def main():
             "ings": ings, "steps": rc["steps"], "nutrition": per, "costBase": r(cost / p, 2),
             "flags": sorted(flags), "veg": not ({"meat", "fish", "seafood"} & flags),
         }
+        if is_prep(rc, flags, {x["i"] for x in ings}):
+            o["prep"] = True
         if rc.get("tip"):
             o["tip"] = rc["tip"]
         out.append(o)

@@ -51,7 +51,7 @@ export function todayMeals(c) {
   const h = new Date().getHours();
   const order = h < 11 ? SLOT_ORDER : h < 17 ? ['obiad', 'kolacja'] : ['kolacja'];
   const pick = meals.filter((m) => order.includes(m.slot)).sort((a, b) => order.indexOf(a.slot) - order.indexOf(b.slot))[0] || meals[meals.length - 1];
-  return [{ recipe: pick.recipe, label: `${MEALS[pick.slot] || 'Dziś'} na dziś${pick.cook === false ? ' (z wczoraj)' : ''}${pick.mult && pick.mult !== 1 ? ` · ${multLabel(pick.mult)}` : ''}`, cost: r2(recipeCost(c, pick.recipe).perPortion * (pick.mult || 1)) }];
+  return [{ recipe: pick.recipe, label: `${MEALS[pick.slot] || 'Dziś'} na dziś${pick.cook === false ? (pick.prep ? ' (z food prepa)' : ' (z wczoraj)') : ''}${pick.mult && pick.mult !== 1 ? ` · ${multLabel(pick.mult)}` : ''}`, cost: r2(recipeCost(c, pick.recipe).perPortion * (pick.mult || 1)) }];
 }
 
 // ---------- układanie miesiąca ----------
@@ -77,7 +77,7 @@ function pickBest(cands, scoreFn) {
   return best;
 }
 
-// opts: { amount, from, days, meals: ['sniadanie','obiad','kolacja'], cook2, seed }
+// opts: { amount, from, days, meals: ['sniadanie','obiad','kolacja'], cook2, prep: liczba dni food prepa albo 0, seed }
 // Układa dwa warianty: z różnorodnymi śniadaniami i najtańszy. Wybiera różnorodny, jeśli mieści się w kwocie i w kaloriach.
 export function compose(c, opts) {
   const T = Number(c.state.settings.kcal) || 2200;
@@ -107,7 +107,13 @@ function composeOnce(c, opts, varied) {
   const pools = {};
   for (const m of SLOT_ORDER) pools[m] = available(c, m).filter((r) => !r.custom || (r.nutrition && r.costManual));
   const warnings = [];
-  for (const m of opts.meals) if (!pools[m].length) warnings.push(`Brak przepisów na: ${MEALS[m].toLowerCase()}. Sprawdź kuchnie, sprzęt i „Nie jem” w ustawieniach.`);
+  // food prep: obiad gotowany raz na kilka dni, tylko z dań, które dobrze znoszą lodówkę i odgrzewanie
+  const prepN = Math.max(0, Math.min(7, Math.round(Number(opts.prep) || 0)));
+  if (prepN) {
+    pools.obiad = pools.obiad.filter((r) => r.prep);
+    if (opts.meals.includes('obiad') && !pools.obiad.length) warnings.push('Brak dań na food prep przy obecnych ustawieniach kuchni, sprzętu i „Nie jem”.');
+  }
+  for (const m of opts.meals) if (!pools[m].length && !(prepN && m === 'obiad')) warnings.push(`Brak przepisów na: ${MEALS[m].toLowerCase()}. Sprawdź kuchnie, sprzęt i „Nie jem” w ustawieniach.`);
 
   const plan = {};
   for (const d of dates) plan[d] = [];
@@ -152,8 +158,12 @@ function composeOnce(c, opts, varied) {
     let i = 0;
     while (i < dates.length) {
       const r = pickBest(pools.obiad, (x) => score(x, 'obiad', i));
-      const span = opts.cook2 && (r.portions || 1) >= 2 ? Math.min(2, dates.length - i) : 1;
-      for (let k = 0; k < span; k++) plan[dates[i + k]].push({ id: r.id, slot: 'obiad', cook: k === 0, batch: span, group: 'o' + i });
+      const span = prepN ? Math.min(prepN, dates.length - i) : opts.cook2 && (r.portions || 1) >= 2 ? Math.min(2, dates.length - i) : 1;
+      for (let k = 0; k < span; k++) {
+        const m = { id: r.id, slot: 'obiad', cook: k === 0, batch: span, group: 'o' + i };
+        if (prepN) m.prep = true;
+        plan[dates[i + k]].push(m);
+      }
       history.obiad.push(r.id);
       lastTag.obiad = proteinTag(c, r);
       i += span;
@@ -281,6 +291,7 @@ function composeOnce(c, opts, varied) {
       for (const k of NUT) avg[k] += ((Number(n[k]) || 0) * (m.mult || 1)) / dates.length;
     }
   }
+  if (prepN > 4) warnings.push(`Ugotowane jedzenie trzyma się w lodówce do 4 dni. Porcje na ${prepN === 5 ? '5. dzień' : 'dni po czwartym'} zamroź od razu po ugotowaniu.`);
   if (result.total > opts.amount + 0.5) {
     warnings.unshift(`Za ${fmtZl(opts.amount)} się nie da. Najtańszy plan, jaki umiem ułożyć, kosztuje około ${fmtZl(result.total)}. Zwiększ kwotę albo skróć okres.`);
   }

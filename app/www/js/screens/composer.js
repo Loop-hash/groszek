@@ -22,6 +22,7 @@ function defaults(c) {
   }
   p.meals = { sniadanie: true, obiad: true, kolacja: true };
   p.cook2 = true;
+  p.prep = 0;
   p.seed = 1;
   return p;
 }
@@ -51,7 +52,7 @@ export default {
         const row = (res.plan[d] || []).slice().sort((a, b) => ['sniadanie', 'obiad', 'kolacja'].indexOf(a.slot) - ['sniadanie', 'obiad', 'kolacja'].indexOf(b.slot));
         const trip = res.trips.find((t) => t.date === d);
         return `<div class="item col" style="gap:6px"><div class="row between"><b>${dowShort(d)} · ${esc(dayLabel(d))}</b>${trip ? `<span class="pill dark">${ui('basket', 12)} zakupy</span>` : ''}</div>` +
-          row.map((m) => { const r = findRecipe(c, m.id); return r ? `<div class="row">${recipeIcon(r.icon, 26)}<span class="small grow"><span class="muted">${MEALS[m.slot]}:</span> ${esc(r.name)}${m.mult && m.mult !== 1 ? ` <b>· ${multLabel(m.mult)}</b>` : ''}${m.slot === 'obiad' ? (m.cook ? (m.batch > 1 ? ' <b>(gotujesz na 2 dni)</b>' : '') : ' <span class="muted">(z wczoraj)</span>') : ''}</span></div>` : ''; }).join('') + '</div>';
+          row.map((m) => { const r = findRecipe(c, m.id); return r ? `<div class="row">${recipeIcon(r.icon, 26)}<span class="small grow"><span class="muted">${MEALS[m.slot]}:</span> ${esc(r.name)}${m.mult && m.mult !== 1 ? ` <b>· ${multLabel(m.mult)}</b>` : ''}${m.slot === 'obiad' ? (m.cook ? (m.batch > 1 ? ` <b>(${m.prep ? 'food prep' : 'gotujesz'} na ${m.batch} ${plural(m.batch, 'dzień', 'dni', 'dni')})</b>` : '') : ` <span class="muted">(${m.prep ? 'z food prepa' : 'z wczoraj'})</span>`) : ''}</span></div>` : ''; }).join('') + '</div>';
       }).join('');
       const trips = res.trips.map((tr) => `<details class="more"><summary><span>${esc(dowShort(tr.date))} ${esc(dayLabel(tr.date))} · ${esc(tr.storeName)}</span><span class="pixel">${fmt(tr.cost)} zł</span></summary><div class="stack">` +
         tr.items.map((it) => `<div class="row">${food(it.icon, 22)}<span class="grow small">${esc(it.name)} <span class="muted">· ${esc(buyLabel(it))}</span></span>${it.promo ? `<span class="pill dark">${esc(STORES[it.promo.store])}</span>` : ''}<span class="pixel small">${fmt(it.price)}</span></div>`).join('') + '</div></details>').join('');
@@ -85,7 +86,11 @@ export default {
         <div class="stack" style="gap:6px"><span class="bold">Od kiedy</span><div class="seg">${fromOpts.map((d, i) => `<button class="${p.from === d ? 'on' : ''}" data-act="from" data-arg="${d}">${i === 0 ? 'Dziś' : i === 1 ? 'Jutro' : dowShort(d) + ' ' + Number(d.slice(8))}</button>`).join('')}` +
           `<label class="segbtn">Inny dzień<input id="cp-from" type="date" min="${today()}" max="${addDays(today(), 90)}" value="${esc(p.from)}" data-ch="fromDate" aria-label="Wybierz dzień startu planu"></label></div></div>
         <div class="stack" style="gap:6px"><span class="bold">Posiłki</span><div class="wrap">${Object.entries(MEALS).map(([k, v]) => `<button class="chip ${p.meals[k] ? 'on' : ''}" data-act="meal" data-arg="${k}">${v}</button>`).join('')}</div></div>
-        <div class="row between"><span><b>Gotuję na 2 dni</b><br><span class="small muted">jeden obiad starcza na dwa dni</span></span>${toggle('cook2', p.cook2, 'Gotuję na 2 dni')}</div>
+        <div class="row between"><span><b>Food prep</b><br><span class="small muted">gotujesz obiad raz na kilka dni, tylko z dań, które dobrze znoszą lodówkę</span></span>${toggle('prep', p.prep > 0, 'Food prep')}</div>
+        ${p.prep > 0
+          ? `<div class="stack" style="gap:6px"><span class="bold">Jedno gotowanie na</span><div class="seg">${[2, 3, 4, 5].map((n) => `<button class="${p.prep === n ? 'on' : ''}" data-act="prepDays" data-arg="${n}">${n} dni</button>`).join('')}</div>` +
+            `<span class="small muted">${p.prep > 4 ? 'W lodówce do 4 dni, porcję na 5. dzień zamroź od razu.' : 'Porcje do pudełek i do lodówki, wytrzymają do 4 dni.'}</span></div>`
+          : `<div class="row between"><span><b>Gotuję na 2 dni</b><br><span class="small muted">jeden obiad starcza na dwa dni</span></span>${toggle('cook2', p.cook2, 'Gotuję na 2 dni')}</div>`}
         <div class="small muted">${p.days ? `To ${fmt(p.amount / Math.max(1, p.days))} zł dziennie. ` : ''}Cel: ${fmt(c.state.settings.kcal, 0)} kcal dziennie (zmienisz w Ustawieniach).</div>
       </div>
       <button class="cta" data-act="run">${sprite('pea', 28)}<span>${res ? 'Ułóż od nowa' : 'Ułóż plan'}</span>${ui('arrow', 18, 'flip')}</button>
@@ -108,6 +113,8 @@ export default {
       c.render();
     },
     cook2(c) { c.params.cook2 = !c.params.cook2; c.app.composed = null; c.render(); },
+    prep(c) { c.params.prep = c.params.prep > 0 ? 0 : 3; c.app.composed = null; c.render(); },
+    prepDays(c, n) { c.params.prep = Number(n) || 3; c.app.composed = null; c.render(); },
     run(c) {
       const p = c.params;
       const inp = document.getElementById('cp-amount');
@@ -115,7 +122,7 @@ export default {
       const dInp = document.getElementById('cp-days');
       if (dInp) p.days = Math.max(1, Math.min(62, Math.round(Number(dInp.value) || 1)));
       if (p.amount <= 0) { c.toast('Wpisz kwotę'); return; }
-      c.app.composed = compose(c, { amount: p.amount, from: p.from, days: p.days, meals: Object.keys(p.meals).filter((k) => p.meals[k]), cook2: p.cook2, seed: p.seed });
+      c.app.composed = compose(c, { amount: p.amount, from: p.from, days: p.days, meals: Object.keys(p.meals).filter((k) => p.meals[k]), cook2: p.cook2, prep: p.prep, seed: p.seed });
       c.render();
       const res = c.app.composed;
       c.peek(res.total <= p.amount + 0.5 ? 'Gotowe! Zerknij na plan i zapisz.' : 'Ciasno z kasą. Zobacz, co proponuję.', res.total <= p.amount + 0.5 ? 'happy' : 'worried');
@@ -142,6 +149,6 @@ export default {
 
 function this_run(c) {
   const p = c.params;
-  c.app.composed = compose(c, { amount: p.amount, from: p.from, days: p.days, meals: Object.keys(p.meals).filter((k) => p.meals[k]), cook2: p.cook2, seed: p.seed });
+  c.app.composed = compose(c, { amount: p.amount, from: p.from, days: p.days, meals: Object.keys(p.meals).filter((k) => p.meals[k]), cook2: p.cook2, prep: p.prep, seed: p.seed });
   c.render();
 }
