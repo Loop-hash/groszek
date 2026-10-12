@@ -66,6 +66,8 @@ export function defaults() {
     learned: {},
     icons: {},
     savings: [],
+    penalties: [],
+    prices: {},
     ratings: {},
     customRecipes: [],
     plan: {},

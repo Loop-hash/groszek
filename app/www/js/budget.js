@@ -135,7 +135,8 @@ export function summary(state, p) {
   const spent = spentIn(state.expenses, p.start, p.end);
   const saved = r2(state.savings.filter((s) => s.date >= p.start && s.date <= p.end).reduce((a, s) => a + s.amount, 0));
   const lim = daysInLimit(state, p, p.end);
-  return { period: p, budget, spent, left: r2(budget - spent), saved, exp: Math.floor(saved), ...lim, ok: spent <= budget };
+  const penalty = (state.penalties || []).filter((x) => x.date >= p.start && x.date <= p.end).reduce((a, x) => a + (x.exp || 0), 0);
+  return { period: p, budget, spent, left: r2(budget - spent), saved, penalty, exp: Math.floor(saved) - penalty, ...lim, ok: spent <= budget };
 }
 
 export function fmt(n, digits = 2) {
@@ -178,6 +179,8 @@ export function totalSaved(state) {
   return r2((state.savings || []).reduce((a, s) => a + (Number(s.amount) || 0), 0));
 }
 
+// 1 zł zaoszczędzony na promocji = 1 exp; w trybie ostrym 1 zł na zachciankę z paragonu = 1 exp mniej
 export function totalExp(state) {
-  return Math.floor(totalSaved(state));
+  const penalty = (state.penalties || []).reduce((a, x) => a + (x.exp || 0), 0);
+  return Math.max(0, Math.floor(totalSaved(state)) - penalty);
 }

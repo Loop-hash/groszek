@@ -11,5 +11,6 @@ import recipe from './recipe.js';
 import recipeEdit from './recipeEdit.js';
 import planner from './planner.js';
 import composer from './composer.js';
+import prices from './prices.js';
 
-export const screens = { home, add, history, list, promos, settings, level, onboarding, recipes, recipe, recipeEdit, planner, composer };
+export const screens = { home, add, history, list, promos, settings, level, onboarding, recipes, recipe, recipeEdit, planner, composer, prices };

@@ -39,7 +39,7 @@ jobs:
       - name: Zdjęcia paragonów do testu odczytu
         run: |
           python3 -m pip install pillow websocket-client
-          python3 tools/paragony.py debug/paragony 6
+          python3 tools/paragony.py debug/paragony 10
 
       - name: Emulator i przeklikanie
         uses: reactivecircus/android-emulator-runner@v2

@@ -32,6 +32,8 @@ SKLEPY = {
              "NIP 781-18-97-358"],
     "Kaufland": ["Kaufland Polska Markety", "sp. z o.o. sp.j.", "ul. Wróblewskiego 6", "44-100 Gliwice",
                  "NIP 899-24-21-286"],
+    "Aldi": ["ALDI Sp. z o.o., ul. Niedźwiedziniec 10", "41-506 Chorzów", "VST 280 Gliwice", "ul. Testowa 1",
+             "NIP 1070002973"],
     "Żabka": ["Żabka Polska sp. z o.o.", "ul. Stanisława Matyi 8", "61-586 Poznań", "Sklep Z1234 Gliwice",
               "NIP 778-14-04-546"],
 }
@@ -55,16 +57,40 @@ def paragon(rng, sklep, n):
     rows.append((pad(f"{data} {rng.randint(8, 21):02d}:{rng.randint(0, 59):02d}", f"nr wydr.{rng.randint(10000, 99999)}"), "l", False))
     rows.append(("PARAGON FISKALNY", "c", True))
     suma = {"A": 0.0, "C": 0.0}
+    items = []
+    opusty = 0.0
     for nazwa, cena, ptu in rng.sample(PRODUKTY, n):
         ile = rng.choice([1, 1, 1, 2, 3]) if "kg" not in nazwa else round(rng.uniform(0.3, 1.8), 3)
         wart = round(ile * cena, 2)
         suma[ptu] += wart
         il = f"{ile}" if isinstance(ile, int) else f"{ile:.3f}".replace(".", ",")
-        rows.append((nazwa[:W], "l", False))
-        rows.append((pad(f"   {ptu}  {il} x{zl(cena)}", f"{zl(wart)}{ptu}"), "l", False))
+        items.append(wart)
+        if sklep == "Aldi":
+            # jak w Aldi: wszystko w jednym wierszu, opust pod pozycją
+            rows.append((pad(f"{nazwa.upper()[:22]} {ptu}", f"{il}{'kg' if 'kg' in nazwa else 'SZT'} * {zl(cena)} {zl(wart)} {ptu}"), "l", False))
+            if wart > 3 and rng.random() < 0.35:
+                op = round(min(wart - 1, rng.choice([0.5, 1.0, 1.49, 2.0])), 2)
+                rows.append((pad(f"OPUST {nazwa.upper()[:20]} {ptu}", f"-{zl(op)} {ptu}"), "l", False))
+                suma[ptu] -= op
+                opusty += op
+        elif sklep == "Kaufland":
+            # jak w Kauflandzie: nazwa sklejona, litera przy ilości, długa nazwa w osobnym wierszu
+            nm = "".join(w[:1].upper() + w[1:] for w in nazwa.split())
+            tail = f"{il}{'KG' if 'kg' in nazwa else 'SZT'} x{zl(cena)} {zl(wart)}{ptu}"
+            if len(nm) + len(tail) + 3 > W:
+                rows.append((pad(nm[:W - 2], "t"), "l", False))
+                rows.append((pad("", tail), "l", False))
+            else:
+                rows.append((pad(f"{nm} t", tail), "l", False))
+        else:
+            rows.append((nazwa[:W], "l", False))
+            rows.append((pad(f"   {ptu}  {il} x{zl(cena)}", f"{zl(wart)}{ptu}"), "l", False))
     total = round(suma["A"] + suma["C"], 2)
-    if rng.random() < 0.5:
+    if opusty:
+        rows.append((pad("Suma Opustów", f"-{zl(opusty)}"), "l", False))
+    elif items[-1] > 2.5 and rng.random() < 0.5:
         rabat = round(rng.choice([1.0, 2.0, 1.5]), 2)
+        rabat = min(rabat, round(items[-1] - 1, 2))
         rows.append((pad("Rabat", f"-{zl(rabat)}"), "l", False))
         total = round(total - rabat, 2)
         suma["C"] -= rabat
@@ -82,7 +108,7 @@ def paragon(rng, sklep, n):
         rows.append((pad("Reszta", zl(dano - total)), "l", False))
     rows.append((pad(f"{rng.randint(100, 999)} #Kasa {rng.randint(1, 9)}", f"Kasjer nr {rng.randint(1, 40)}"), "l", False))
     rows.append((f"{rng.randint(10, 99)}:{rng.randint(10, 99)}  {'ABC'[rng.randint(0, 2)]}{rng.randint(1000000, 9999999)}", "c", False))
-    return rows, total, data
+    return rows, total, data, len(items)
 
 
 def font(i, size):
@@ -166,11 +192,11 @@ def main(out, n=6, seed=7):
     sklepy = list(SKLEPY)
     for i in range(n):
         sklep = sklepy[i % len(sklepy)]
-        rows, total, data = paragon(rng, sklep, rng.randint(8, 22))
+        rows, total, data, nitems = paragon(rng, sklep, rng.randint(8, 22))
         img = photo(render(rows, rng), rng)
         name = f"p{i + 1}.jpg"
         img.save(os.path.join(out, name), quality=rng.randint(80, 90))
-        truth[name] = {"total": total, "store": sklep, "date": data}
+        truth[name] = {"total": total, "store": sklep, "date": data, "items": nitems}
     json.dump(truth, open(os.path.join(out, "wyniki.json"), "w"), ensure_ascii=False, indent=1)
     print(json.dumps(truth, ensure_ascii=False))
 

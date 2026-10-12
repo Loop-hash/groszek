@@ -2,13 +2,15 @@
 // Na Androidzie czyta Google ML Kit (wtyczka Ocr w apce), w przeglądarce i awaryjnie Tesseract.
 // Wszystko dzieje się w telefonie, bez internetu.
 import { plugin } from './store.js';
+import { norm, stemPL } from './dict.js';
+import { CANON } from './canon.js';
 
 const BASE = 'js/vendor/tesseract/';
 let workerPromise = null;
 let progressCb = null;
 
 // do testów porównawczych (tools/emu.py, benchmark w przeglądarce)
-export const opts = { engine: 'auto', crop: true, tessWidth: 1400, mlWidth: 1300, psm: '4', normalize: true };
+export const opts = { engine: 'auto', crop: true, tessWidth: 1400, mlWidth: 1300, psm: '6', normalize: true };
 
 function abs(p) {
   return new URL(p, window.location.href).href;
@@ -322,27 +324,51 @@ async function readMlkit(cv) {
   return items;
 }
 
+// Słowa leżące całkiem poza kolumną tekstu i odczytane z niską pewnością to zwykle słoje stołu
+// albo cień przy brzegu paragonu. Kolumnę wyznaczają słowa odczytane pewnie.
+function pct(a, q) {
+  const s = [...a].sort((x, y) => x - y);
+  return s[Math.min(s.length - 1, Math.max(0, Math.round(q * (s.length - 1))))];
+}
+
 async function readTesseract(cv) {
   const w = await worker();
   if (opts.psm) await w.setParameters({ tessedit_pageseg_mode: opts.psm, preserve_interword_spaces: '1' });
   const res = await w.recognize(cv, {}, { text: true, blocks: true });
+  const lines = [];
+  for (const b of (res.data && res.data.blocks) || []) for (const p of b.paragraphs || []) for (const l of p.lines || []) lines.push(l);
+  const good = lines.flatMap((l) => (l.words || []).filter((x) => x.confidence >= 80 && x.text.replace(/[^\p{L}\d]/gu, '').length >= 3));
+  const W = cv.width;
+  const L = good.length >= 8 ? pct(good.map((x) => x.bbox.x0), 0.03) - 0.01 * W : -Infinity;
+  const R = good.length >= 8 ? pct(good.map((x) => x.bbox.x1), 0.97) + 0.01 * W : Infinity;
   const items = [];
-  for (const b of (res.data && res.data.blocks) || []) {
-    for (const p of b.paragraphs || []) {
-      for (const l of p.lines || []) {
-        const text = (l.text || '').trim();
-        if (!text) continue;
-        const bl = l.baseline || {};
-        const ang = bl.x1 > bl.x0 ? Math.atan2(bl.y1 - bl.y0, bl.x1 - bl.x0) : 0;
-        const rh = l.rowAttributes && l.rowAttributes.row_height;
-        const bh = l.bbox.y1 - l.bbox.y0 - Math.abs(Math.tan(ang)) * (l.bbox.x1 - l.bbox.x0);
-        const h = rh > 0 ? rh : Math.max(4, bh);
-        const cx = (l.bbox.x0 + l.bbox.x1) / 2;
-        const cy = bl.x1 > bl.x0 ? (bl.y0 + bl.y1) / 2 - h * 0.4 : (l.bbox.y0 + l.bbox.y1) / 2;
-        items.push({ text, cx, cy, h, w: (l.bbox.x1 - l.bbox.x0) / Math.max(0.5, Math.cos(ang)), ang, len: text.length });
-      }
+  for (const l of lines) {
+    let ws = (l.words || []).filter((x) => x.text.trim());
+    if (ws.length) {
+      ws = ws.filter((x) => !(x.confidence < 60 && (x.bbox.x1 < L || x.bbox.x0 > R)));
+      if (!ws.length) continue;
     }
+    // tekst z zachowanych słów; duża przerwa między słowami to osobna kolumna
+    let text = (l.text || '').trim();
+    let x0 = l.bbox.x0;
+    let x1 = l.bbox.x1;
+    if (ws.length) {
+      const cw = median(ws.map((x) => (x.bbox.x1 - x.bbox.x0) / Math.max(1, x.text.length))) || 10;
+      text = ws.map((x, i) => (i && x.bbox.x0 - ws[i - 1].bbox.x1 > 2.5 * cw ? '  ' : i ? ' ' : '') + x.text).join('');
+      x0 = Math.min(...ws.map((x) => x.bbox.x0));
+      x1 = Math.max(...ws.map((x) => x.bbox.x1));
+    }
+    if (!text) continue;
+    const bl = l.baseline || {};
+    const ang = bl.x1 > bl.x0 ? Math.atan2(bl.y1 - bl.y0, bl.x1 - bl.x0) : 0;
+    const rh = l.rowAttributes && l.rowAttributes.row_height;
+    const bh = l.bbox.y1 - l.bbox.y0 - Math.abs(Math.tan(ang)) * (l.bbox.x1 - l.bbox.x0);
+    const h = rh > 0 ? rh : Math.max(4, bh);
+    const cx = (x0 + x1) / 2;
+    const cy = bl.x1 > bl.x0 ? (bl.y0 + bl.y1) / 2 - h * 0.4 : (l.bbox.y0 + l.bbox.y1) / 2;
+    items.push({ text, cx, cy, h, w: (x1 - x0) / Math.max(0.5, Math.cos(ang)), ang, len: text.length });
   }
+  if (opts.debug) opts.debug.words = lines.map((l) => (l.words || []).map((x) => [x.text, Math.round(x.confidence), x.bbox.x0, x.bbox.x1].join(':')).join(' '));
   if (!items.length && res.data && res.data.text) {
     return { text: res.data.text };
   }
@@ -431,6 +457,33 @@ const STORES = [
   ['Lewiatan', /LEWIATAN/],
   ['Rossmann', /ROSSMANN/],
 ];
+// NIP z paragonów, które widzieliśmy; pomaga, gdy nazwa sieci jest źle odczytana
+const NIPS = { '8992367273': 'Kaufland', '1070002973': 'Aldi' };
+
+function editDist(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  }
+  return d[a.length][b.length];
+}
+
+export function storeOf(U) {
+  const joined = U.join(' ');
+  for (const [name, re] of STORES) if (re.test(joined)) return name;
+  const digits = joined.replace(/[^\d]/g, ' ');
+  for (const [nip, name] of Object.entries(NIPS)) if (digits.includes(nip) || joined.replace(/[-\s]/g, '').includes(nip)) return name;
+  // literówka w nazwie sieci, tylko w nagłówku ("RLDI SP. Z O.O.", "KAUFLAMD")
+  const head = U.slice(0, 12).join(' ').split(/[^A-Z]+/).filter((w) => w.length >= 4);
+  const NAMES = [['ALDI', 'Aldi'], ['LIDL', 'Lidl'], ['BIEDRONKA', 'Biedronka'], ['KAUFLAND', 'Kaufland'], ['NETTO', 'Netto'],
+    ['CARREFOUR', 'Carrefour'], ['AUCHAN', 'Auchan'], ['STOKROTKA', 'Stokrotka'], ['LEWIATAN', 'Lewiatan'], ['ROSSMANN', 'Rossmann'], ['ZABKA', 'Żabka']];
+  for (const [w0, name] of NAMES) {
+    const lim = w0.length >= 7 ? 2 : 1;
+    if (head.some((w) => Math.abs(w.length - w0.length) <= lim && editDist(w, w0) <= lim)) return name;
+  }
+  return '';
+}
 
 const AMOUNT = /(-?)(?<![\d,.])(\d{1,4})\s?[,.]\s?(\d{2})(?![\d])/g;
 
@@ -472,6 +525,189 @@ function up(s) {
 
 const r2 = (v) => Math.round(v * 100) / 100;
 
+// ---------- pozycje paragonu ----------
+
+const DISC_RE = /OPUST|RABAT|PROMOC|OBNI[ZŻ]K|ZNI[ZŻ]K|UPUST|KUPON|LIDL ?PLUS|BONIFIK/;
+const DISC_SUM_RE = /(SUMA|RAZEM|[S5][UVW][MN]A).*(OPUST|RABAT)|(OPUST|RABAT)\w*\s+RAZEM/;
+const END_RE = /[S5][UVW][MN]A\b|SUMA|SPRZED|OPOD|\bPTU\b|^RAZEM|ZAPLATY|PODSUMA|ROZLICZ|NALEZNOSC/;
+const START_RE = /PARAGON|FISKALN/;
+const PRICE_RE = /[X*×][\s._]*(\d{1,4})\s?[,.]\s?(\d{1,2})(?!\d)/g;
+const LOOSE = /(-?)\s?(\d{1,4})\s?[,.]\s?(\d{2})/;
+const near = (a, b) => Math.abs(a - b) <= 0.011;
+
+// Nazwa z paragonu do pokazania: bez litery grupy PTU i śmieci z brzegów, wielkie litery na zwykłe,
+// sklejone wyrazy rozdzielone ("HortexWarPolskie450g" -> "Hortex War Polskie 450g").
+export function cleanName(raw) {
+  // "|" w środku wyrazu to zwykle l ("Granu|owany"), "4006" na końcu gramatury to 400G
+  let n = String(raw || '').replace(/(\p{L})\|(\p{L})/gu, '$1l$2').replace(/(\d0)6\b/g, '$1G');
+  n = n.replace(/[|©®"„”“*_<>~=[\]{}]+/g, ' ').replace(/\s+/g, ' ').trim();
+  n = n.replace(/^(?:[^\p{L}\d]+\s+)+/u, '').replace(/^[^\p{L}\d]+/u, '');
+  for (let k = 0; k < 2; k++) n = n.replace(/\s+[A-Za-z€(]\.?$/, '').trim();
+  n = n.replace(/\s+kg\.?$/i, '').replace(/(\d\s?(?:g|kg|ml|l))t$/i, '$1').replace(/(\p{Ll})tt$/u, '$1t').replace(/[\s,.;:-]+$/, '');
+  const letters = n.replace(/[^\p{L}]/gu, '');
+  const upper = letters.replace(/[^\p{Lu}]/gu, '').length;
+  if (letters.length && upper / letters.length > 0.7) n = n.toLowerCase();
+  else n = n.replace(/(\p{Ll})(\p{Lu})/gu, '$1 $2').replace(/(\p{Lu})(\p{Lu}\p{Ll})/gu, '$1 $2');
+  n = n.replace(/(\p{L}{3,})(\d)/gu, '$1 $2').replace(/\s+/g, ' ').trim();
+  return n.charAt(0).toUpperCase() + n.slice(1);
+}
+
+const letterCount = (s) => (s.match(/\p{L}/gu) || []).length;
+
+// Wiersz pozycji: "NAZWA C  2SZT * 4,49 8,98 C", "Nazwa t 0,516KG x36,99 19,09C".
+// Ilość, cena i wartość sprawdzają się nawzajem, więc jedną źle odczytaną liczbę da się odtworzyć.
+function itemRow(t, f) {
+  let m;
+  let hit = null;
+  PRICE_RE.lastIndex = 0;
+  while ((m = PRICE_RE.exec(f))) {
+    const before = f.slice(0, m.index).replace(/\s+$/, '');
+    const qtyTok = (/(\S+)$/.exec(before) || ['', ''])[1];
+    if (/\d|SZT|KG|SZ/.test(qtyTok)) hit = { m, qtyTok, at: before.length - qtyTok.length };
+  }
+  if (!hit) return null;
+  // cena z jedną cyfrą po przecinku ("x3,9") to zgubiona cyfra: odtworzymy ją z wartości
+  let price = Number(hit.m[1] + '.' + hit.m[2]);
+  const cut = hit.m[2].length < 2;
+  if (!(price > 0)) return null;
+  const after = f.slice(hit.m.index + hit.m[0].length);
+  const tm = LOOSE.exec(after);
+  let total = tm ? Number(tm[2] + '.' + tm[3]) : null;
+  const qm = /^(\d{1,3}(?:[,.]\d{1,3})?)/.exec(hit.qtyTok);
+  const read = qm ? Number(qm[1].replace(',', '.')) : null;
+  // ilość odczytana czysto ("2", "1SZT", "0,529KG"), a nie "18ZT" czy "1527"
+  const clean = read != null && /^\d{1,3}(?:[,.]\d{3})?(?:SZT|KG|SZ|S2T)?[._]?$/.test(hit.qtyTok);
+  let qty = read;
+  let unit = /KG/.test(hit.qtyTok) || /[,.]\d{3}/.test(hit.qtyTok) ? 'kg' : 'szt';
+  let alt = null;
+  if (cut) {
+    if (total == null) return null;
+    if (qty == null || !(qty > 0)) qty = 1;
+    price = r2(total / qty);
+    return { name: t.slice(0, Math.max(0, hit.at)), qty, unit, price, total, alt };
+  }
+  if (total == null) {
+    if (qty == null) qty = 1;
+    total = r2(qty * price);
+  } else if (qty == null || !near(r2(qty * price), total)) {
+    const q = total / price;
+    const q3 = Math.round(q * 1000) / 1000;
+    if (unit !== 'kg' && Math.round(q) >= 1 && Math.abs(q - Math.round(q)) < 0.004) qty = Math.round(q);
+    else if (near(r2(q3 * price), total) && q3 > 0) { qty = q3; unit = 'kg'; }
+    // wartość i ilość się kłócą: zostawiamy wartość, a druga wersja czeka na sprawdzenie z sumą
+    if (clean && read > 0 && !near(r2(read * price), total)) alt = r2(read * price);
+  }
+  return { name: t.slice(0, Math.max(0, hit.at)), qty, unit, price, total, alt, altQty: alt != null ? read : null };
+}
+
+function discOf(f) {
+  const cols = f.trim().split(/\s{2,}/);
+  if (cols.length >= 2) {
+    const m = LOOSE.exec(cols[cols.length - 1]);
+    return m ? Number(m[2] + '.' + m[3]) : null;
+  }
+  const all = amountsOf(f);
+  return all.length ? all[all.length - 1].v : null;
+}
+
+// Ten sam produkt kupiony kilka razy (np. trzy mleka z osobnym rabatem) łączymy w jeden wiersz.
+// Nazwy mogą się różnić literówkami OCR, więc wystarczy ta sama cena i podobna nazwa.
+const KNOWN = new Set(CANON.flatMap((n) => norm(n).split(' ')).filter((w) => w.length >= 3).map(stemPL));
+const squash = (n) => norm(n).replace(/[^a-z0-9]/g, '');
+function similar(a, b) {
+  const x = squash(a);
+  const y = squash(b);
+  if (x === y) return true;
+  if (Math.min(x.length, y.length) < 8) return false;
+  return 1 - editDist(x, y) / Math.max(x.length, y.length) >= 0.75;
+}
+const known = (n) => norm(n).split(' ').filter((w) => KNOWN.has(stemPL(w))).length;
+
+function mergeSame(items) {
+  const out = [];
+  for (const x of items) {
+    const y = x.alt == null && out.find((o) => o.alt == null && o.unit === x.unit && Math.abs(o.price - x.price) < 0.005 && similar(o.name, x.name));
+    if (!y) { out.push({ ...x }); continue; }
+    if (known(x.name) > known(y.name)) y.name = x.name;
+    y.qty = y.unit === 'kg' ? Math.round((y.qty + x.qty) * 1000) / 1000 : y.qty + x.qty;
+    y.total = r2(y.total + x.total);
+    if (x.disc) y.disc = r2((y.disc || 0) + x.disc);
+    if (x.discUnknown) y.discUnknown = (y.discUnknown || 0) + x.discUnknown;
+  }
+  return out;
+}
+
+// Pozycje między nagłówkiem "PARAGON FISKALNY" a podsumowaniem (SPRZEDAŻ / SUMA / PTU).
+export function parseItems(rows) {
+  const R = rows.map((r) => (typeof r === 'string' ? r : r.text) || '');
+  const U = R.map(up);
+  const F = U.map(fixDigits);
+  let i0 = U.findIndex((u) => START_RE.test(u));
+  if (i0 < 0) i0 = F.findIndex((f, i) => itemRow(R[i], f));
+  if (i0 < 0) return { items: [], discTotal: null };
+  const items = [];
+  let pending = null;
+  let discTotal = null;
+  for (let i = i0 + (START_RE.test(U[i0]) ? 1 : 0); i < R.length; i++) {
+    const u = U[i];
+    const f = F[i];
+    if (DISC_SUM_RE.test(u)) { const d = discOf(f); if (d != null) discTotal = d; break; }
+    if (END_RE.test(u) && !itemRow(R[i], f)) break;
+    if (DISC_RE.test(u) && items.length) {
+      const it = items[items.length - 1];
+      const d = discOf(f);
+      it.disc = r2((it.disc || 0) + (d != null && d < it.total ? d : 0));
+      if (d == null || d >= it.total) it.discUnknown = (it.discUnknown || 0) + 1;
+      pending = null;
+      continue;
+    }
+    const row = itemRow(R[i], f);
+    if (row) {
+      let name = cleanName(row.name);
+      if (letterCount(name) < 3 && pending) name = cleanName(pending);
+      pending = null;
+      if (letterCount(name) < 2) name = 'Produkt';
+      items.push({ name, qty: row.qty, unit: row.unit, price: row.price, total: row.total, ...(row.alt != null ? { alt: row.alt, altQty: row.altQty } : {}) });
+      continue;
+    }
+    // pozycja bez ilości i ceny jednostkowej: "Torba 0,89 A"; nazwa może być w wierszu wyżej
+    const one = /(\d{1,4})\s?[,.]\s?(\d{2})\s?[A-GX€(]\s*$/.exec(f);
+    const own = letterCount(R[i].slice(0, one ? one.index : 0).replace(/(^|\s)[A-Za-z](\s|$)/g, ' '));
+    if (one && (own >= 3 || pending) && items.length) {
+      const v = Number(one[1] + '.' + one[2]);
+      items.push({ name: cleanName(own >= 3 ? R[i].slice(0, one.index) : pending), qty: 1, unit: 'szt', price: v, total: v });
+      pending = null;
+      continue;
+    }
+    pending = letterCount(R[i]) >= 3 && !amountsOf(u).length ? R[i] : null;
+  }
+  return { items: mergeSame(items), discTotal };
+}
+
+// Czy pozycje minus rabaty dają sumę z paragonu. Jedną nieczytelną liczbę (rabat bez przecinka,
+// wartość pozycji) da się odtworzyć z sumy; wtedy też uznajemy, że wszystko się zgadza.
+export function checkItems(items, total, discTotal) {
+  if (!items.length || total == null) return { ok: false, sum: 0 };
+  const net = () => r2(items.reduce((a, x) => a + x.total - (x.disc || 0), 0));
+  const unknown = items.filter((x) => x.discUnknown);
+  if (unknown.length === 1 && unknown[0].discUnknown === 1) {
+    const x = unknown[0];
+    const knownDisc = items.reduce((a, y) => a + (y.disc || 0), 0);
+    const fromSum = discTotal != null ? r2(discTotal - knownDisc) : null;
+    const fromTotal = r2(net() - total);
+    const d = fromSum != null && fromSum > 0 && near(fromSum, fromTotal) ? fromSum : fromTotal;
+    if (d > 0 && d < x.total) { x.disc = r2((x.disc || 0) + d); delete x.discUnknown; }
+  }
+  if (!near(net(), total)) {
+    const x = items.find((y) => y.alt != null && near(r2(net() - y.total + y.alt), total));
+    if (x) { x.total = x.alt; x.qty = x.altQty; }
+  }
+  for (const x of items) { delete x.alt; delete x.altQty; }
+  const ok = near(net(), total) && !items.some((x) => x.discUnknown);
+  return { ok, sum: net() };
+}
+
+
 // Sumę potwierdza kilka miejsc na paragonie: wiersz SUMA, płatność kartą, gotówka minus reszta,
 // suma sprzedaży w grupach PTU, suma pozycji i kwota wydrukowana dużą czcionką.
 // Wygrywa kwota, na którą wskazuje najwięcej z nich.
@@ -484,7 +720,7 @@ export function parseReceipt(input) {
   const last = (a) => (a.length ? a[a.length - 1] : null);
 
   const sumaRe = /(^|[^A-Z])[S5][UVW][MN]A\b|SUMA|^[S5][UV][MN]A?\s*P[LI1]N?\b|DO ZAPLATY|RAZEM/;
-  const badSuma = /PTU|VAT|OPODATK|SPRZEDAZ|RABAT|OSZCZ|ZWOLN/;
+  const badSuma = /PTU|VAT|OPODATK|SPRZEDAZ|RABAT|OPUST|OSZCZ|ZWOLN/;
   const votes = [];
   const vote = (v, src, wgt) => { if (v != null && v > 0 && v < 5000) votes.push({ v: r2(v), src, wgt }); };
 
@@ -492,9 +728,6 @@ export function parseReceipt(input) {
   let salesN = 0;
   let salesMax = 0;
   let ptu = 0;
-  let items = 0;
-  let itemsN = 0;
-  let disc = 0;
   let cash = null;
   let change = null;
   let lastSale = null;
@@ -535,15 +768,12 @@ export function parseReceipt(input) {
       vote(last(a), 'karta', 2.5);
       continue;
     }
-    const neg = amountsOf(f).filter((x) => x.neg);
-    if (neg.length && /RABAT|OPUST|OBNIZK|PROMOC|ZNIZK|-/.test(u)) { disc += neg[neg.length - 1].v; continue; }
-    // pozycja: kwota z literą grupy PTU na końcu, np. "14,98 C"
-    const it = /(\d{1,4})\s?[,.]\s?(\d{2})\s?[A-G]\s*$/.exec(f);
-    if (it) { items += Number(it[1] + '.' + it[2]); itemsN++; }
   }
   if (salesN && !salesBad) vote(sales, 'sprzedaż', salesN >= 2 ? 2.2 : 1.6);
   if (cash != null && change != null && cash >= change) vote(cash - change, 'gotówka', 1.5);
-  if (itemsN >= 2) vote(items - disc, 'pozycje', 1.4);
+  const parsed = parseItems(rows);
+  const itemsN = parsed.items.length;
+  if (itemsN >= 2 && !parsed.items.some((x) => x.discUnknown || x.alt != null)) vote(parsed.items.reduce((a, x) => a + x.total - (x.disc || 0), 0), 'pozycje', 1.4);
   const big = [];
   rows.forEach((r, i) => { if (r.big) big.push(...amounts(F[i])); });
   if (big.length) vote(Math.max(...big), 'duża czcionka', 2);
@@ -586,9 +816,9 @@ export function parseReceipt(input) {
   const alt = ranked.slice(1).map((s) => s.v);
   const candidates = [...new Set([...alt, ...[...all].sort((a, b) => b - a)])].filter((a) => a !== total).slice(0, 5);
 
-  let store = '';
+  const store = storeOf(U);
   const joined = U.join(' ');
-  for (const [name, re] of STORES) if (re.test(joined)) { store = name; break; }
+  const check = checkItems(parsed.items, total, parsed.discTotal);
 
   let date = '';
   const dm = /(20\d\d)[-.](\d\d)[-.](\d\d)/.exec(joined) || /(\d\d)[-.](\d\d)[-.](20\d\d)/.exec(joined);
@@ -596,7 +826,7 @@ export function parseReceipt(input) {
     const [y, m, d] = dm[1].length === 4 ? [dm[1], dm[2], dm[3]] : [dm[3], dm[2], dm[1]];
     if (Number(m) >= 1 && Number(m) <= 12 && Number(d) >= 1 && Number(d) <= 31) date = `${y}-${m}-${d}`;
   }
-  return { total, how, candidates, store, date };
+  return { total, how, candidates, store, date, items: parsed.items, itemsOk: check.ok, itemsSum: check.sum };
 }
 
 // podgląd tego, co dostaje czytnik (do testów)

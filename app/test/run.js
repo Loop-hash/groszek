@@ -94,6 +94,55 @@ await t('odczyt paragonu z tekstu', async () => {
   assert.equal(d.total, 12); assert.deepEqual(d.candidates, [3.5]);
 });
 
+await t('pozycje z paragonu: opusty, waga, zawinięte nazwy', async () => {
+  const { parseReceipt, cleanName } = await import('../www/js/receipt.js');
+  // jak Aldi: opust pod pozycją, jeden opust bez przecinka ("1000"), suma opustów
+  const a = parseReceipt([
+    'RLDI Sp. z o. o., ul. Testowa 1', 'NIP 1070002973', 'PARAGON FISKALNY',
+    '* JOGURT NATURALNY 400G C  2SZT * 2,99 5,98 C', 'OPUST JOGURT NATURALNY 400G C  -1,00 C',
+    'KASZA GRYCZANA 4006 C  18ZT * 3,49 3,490  |', 'UDKA Z KURCZAKA KG C  0,812kg x 12,90 10,47 C',
+    'OPUST UDKA Z KURCZAKA KG C  1000', 'CHIPSY SOLONE 150G A  1SZT * 6,99 6,99 A',
+    'Suma Opustów  -2,00', 'Sprzed. opod. PTU A  6,99', 'Sprzed. opod. PTU C  17,94', 'SUMA PLN  24,93', 'Karta 24,93',
+  ].join('\n'));
+  assert.equal(a.total, 24.93); assert.equal(a.store, 'Aldi');
+  assert.equal(a.items.length, 4); assert.equal(a.itemsOk, true);
+  assert.deepEqual(a.items.map((x) => [x.qty, x.total, x.disc || 0]), [[2, 5.98, 1], [1, 3.49, 0], [0.812, 10.47, 1], [1, 6.99, 0]]);
+  assert.equal(a.items[1].name, 'Kasza gryczana 400g');
+  // jak Kaufland: litera przy ilości, nazwa w osobnym wierszu nad ceną
+  const k = parseReceipt([
+    'Kaufland Polska Markety', 'PARAGON FISKALNY', 'MlekoWiejskie2%1L t 2SZT x3,29 6,58C', 'K-ClassicSerGoudaPlastry t',
+    '1SZT x7,99 7,99C', 'Torba zakupowa  n 1SZT x0,89 0,89A', 'SPRZEDAŻ OPODATKOWANA A  0,89', 'SPRZEDAŻ OPODATKOWANA C  14,57', 'SUMA PLN  15,46',
+  ].join('\n'));
+  assert.equal(k.total, 15.46); assert.equal(k.itemsOk, true);
+  assert.deepEqual(k.items.map((x) => x.name), ['Mleko Wiejskie 2%1L', 'K-Classic Ser Gouda Plastry', 'Torba zakupowa']);
+  // suma się nie zgadza: pozycje są, ale bez pewności
+  const z = parseReceipt('PARAGON FISKALNY\nMleko 1 x3,99 3,99C\nChleb 1 x4,49 4,49C\nSUMA PLN 10,48\nKarta 10,48');
+  assert.equal(z.total, 10.48); assert.equal(z.items.length, 2); assert.equal(z.itemsOk, false);
+  assert.equal(cleanName('KamisCzosnekGranu|owany16g  t'), 'Kamis Czosnek Granulowany 16g');
+});
+
+await t('baza cen z paragonów i kary w trybie ostrym', async () => {
+  const P = await import('../www/js/prices.js');
+  assert.equal(P.canonOf('Lubella świderki 400g'), 'świderki');
+  assert.equal(P.canonOf('Płatki owsiane bł.500g'), 'płatki owsiane');
+  assert.equal(P.canonOf('Mieszanka wedlowska'), null);
+  const st = { prices: {}, learned: {}, settings: { strict: true, strictCats: { 'chipsy i przekąski': true } } };
+  const items = [
+    { name: 'Mleko UHT 3,2% 1L', qty: 2, unit: 'szt', price: 3.49, total: 6.98, disc: 1 },
+    { name: 'Chipsy solone 150g', qty: 1, unit: 'szt', price: 6.99, total: 6.99 },
+    { name: 'Coś nieczytelne', qty: 3, unit: 'szt', price: 2, total: 5 },
+  ];
+  assert.equal(P.recordPrices(st, 'Aldi', '2026-10-01', items), 2);
+  assert.equal(P.pricesFor(st, 'mleko')[0].paid, 2.99);
+  P.recordPrices(st, 'Lidl', '2026-10-03', [{ name: 'Mleko 3,2% 1l', qty: 1, unit: 'szt', price: 3.19, total: 3.19 }]);
+  assert.deepEqual(P.pricesFor(st, 'mleko').map((x) => x.store), ['Lidl', 'Aldi']);
+  const withTreat = items.map((x) => ({ ...x, ...P.describe(x, st) }));
+  assert.deepEqual(withTreat.map((x) => x.treat), [false, true, false]);
+  assert.equal(P.penaltyFor(withTreat, st, true).exp, 7);
+  assert.equal(P.penaltyFor(withTreat, st, false).exp, 0);
+  assert.equal(P.penaltyFor(withTreat, { ...st, settings: { strict: false } }, true).exp, 0);
+});
+
 await t('lista: ilości, odmiany i literówki', async () => {
   const q = (s) => { const p = D.parseEntry(s); return [D.canonical(p.text, {}).name, p.qty, p.amount]; };
   assert.deepEqual(q('3 masło'), ['masło', 3, '']);

@@ -33,14 +33,16 @@ Groszek pojawi się z własną ikonką i będzie otwierał się na pełnym ekran
 **Budżet**
 - Ustawiasz kwotę na jedzenie i dzień, od którego liczysz miesiąc, np. dzień stypendium.
 - Na starcie widzisz, ile możesz wydać dziś, ile zostało do końca miesiąca i czy jesteś przed planem, czy za nim.
-- Wydatek dodajesz klawiaturą albo zdjęciem paragonu. Groszek odczyta sumę i sklep, a wszystko dzieje się w telefonie.
-- W historii są wszystkie wydatki. Za trzymanie się limitu i kupowanie w promocjach Groszek zbiera doświadczenie i wbija kolejne poziomy.
+- Wydatek dodajesz klawiaturą albo zdjęciem paragonu. Groszek odczyta sumę, sklep i każdy produkt z ceną i rabatem, a potem sprawdzi, czy produkty składają się na sumę. Wszystko dzieje się w telefonie.
+- W historii widać, co kupiłeś, z podziałem na zakupy. Ołówek w rogu poprawia kwotę.
+- Za trzymanie się limitu i kupowanie w promocjach Groszek zbiera doświadczenie i wbija kolejne poziomy. Rabaty z paragonu też się liczą.
+- **Twoje ceny:** z każdego paragonu Groszek zapamiętuje, ile płacisz za produkty w danym sklepie, i liczy z tego koszt listy zakupów.
 
 **Lista zakupów i promocje**
 - Wpisujesz jak zwykle: „3 masło”, „fasola x 3”, „2 kg ziemniaków”. Groszek rozumie ilości, poprawia odmiany i literówki, a ta sama rzecz wpisana drugi raz zwiększa licznik zamiast dublować się na liście.
 - Promocje z Kauflandu, Lidla i Aldi pobierają się same dwa razy w tygodniu.
 - Przy rzeczach z Twojej listy Groszek pokazuje, gdzie są taniej i ile oszczędzisz.
-- Tryb ostry nie pozwala dopisać do listy zachcianek, takich jak słodycze czy chipsy.
+- Tryb ostry nie pozwala dopisać do listy zachcianek, takich jak słodycze czy chipsy. Zachcianka znaleziona na paragonie kosztuje exp: 1 zł to 1 exp mniej.
 
 **Przepisy**
 - 1099 dań z 21 kuchni: od polskiej i włoskiej po gruzińską, bośniacką, koreańską i meksykańską. Do tego podstawy, jak ugotowanie ryżu czy jajka.

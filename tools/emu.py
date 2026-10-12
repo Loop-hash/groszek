@@ -191,12 +191,13 @@ def ocr_bench():
     results = []
     score = {}
     for eng in ("auto", "tesseract"):
-        for path, t in files:
+        # Tesseract na emulatorze jest wolny: wystarczy kilka paragonów
+        for path, t in (files if eng == "auto" else files[:4] + files[-1:]):
             b64 = base64.b64encode(open(path, "rb").read()).decode()
             expr = ("(async () => { const m = await import('./js/receipt.js'); m.opts.engine = '%s';"
                     " const b = await (await fetch('data:image/jpeg;base64,%s')).blob(); const t0 = Date.now();"
                     " const r = await m.readReceipt(b); return JSON.stringify({total: r.total, how: r.how, engine: r.engine,"
-                    " store: r.store, ms: Date.now() - t0, text: r.text}); })()") % (eng, b64)
+                    " store: r.store, ms: Date.now() - t0, text: r.text, itemsOk: r.itemsOk, items: (r.items || []).map((x) => [x.name, x.qty, x.price, x.total, x.disc || 0])}); })()") % (eng, b64)
             try:
                 res = ev(expr)
                 val = res.get("result", {}).get("result", {}).get("value")
@@ -208,8 +209,13 @@ def ocr_bench():
             score.setdefault(key, [0, 0])
             score[key][0] += ok
             score[key][1] += 1
+            items_ok = r.get("itemsOk") and (t.get("items") is None or len(r.get("items") or []) == t["items"])
+            score.setdefault(key + " pozycje", [0, 0])
+            score[key + " pozycje"][0] += bool(items_ok)
+            score[key + " pozycje"][1] += 1
             log("ocr", key, os.path.basename(path), "OK" if ok else "ŹLE", "chciałem", t["total"], "mam", r.get("total"),
-                r.get("how"), r.get("store"), r.get("ms"), "ms", r.get("error", ""))
+                r.get("how"), r.get("store"), r.get("ms"), "ms", "pozycje", len(r.get("items") or []), "/", t.get("items"),
+                "zgodne" if r.get("itemsOk") else "niezgodne", r.get("error", ""))
             results.append({"file": os.path.basename(path), "want": t, "got": r})
     update_test(ev)
     ws.close()

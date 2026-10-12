@@ -6,7 +6,7 @@ export const CANON = [
   // nabiał
   'masło', 'margaryna', 'mleko', 'mleko roślinne', 'napój owsiany', 'kefir', 'maślanka', 'jogurt', 'jogurt naturalny',
   'jogurt grecki', 'jogurt pitny', 'skyr', 'śmietana', 'śmietanka', 'serek wiejski', 'serek homogenizowany', 'serek śmietankowy',
-  'ser żółty', 'ser biały', 'twaróg', 'mozzarella', 'feta', 'parmezan', 'ser pleśniowy', 'mascarpone', 'ricotta', 'halloumi',
+  'ser', 'ser żółty', 'ser biały', 'twaróg', 'mozzarella', 'feta', 'parmezan', 'ser pleśniowy', 'mascarpone', 'ricotta', 'halloumi',
   'jajka', 'budyń', 'kisiel', 'deser mleczny',
   // pieczywo
   'chleb', 'chleb tostowy', 'bułki', 'bagietka', 'rogale', 'tortilla', 'pita', 'bajgle', 'grahamki', 'kajzerki', 'bułka tarta',

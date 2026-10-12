@@ -1,11 +1,12 @@
 // Lista zakupów: ikonki, promocje do każdej rzeczy, odhaczanie, tryb ostry i oszczędności (exp).
-import { fmt, today, r2 } from '../budget.js';
+import { fmt, today, r2, shortDate } from '../budget.js';
 import { ui, food, sprite, FOOD } from '../pixels.js';
 import { esc, topbar, check, empty, plural } from '../ui.js';
 import { listMatches, offerForItem, STORES, whenLabel, saving, isActive, tidy } from '../offers.js';
 import { addToList } from '../listlogic.js';
 import { norm } from '../dict.js';
 import { uid } from '../store.js';
+import { pricesFor } from '../prices.js';
 
 const IN_STORE = { kaufland: 'w Kauflandzie', lidl: 'w Lidlu', aldi: 'w Aldi', biedronka: 'w Biedronce' };
 const CAT_NAME = {
@@ -36,6 +37,13 @@ function priceOf(c, i, matches) {
   const qty = i.qty || 1;
   const o = offerForItem(i, matches);
   if (o && o.price && isActive(o)) return { price: r2(o.price * qty), store: o.store, src: 'promo' };
+  // cena z Twoich paragonów
+  const known = pricesFor(c.state, i.name)[0];
+  if (known && known.paid) {
+    const kg = /([\d.,]+)\s*(kg|g|dag|dkg)\b/i.exec(i.amount || '');
+    const w = kg ? Number(kg[1].replace(',', '.')) / ({ kg: 1, g: 1000, dag: 100, dkg: 100 }[kg[2].toLowerCase()]) : 0.5;
+    return { price: r2(known.paid * (known.unit === 'kg' ? w : qty)), store: known.store.toLowerCase(), src: 'twoje' };
+  }
   const all = (c.data.ingredients && c.data.ingredients.ingredients) || {};
   const words = norm(i.name).split(' ');
   let best = null;
@@ -105,13 +113,15 @@ function itemSheet(c, id) {
       }).join('');
       const icons = Object.keys(FOOD).map((k) => `<button class="${k === i.ico ? 'on' : ''}" data-act="ico" data-arg="${k}" aria-label="Ikonka ${k}">${food(k, 26, '')}</button>`).join('');
       const qty = i.qty || 1;
+      const known = pricesFor(cc.state, i.name).slice(0, 4);
+      const mine = known.length ? `<span class="label">Twoje ceny z paragonów</span><div class="rows">${known.map((k) => `<div class="item"><span class="grow stack"><span class="name">${esc(k.store)}</span><span class="sub">${esc(k.name)} · ${shortDate(k.date)}${k.promo ? ' · w promocji' : ''}</span></span><b class="pixel">${fmt(k.paid)} zł${k.unit === 'kg' ? '/kg' : ''}</b></div>`).join('')}</div>` : '';
       return `<div class="row">${food(i.ico, 44)}<h3 class="grow">${esc(i.name)}</h3></div>` +
         `<div class="row between"><span class="bold">Ile sztuk</span><span class="stepper">` +
         `<button class="sq" data-act="less" aria-label="Mniej" ${qty <= 1 ? 'aria-disabled="true"' : ''}>${ui('minus', 18)}</button>` +
         `<b class="pixel">${qty}</b><button class="sq" data-act="more" aria-label="Więcej">${ui('plus', 18)}</button></span></div>` +
         (matches.length
           ? `<span class="label">W promocji ${matches.length > 8 ? '(najtańsze 8)' : ''}</span><div class="stack">${offers}</div>`
-          : '<p style="text-align:left">Teraz nie ma tego w promocjach w twoich sklepach.</p>') +
+          : '<p style="text-align:left">Teraz nie ma tego w promocjach w twoich sklepach.</p>') + mine +
         `<details class="more"><summary>Zmień ikonkę <span>${ui('edit', 16)}</span></summary><div class="stack"><div class="icon-grid">${icons}</div></div></details>` +
         '<div class="row"><button class="btn grow" data-act="remove">Usuń z listy</button><button class="btn dark grow" data-act="sheet-close">Gotowe</button></div>';
     },

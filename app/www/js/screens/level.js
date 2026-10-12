@@ -26,7 +26,7 @@ export function summarySheet(c, prev, seenKey) {
       `<div class="card stack" style="gap:2px"><span class="small muted">Wydane</span><b class="pixel" style="font-size:22px">${fmt(sm.spent)} zł</b><span class="tiny muted">z ${fmt(sm.budget, 0)} zł</span></div>` +
       `<div class="card stack" style="gap:2px"><span class="small muted">${good ? 'Zostało' : 'Ponad budżet'}</span><b class="pixel" style="font-size:22px">${fmt(Math.abs(sm.left))} zł</b></div>` +
       `<div class="card stack" style="gap:2px"><span class="small muted">Dni w limicie</span><b class="pixel" style="font-size:22px">${sm.inLimit}/${sm.total}</b></div>` +
-      `<div class="card stack" style="gap:2px"><span class="small muted">Na promocjach</span><b class="pixel" style="font-size:22px">${fmt(sm.saved)} zł</b><span class="tiny muted">+${sm.exp} exp</span></div>` +
+      `<div class="card stack" style="gap:2px"><span class="small muted">Na promocjach</span><b class="pixel" style="font-size:22px">${fmt(sm.saved)} zł</b><span class="tiny muted">${sm.exp >= 0 ? '+' : '−'}${Math.abs(sm.exp)} exp${sm.penalty ? ` (kary −${sm.penalty})` : ''}</span></div>` +
       `</div>` +
       `<button class="btn dark block" data-act="ok">${good ? 'Lecimy dalej' : 'Nowy miesiąc, nowy start'}</button>`,
     actions: {
@@ -45,6 +45,7 @@ export default {
     const p = period(today(), st.settings.monthStart);
     const lim = daysInLimit(st, p, today());
     const savedMonth = r2(st.savings.filter((s) => s.date >= p.start && s.date <= p.end).reduce((a, s) => a + s.amount, 0));
+    const penMonth = (st.penalties || []).filter((x) => x.date >= p.start && x.date <= p.end);
     const spent = spentIn(st.expenses, p.start, p.end);
     const budget = Number(st.settings.budget) || 0;
 
@@ -65,7 +66,7 @@ export default {
       <div class="stack center" style="gap:4px;align-items:center">
         <div class="lvl" style="width:64px;height:64px"><small>LVL</small><strong style="font-size:26px">${lvl.level}</strong></div>
         <h1 class="hello" style="font-size:26px">${esc(lvl.name)}</h1>
-        <div class="small muted">${exp} exp · 1 zł zaoszczędzony na promocji = 1 exp</div>
+        <div class="small muted">${exp} exp · 1 zł zaoszczędzony na promocji = 1 exp${st.settings.strict ? ' · 1 zł na zachciankę = −1 exp' : ''}</div>
       </div>
       <div class="stack" style="gap:6px">
         <div class="bar"><div class="fill" style="width:${(lvl.progress * 100).toFixed(1)}%"></div></div>
@@ -78,6 +79,7 @@ export default {
         <div class="card stack" style="gap:2px"><span class="small muted">Na promocjach</span><b class="pixel" style="font-size:24px">${fmt(savedMonth)} zł</b></div>
         <div class="card stack" style="gap:2px"><span class="small muted">Wydane</span><b class="pixel" style="font-size:24px">${fmt(spent)} zł</b><span class="tiny muted">z ${fmt(budget, 0)} zł</span></div>
       </div>
+      ${penMonth.length ? `<div class="card dark row" style="padding:10px 14px">${sprite('angry', 34)}<span class="small grow">Zachcianki z paragonów w tym miesiącu: −${penMonth.reduce((a, x) => a + x.exp, 0)} exp</span></div>` : ''}
       <span class="label">Ostatnie 7 dni</span>
       <div class="week">${week.join('')}</div>
       <div class="tiny muted">Pełna kropka: dzień w limicie. Kwadrat: ponad plan.</div>
