@@ -32,7 +32,12 @@ function init(c) {
   p.store = (last && last.store) || 'Biedronka';
   p.date = today();
   p.note = '';
+  // z listy zakupów: suma z cen promocji i szacunków, sklep, w którym było najwięcej rzeczy
+  if (p.fromList && p.listSum > 0) p.amount = String(p.listSum.toFixed(2)).replace('.', ',');
+  if (p.fromList && p.listStore && SHOPS.includes(p.listStore)) p.store = p.listStore;
 }
+
+const itemLabel = (x) => x.name + (x.amount ? ' ' + x.amount : x.qty > 1 ? ' ×' + x.qty : '');
 
 async function scan(c, file) {
   const STATUS = { 'loading tesseract core': 'wczytuję czytnik', 'initializing tesseract': 'uruchamiam czytnik', 'loading language traineddata': 'wczytuję język polski',
@@ -97,8 +102,14 @@ export default {
         ${ocr.date && ocr.date !== p.date ? `<div class="row between small"><span class="muted">Na paragonie: ${esc(dayLabel(ocr.date))}</span><button class="chip" data-act="date" data-arg="${ocr.date}">Ustaw tę datę</button></div>` : ''}
         ${ocr.candidates.length ? `${ocr.total != null ? '<span class="small">Inna kwota?</span>' : ''}<div class="wrap">${ocr.candidates.map((a) => `<button class="chip" data-act="cand" data-arg="${a}">${fmt(a)} zł</button>`).join('')}</div>` : ''}
       </div>` : '';
+    const fromList = p.listItems && p.listItems.length ? `<div class="card stack" style="gap:6px">
+        <div class="row">${ui('basket', 20)}<b class="grow">Z listy zakupów</b></div>
+        <span class="small">${esc(p.listItems.map(itemLabel).join(', '))}</span>
+        <span class="small muted">${p.listPriced ? `Około ${fmt(p.listSum)} zł z cen w promocjach i szacunków${p.listPriced < p.listItems.length ? `, bez ceny: ${p.listItems.length - p.listPriced}` : ''}. ` : ''}Jeśli masz paragon, zrób zdjęcie albo wpisz kwotę z niego.</span>
+      </div>` : (p.id && (st.expenses.find((x) => x.id === p.id) || {}).items ? `<div class="card small">${esc((st.expenses.find((x) => x.id === p.id).items || []).join(', '))}</div>` : '');
     return `
       ${topbar(p.id ? 'Popraw wydatek' : 'Nowy wydatek', '', { right })}
+      ${fromList}
       ${p.id ? '' : `<div class="row"><button class="btn small grow" data-act="photo" data-arg="camera">${ui('camera', 16)} Zrób zdjęcie</button><button class="btn small grow" data-act="photo" data-arg="gallery">${ui('gallery', 16)} Z galerii</button></div>` +
         (ocr ? '' : '<div class="tiny muted center">Połóż paragon na ciemnym tle i zrób zdjęcie z bliska, tak żeby wypełniał kadr. Dół z SUMĄ musi być ostry.</div>')}
       ${ocrCard}
@@ -175,7 +186,14 @@ export default {
         const e = st.expenses.find((x) => x.id === p.id);
         if (e) Object.assign(e, { amount, store: p.store, date: p.date });
       } else {
-        st.expenses.push({ id: uid(), amount, store: p.store, date: p.date, created: Date.now() });
+        const e = { id: uid(), amount, store: p.store, date: p.date, created: Date.now() };
+        if (p.listItems && p.listItems.length) e.items = p.listItems.map(itemLabel);
+        st.expenses.push(e);
+        // rzeczy z listy są już rozliczone: znikają z "Kupione"
+        if (p.fromList && p.fromList.length) {
+          const ids = new Set(p.fromList);
+          st.list = st.list.filter((i) => !ids.has(i.id));
+        }
       }
       st.expenses.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : (a.created || 0) - (b.created || 0)));
       c.save();

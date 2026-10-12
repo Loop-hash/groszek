@@ -31,6 +31,56 @@ function itemRow(c, i, matches) {
     `<span class="sub">${esc(sub)}</span></span></button>${i.done ? '' : price}${plus}</div>`;
 }
 
+// Cena rzeczy z listy: z wybranej promocji, a bez niej szacunek z cen składników (całe opakowanie)
+function priceOf(c, i, matches) {
+  const qty = i.qty || 1;
+  const o = offerForItem(i, matches);
+  if (o && o.price && isActive(o)) return { price: r2(o.price * qty), store: o.store, src: 'promo' };
+  const all = (c.data.ingredients && c.data.ingredients.ingredients) || {};
+  const words = norm(i.name).split(' ');
+  let best = null;
+  let bl = 0;
+  for (const ing of Object.values(all)) {
+    for (const k of ing.kw || []) {
+      const hit = k.includes(' ') ? norm(i.name).includes(k) : words.some((w) => w.startsWith(k) || k.startsWith(w) && w.length >= 4);
+      if (hit && k.length > bl) { bl = k.length; best = ing; }
+    }
+  }
+  if (!best || !best.kg) return null;
+  const grams = best.pkg || 500; // bez opakowania (warzywa na wagę): pół kilo
+  return { price: r2((best.kg * grams) / 1000 * qty), store: '', src: 'szac' };
+}
+
+// Kupione, a jeszcze nie w wydatkach: suma, sklep z największą liczbą rzeczy i lista nazw
+function boughtSummary(c) {
+  const st = c.state;
+  const m = listMatches(st, c.data);
+  const items = st.list.filter((i) => i.done && !i.expensed);
+  let sum = 0;
+  let priced = 0;
+  const stores = {};
+  for (const i of items) {
+    const pr = priceOf(c, i, m.get(i.id));
+    if (!pr) continue;
+    sum += pr.price;
+    priced++;
+    if (pr.store) stores[pr.store] = (stores[pr.store] || 0) + 1;
+  }
+  const top = Object.entries(stores).sort((a, b) => b[1] - a[1])[0];
+  return { items, sum: r2(sum), priced, store: top ? STORES[top[0]] : '' };
+}
+
+function toExpenses(c) {
+  const b = boughtSummary(c);
+  if (!b.items.length) return;
+  c.closeSheet(true);
+  c.go('add', {
+    fromList: b.items.map((i) => i.id),
+    listItems: b.items.map((i) => ({ name: i.name, qty: i.qty || 1, amount: i.amount || '' })),
+    listSum: b.sum, listPriced: b.priced, listStore: b.store,
+  }, { quiet: true });
+}
+
 function changeQty(c, id, d) {
   const i = c.state.list.find((x) => x.id === id);
   if (!i) return;
@@ -127,7 +177,10 @@ export default {
       body = pending.length ? `<div class="rows">${pending.map((i) => itemRow(c, i, m.get(i.id))).join('')}</div>` : '';
     }
     if (done.length) {
+      const b = boughtSummary(c);
       body += `<div class="daylabel"><span>Kupione · ${done.length}</span><button class="btn small" data-act="clear">Wyczyść</button></div>` +
+        (b.items.length ? `<button class="card dashed row" data-act="toExpenses" style="text-align:left;margin:6px 0">${ui('receipt', 22)}<span class="grow stack" style="gap:2px"><b>Dopisz do wydatków</b>` +
+          `<span class="small muted">${b.items.length} ${plural(b.items.length, 'rzecz', 'rzeczy', 'rzeczy')}${b.priced ? ` · około ${fmt(b.sum)} zł` : ''}. Kwotę poprawisz albo odczytasz z paragonu.</span></span>${ui('arrow', 16, 'flip')}</button>` : '') +
         `<div class="rows">${done.map((i) => itemRow(c, i, m.get(i.id))).join('')}</div>`;
     }
 
@@ -179,7 +232,20 @@ export default {
       }
       c.save();
       c.render();
+      // ostatnia rzecz odhaczona: zaproponuj dopisanie zakupów do wydatków
+      if (i.done && !st.list.some((x) => !x.done)) {
+        const b = boughtSummary(c);
+        if (b.items.length) {
+          c.sheet({
+            mascot: 'happy',
+            render: () => `<h2>Wszystko kupione!</h2><p>Dopisać te zakupy do wydatków${b.priced ? `? Wychodzi około ${fmt(b.sum)} zł` : '?'}</p>` +
+              '<div class="row"><button class="btn grow" data-act="sheet-close">Później</button><button class="btn dark grow" data-act="go">Dopisz</button></div>',
+            actions: { go: (cc) => toExpenses(cc) },
+          });
+        }
+      }
     },
+    toExpenses(c) { toExpenses(c); },
     open(c, id) { itemSheet(c, id); },
     more(c, id) { changeQty(c, id, 1); },
     clear(c) {

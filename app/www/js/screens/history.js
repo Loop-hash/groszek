@@ -31,7 +31,7 @@ export default {
       const sum = r2(list.reduce((a, e) => a + e.amount, 0));
       rows += `<div class="daylabel"><span>${esc(dayLabel(d))} · ${esc(dowName(d))}</span><span class="pixel">${fmt(sum)} zł</span></div><div class="rows">` +
         list.map((e) => `<div class="item"><button class="item-main" data-act="edit" data-arg="${esc(e.id)}"><span class="iconbox" style="width:44px;height:44px">${ui('receipt', 22)}</span>` +
-          `<span class="grow stack"><span class="name">${esc(e.store || 'Zakupy')}</span><span class="sub">dotknij, żeby poprawić</span></span></button><span class="price">${fmt(e.amount)} zł</span></div>`).join('') +
+          `<span class="grow stack"><span class="name">${esc(e.store || 'Zakupy')}</span><span class="sub">${e.items && e.items.length ? esc(e.items.join(', ')) : 'dotknij, żeby poprawić'}</span></span></button><span class="price">${fmt(e.amount)} zł</span></div>`).join('') +
         '</div>';
     }
 
