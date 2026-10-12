@@ -3,7 +3,7 @@ import { fmt, today } from '../budget.js';
 import { ui, sprite } from '../pixels.js';
 import { esc, topbar, toggle, chip, settingRow, plural } from '../ui.js';
 import { GEAR, AVOID, DEFAULT_CUISINES, exportJson, importJson, plugin, defaults } from '../store.js';
-import { TREAT_CATS, CAT_LABEL } from '../dict.js';
+import { TREAT_CATS, CAT_LABEL, norm } from '../dict.js';
 import { STORES } from '../offers.js';
 
 const PAL = [
@@ -65,6 +65,37 @@ function profileSheet(c) {
     const ok = root.querySelector('[data-act="ok"]');
     if (ok) { ok.disabled = !k; ok.textContent = 'Ustaw ' + (k ? fmt(k, 0) + ' kcal' : ''); }
   }
+}
+
+// Zapamiętane produkty w osobnym okienku z szukajką, żeby nie rozciągały ustawień
+function learnedSheet(c) {
+  let q = '';
+  const label = (k, v) => v.name || k;
+  const shown = (k, v) => !q || norm(label(k, v)).includes(q);
+  c.sheet({
+    render(cc) {
+      const items = Object.entries(cc.state.learned || {}).sort((a, b) => label(...a).localeCompare(label(...b), 'pl'));
+      if (!items.length) return '<h3>Zapamiętane produkty</h3><p>Pusto. Groszek zapyta o nieznane rzeczy, gdy włączysz tryb ostry.</p><button class="btn block" data-act="sheet-close">Zamknij</button>';
+      const rows = items.map(([k, v]) => `<div class="row between learned-row" data-name="${esc(norm(label(k, v)))}" ${shown(k, v) ? '' : 'hidden'}>` +
+        `<span class="grow">${esc(label(k, v))}</span>` +
+        `<button class="pill" data-act="flip" data-arg="${esc(k)}" style="background:${v.treat ? 'var(--ink)' : 'var(--paper)'};color:${v.treat ? 'var(--paper)' : 'var(--ink)'}">${v.treat ? 'zachcianka' : 'podstawa'}</button>` +
+        `<button class="sq" style="width:38px;height:38px;border:0" data-act="forget" data-arg="${esc(k)}" aria-label="Zapomnij ${esc(label(k, v))}">${ui('trash', 16)}</button></div>`).join('');
+      const treats = items.filter(([, v]) => v.treat).length;
+      return `<h3>Zapamiętane produkty</h3><p class="small muted" style="text-align:left">${items.length - treats} ${plural(items.length - treats, 'podstawa', 'podstawy', 'podstaw')} i ${treats} ${plural(treats, 'zachcianka', 'zachcianki', 'zachcianek')}. Dotknij, żeby zmienić.</p>` +
+        (items.length > 6 ? `<input id="learned-q" class="field small" type="search" placeholder="Szukaj" value="${esc(q)}" data-in="q" autocomplete="off">` : '') +
+        `<div class="stack" style="gap:8px">${rows}</div><button class="btn dark block" data-act="sheet-close">Gotowe</button>`;
+    },
+    inputs: {
+      q(cc, v) {
+        q = norm(v);
+        document.querySelectorAll('#sheet-root .learned-row').forEach((el) => { el.hidden = !!q && !el.dataset.name.includes(q); });
+      },
+    },
+    actions: {
+      flip(cc, k) { const l = cc.state.learned[k]; if (l) { l.treat = !l.treat; l.ico = l.treat ? 'candy' : 'bag'; } cc.save(); cc.renderSheet(); cc.render(); },
+      forget(cc, k) { delete cc.state.learned[k]; cc.save(); cc.renderSheet(); cc.render(); },
+    },
+  });
 }
 
 async function exportBackup(c) {
@@ -184,9 +215,8 @@ export default {
       <div class="rows">
         ${settingRow(`<span class="row" style="gap:8px">${sprite('angry', 26)} Tryb ostry</span>`, 'Groszek nie pozwoli dopisać zachcianek do listy', toggle('strict', !!s.strict, 'Tryb ostry'))}
         ${TREAT_CATS.map((k) => settingRow(esc(CAT_LABEL[k]), '', toggle('strictCat', !!s.strictCats[k], CAT_LABEL[k], k))).join('')}
-        <div class="item col"><div class="stack" style="gap:2px"><span class="name">Zapamiętane produkty</span><span class="sub">${learned.length ? 'dotknij, żeby zmienić podstawę na zachciankę i odwrotnie' : 'jeszcze nic. Groszek zapyta o nieznane rzeczy, gdy włączysz tryb ostry'}</span></div>
-          ${learned.length ? `<div class="stack">${learned.map(([k, v]) => `<div class="row between"><span class="grow">${esc(k)}</span><button class="pill ${v.treat ? 'dark' : ''}" data-act="flip" data-arg="${esc(k)}" style="background:${v.treat ? 'var(--ink)' : 'var(--paper)'};color:${v.treat ? 'var(--paper)' : 'var(--ink)'}">${v.treat ? 'zachcianka' : 'podstawa'}</button><button class="sq" style="width:38px;height:38px;border:0" data-act="forget" data-arg="${esc(k)}" aria-label="Zapomnij ${esc(k)}">${ui('trash', 16)}</button></div>`).join('')}</div>` : ''}
-        </div>
+        ${settingRow('Zapamiętane produkty', learned.length ? `${learned.length} ${plural(learned.length, 'produkt', 'produkty', 'produktów')} · podstawy i zachcianki` : 'jeszcze nic. Groszek zapyta o nieznane rzeczy, gdy włączysz tryb ostry',
+          learned.length ? '<button class="btn small" data-act="learnedSheet">Pokaż</button>' : '')}
       </div>
 
       <span class="label">Kopia danych</span>
@@ -248,8 +278,7 @@ export default {
       if (s.strict) c.peek('Tryb ostry włączony. Żadnych zachcianek!', 'angry');
     },
     strictCat(c, k) { const s = c.state.settings; s.strictCats[k] = !s.strictCats[k]; c.save(); c.render(); },
-    flip(c, k) { const l = c.state.learned[k]; if (l) { l.treat = !l.treat; l.ico = l.treat ? 'candy' : 'bag'; } c.save(); c.render(); },
-    forget(c, k) { delete c.state.learned[k]; c.save(); c.render(); },
+    learnedSheet(c) { learnedSheet(c); },
     export(c) { exportBackup(c); },
     import(c) { importBackup(c); },
     async checkUpd(c) {

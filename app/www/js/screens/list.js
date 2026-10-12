@@ -12,6 +12,7 @@ const CAT_NAME = {
   'nabiał': 'nabiał', 'pieczywo': 'pieczywo', 'mięso': 'mięso', 'wędliny': 'wędliny', 'warzywa': 'warzywa', 'owoce': 'owoce',
   'makarony i kasze': 'makarony i kasze', 'śniadania': 'na śniadanie', 'do pieczenia': 'do pieczenia', 'przyprawy': 'przyprawy',
   'strączki': 'strączki', 'tłuszcze': 'tłuszcze', 'napoje': 'napoje', 'ryby': 'ryby', 'inne': 'inne', 'podstawy': 'podstawa', 'zachcianka': 'zachcianka',
+  'chemia': 'chemia i dom', 'zupy': 'zupy', 'mrożonki i gotowce': 'mrożonki i gotowce', 'kawa i herbata': 'kawa i herbata', 'bakalie': 'bakalie', 'sosy i dodatki': 'sosy i dodatki',
 };
 
 function itemRow(c, i, matches) {
@@ -23,9 +24,20 @@ function itemRow(c, i, matches) {
     sub = [STORES[o.store] || o.store, whenLabel(o), o.cond].filter(Boolean).join(' · ');
     price = `<span class="offer-price"><span class="price">${fmt(o.price)} zł</span>${o.oldPrice ? `<span class="old">${fmt(o.oldPrice)} zł</span>` : ''}</span>`;
   }
+  const q = i.amount ? ` <span class="qty">${esc(i.amount)}</span>` : i.qty > 1 ? ` <span class="qty">×${i.qty}</span>` : '';
+  const plus = i.done ? '' : `<button class="qty-plus" data-act="more" data-arg="${esc(i.id)}" aria-label="Jeszcze jedno: ${esc(i.name)}">${ui('plus', 14)}</button>`;
   return `<div class="item ${i.done ? 'done' : ''}">${check('tick', i.done, (i.done ? 'Odznacz ' : 'Odhacz ') + i.name, i.id)}` +
-    `<button class="item-main" data-act="open" data-arg="${esc(i.id)}">${food(i.ico, 30)}<span class="grow stack"><span class="name">${esc(i.name)}</span>` +
-    `<span class="sub">${esc(sub)}</span></span></button>${i.done ? '' : price}</div>`;
+    `<button class="item-main" data-act="open" data-arg="${esc(i.id)}">${food(i.ico, 30)}<span class="grow stack"><span class="name">${esc(i.name)}${q}</span>` +
+    `<span class="sub">${esc(sub)}</span></span></button>${i.done ? '' : price}${plus}</div>`;
+}
+
+function changeQty(c, id, d) {
+  const i = c.state.list.find((x) => x.id === id);
+  if (!i) return;
+  i.qty = Math.max(1, Math.min(99, (i.qty || 1) + d));
+  if (i.qty === 1) delete i.qty;
+  c.save();
+  c.render();
 }
 
 function itemSheet(c, id) {
@@ -42,7 +54,11 @@ function itemSheet(c, id) {
           `<span class="offer-price"><b class="pixel" style="font-size:18px">${fmt(o.price)} zł</b>${o.oldPrice ? `<span class="old" style="${on ? 'color:inherit;opacity:.7' : ''}">${fmt(o.oldPrice)} zł</span>` : ''}</span></button>`;
       }).join('');
       const icons = Object.keys(FOOD).map((k) => `<button class="${k === i.ico ? 'on' : ''}" data-act="ico" data-arg="${k}" aria-label="Ikonka ${k}">${food(k, 26, '')}</button>`).join('');
+      const qty = i.qty || 1;
       return `<div class="row">${food(i.ico, 44)}<h3 class="grow">${esc(i.name)}</h3></div>` +
+        `<div class="row between"><span class="bold">Ile sztuk</span><span class="stepper">` +
+        `<button class="sq" data-act="less" aria-label="Mniej" ${qty <= 1 ? 'aria-disabled="true"' : ''}>${ui('minus', 18)}</button>` +
+        `<b class="pixel">${qty}</b><button class="sq" data-act="more" aria-label="Więcej">${ui('plus', 18)}</button></span></div>` +
         (matches.length
           ? `<span class="label">W promocji ${matches.length > 8 ? '(najtańsze 8)' : ''}</span><div class="stack">${offers}</div>`
           : '<p style="text-align:left">Teraz nie ma tego w promocjach w twoich sklepach.</p>') +
@@ -50,6 +66,8 @@ function itemSheet(c, id) {
         '<div class="row"><button class="btn grow" data-act="remove">Usuń z listy</button><button class="btn dark grow" data-act="sheet-close">Gotowe</button></div>';
     },
     actions: {
+      more(cc) { changeQty(cc, id, 1); cc.renderSheet(); },
+      less(cc) { changeQty(cc, id, -1); cc.renderSheet(); },
       pick(cc, oid) {
         const i = cc.state.list.find((x) => x.id === id);
         const o = (listMatches(cc.state, cc.data).get(id) || []).find((x) => x.id === oid);
@@ -88,7 +106,7 @@ export default {
     const pending = st.list.filter((i) => !i.done);
     const done = st.list.filter((i) => i.done);
     const withPromo = pending.filter((i) => (m.get(i.id) || []).length);
-    const potential = r2(withPromo.reduce((a, i) => { const o = offerForItem(i, m.get(i.id)); return a + (o && isActive(o) ? saving(o) : 0); }, 0));
+    const potential = r2(withPromo.reduce((a, i) => { const o = offerForItem(i, m.get(i.id)); return a + (o && isActive(o) ? saving(o) * (i.qty || 1) : 0); }, 0));
     const mode = p.mode || 'all';
 
     let body = '';
@@ -132,7 +150,7 @@ export default {
       const inp = document.getElementById('list-new');
       const v = inp ? inp.value : '';
       if (!v.trim()) return;
-      const ok = addToList(c, v);
+      const ok = addToList(c, v, {}, { typed: true });
       if (inp) inp.value = '';
       c.render();
       if (ok) {
@@ -148,7 +166,7 @@ export default {
       if (i.done) {
         i.doneAt = today();
         const o = offerForItem(i, listMatches(st, c.data).get(i.id));
-        const s = o && isActive(o) ? saving(o) : 0;
+        const s = o && isActive(o) ? r2(saving(o) * (i.qty || 1)) : 0;
         if (s > 0) {
           const before = Math.floor(st.savings.reduce((a, x) => a + x.amount, 0));
           st.savings.push({ id: uid(), itemId: i.id, amount: s, date: today(), name: i.name, store: o.store });
@@ -163,6 +181,7 @@ export default {
       c.render();
     },
     open(c, id) { itemSheet(c, id); },
+    more(c, id) { changeQty(c, id, 1); },
     clear(c) {
       c.state.list = c.state.list.filter((i) => !i.done);
       c.save();

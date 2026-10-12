@@ -283,3 +283,12 @@ details.more > summary { gap: 10px; }
 @supports (-webkit-touch-callout: none) {
   .field.small { font-size: 16px; }
 }
+
+/* licznik sztuk na liście */
+.qty { font-family: var(--pixel); font-size: 15px; font-weight: 700; margin-left: 4px; white-space: nowrap; }
+.qty-plus { flex: none; width: 34px; height: 34px; border: 2px solid var(--ink); border-radius: 999px; background: var(--paper); color: var(--ink);
+  display: inline-flex; align-items: center; justify-content: center; padding: 0; }
+.qty-plus:active { background: var(--ink); color: var(--paper); }
+.stepper { display: inline-flex; align-items: center; gap: 14px; }
+.stepper b { font-size: 24px; min-width: 2ch; text-align: center; }
+.stepper .sq[aria-disabled="true"] { opacity: .35; }

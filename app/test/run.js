@@ -52,8 +52,8 @@ await t('słownik', () => {
   assert.equal(D.classify('napój owsiany').treat, false);
   assert.equal(D.classify('pierś z kurczaka').ico, 'chicken');
   assert.equal(D.classify('makaron jajeczny').ico, 'pasta');
-  assert.equal(D.classify('kalarepa').known, false);
-  assert.equal(D.classify('kalarepa', { kalarepa: { treat: true } }).treat, true);
+  assert.equal(D.classify('karma dla kota').known, false);
+  assert.equal(D.classify('karma dla kota', { 'karma dla kota': { treat: true } }).treat, true);
 });
 await t('dopasowanie promocji', () => {
   const o = (name) => ({ name, brand: '' });
@@ -92,6 +92,30 @@ await t('odczyt paragonu z tekstu', async () => {
   assert.equal(parseReceipt('SUMA PLN 35 25\n').total, 35.25);
   const d = parseReceipt('coś tam 3,50\ninne 12,00\n');
   assert.equal(d.total, 12); assert.deepEqual(d.candidates, [3.5]);
+});
+
+await t('lista: ilości, odmiany i literówki', async () => {
+  const q = (s) => { const p = D.parseEntry(s); return [D.canonical(p.text, {}).name, p.qty, p.amount]; };
+  assert.deepEqual(q('3 masło'), ['masło', 3, '']);
+  assert.deepEqual(q('3 x mieso'), ['mięso', 3, '']);
+  assert.deepEqual(q('fasola x 3'), ['fasola', 3, '']);
+  assert.deepEqual(q('fasola x3'), ['fasola', 3, '']);
+  assert.deepEqual(q('3x masła'), ['masło', 3, '']);
+  assert.deepEqual(q('masło 3 szt'), ['masło', 3, '']);
+  assert.deepEqual(q('2 kg ziemniaków'), ['ziemniaki', 1, '2 kg']);
+  assert.deepEqual(q('mleko 3,2%'), ['mleko 3,2%', 1, '']);
+  assert.deepEqual(q('jogurty pitne'), ['jogurt pitny', 1, '']);
+  assert.deepEqual(q('mlkeo'), ['mleko', 1, '']);
+  assert.equal(q('sałatka')[0], 'sałatka'); // znane słowo nie zmienia się w "sałatę"
+  assert.equal(D.classify('draże').cat, 'słodycze');
+  const learned = { 'cos dziwnego': { treat: true, name: 'coś dziwnego' } };
+  assert.equal(D.classify('cosie dziwne', learned).treat, true);
+  // "2 masła" dopisane do istniejącego masła zwiększa licznik
+  const { addToList } = await import('../www/js/listlogic.js');
+  const c = { state: { list: [], learned: {}, icons: {}, settings: { strict: false, strictCats: {} } }, save() {}, toast() {}, sheet() {} };
+  addToList(c, 'masło', {}, { typed: true });
+  addToList(c, '2 masła', {}, { typed: true });
+  assert.equal(c.state.list.length, 1); assert.equal(c.state.list[0].qty, 3);
 });
 
 const extra = await import('./more.js').catch((e) => (e.code === 'ERR_MODULE_NOT_FOUND' ? null : Promise.reject(e)));
