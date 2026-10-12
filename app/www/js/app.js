@@ -2,6 +2,7 @@
 import * as store from './store.js';
 import * as dataApi from './data.js';
 import { esc } from './ui.js';
+import { sprite } from './pixels.js';
 import { today, period, previousPeriod } from './budget.js';
 import { screens } from './screens/index.js';
 

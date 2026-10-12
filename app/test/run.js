@@ -317,6 +317,35 @@ await t('piksele: rumieńce i czerwone detale', async () => {
   assert.ok(pixelSvg(['#rco'], 8).includes('px-red'));
 });
 
+await t('kod: każda funkcja z innego pliku jest zaimportowana', async () => {
+  // łapie błędy typu „sprite is not defined”, które wychodzą dopiero po kliknięciu w apce
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const root = new URL('../www/js', import.meta.url).pathname;
+  const files = [];
+  (function walk(d) {
+    for (const f of fs.readdirSync(d)) {
+      const p = path.join(d, f);
+      if (f === 'vendor') continue;
+      if (fs.statSync(p).isDirectory()) walk(p); else if (f.endsWith('.js')) files.push(p);
+    }
+  })(root);
+  const exported = new Set();
+  for (const f of files) for (const m of fs.readFileSync(f, 'utf8').matchAll(/export (?:async )?(?:function|const|let) (\w+)/g)) exported.add(m[1]);
+  const missing = [];
+  for (const f of files) {
+    const code = fs.readFileSync(f, 'utf8').replace(/\/\/.*$/gm, '').replace(/'(?:[^'\\\n]|\\.)*'/g, "''");
+    const known = new Set();
+    for (const m of code.matchAll(/import\s*\{([^}]*)\}/g)) for (const n of m[1].split(',')) known.add(n.trim().split(/\s+as\s+/).pop());
+    for (const m of code.matchAll(/(?:function|const|let|var)\s+(\w+)/g)) known.add(m[1]);
+    for (const m of code.matchAll(/^\s*(?:async\s+)?(\w+)\s*\([^)]*\)\s*\{/gm)) known.add(m[1]); // metody w obiektach
+    for (const m of code.matchAll(/(?<![.\w$])(\w+)\s*\(/g)) {
+      if (exported.has(m[1]) && !known.has(m[1])) missing.push(`${path.relative(root, f)}: ${m[1]}`);
+    }
+  }
+  assert.deepEqual([...new Set(missing)], []);
+});
+
 await t('aktualizacja: sama strona albo APK', async () => {
   const D2 = await import('../www/js/data.js');
   const real = globalThis.fetch;
