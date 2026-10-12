@@ -91,8 +91,14 @@ jobs:
           mkdir -p wyniki && cd wyniki
           echo "api ${{ matrix.api }}" > api.txt
           tail -n +1 *.txt
-      - uses: actions/upload-artifact@v4
+      - name: Wyniki na gałąź ci-upgrade-${{ matrix.api }}
         if: always()
-        with:
-          name: wyniki-${{ matrix.api }}
-          path: wyniki
+        run: |
+          cd wyniki
+          git init -q
+          git config user.name groszek-bot
+          git config user.email groszek-bot@users.noreply.github.com
+          git checkout -q -b ci-upgrade-${{ matrix.api }}
+          git add -A
+          git commit -q -m "Test aktualizacji API ${{ matrix.api }}"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" ci-upgrade-${{ matrix.api }}
