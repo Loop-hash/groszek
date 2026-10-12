@@ -205,7 +205,7 @@ def apk_update_test():
             break
     shot("18-po-aktualizacji-apk")
     log("aktualizacja APK: zainstalowana", "TAK" if updated else "NIE", "| okienko instalatora:", "TAK" if installer else "nie",
-        "| otworzyła się sama:", "TAK" if reopened else "NIE")
+        "| otworzyła się sama:", "TAK" if reopened else "nie (Android blokuje otwieranie z tła)")
     log("aktualizacja APK: logcat", sh("adb logcat -d -v brief | grep -E 'GroszekUpdate|Background activity|BAL|abort.*groszek|PackageInstaller.*groszek' | tail -25", timeout=60))
 
 

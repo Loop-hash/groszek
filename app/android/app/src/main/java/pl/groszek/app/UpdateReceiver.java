@@ -13,7 +13,8 @@ import android.util.Log;
  *
  * Gdy Android jednak chce zgody (starszy Android albo nakładka producenta), pokazuje jego okienko.
  * Po udanej aktualizacji system zamyka starą wersję i wysyła MY_PACKAGE_REPLACED do nowej:
- * wtedy otwieramy ją z powrotem, o ile aktualizację zaczął przycisk w apce.
+ * wtedy próbujemy ją otworzyć, o ile aktualizację zaczął przycisk w apce. Android 10+ zwykle to
+ * blokuje (sprawdzone na emulatorze z Androidem 15), ale gdzie wolno, apka wróci sama.
  */
 public class UpdateReceiver extends BroadcastReceiver {
 

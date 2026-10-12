@@ -200,7 +200,8 @@ const mb = (b) => (b / 1048576).toFixed(b < 10485760 ? 1 : 0).replace('.', ',');
 
 // Aktualizacja jednym przyciskiem. Gdy część androidowa się nie zmieniła, Groszek pobiera samą
 // stronę (zwykle poniżej 1 MB) i przeładowuje się na nią: Android o nic nie pyta. Inaczej pobiera
-// APK i instaluje je w tle (Android 12+ nie pyta o zgodę), a potem otwiera się sam.
+// APK i instaluje je w tle (Android 12+ nie pyta o zgodę). Po takiej instalacji Android zamyka apkę
+// i nie pozwala jej otworzyć się samej, więc trzeba dotknąć ikonki.
 export async function installUpdate() {
   const u = app.update;
   if (!u) return;
@@ -286,7 +287,7 @@ async function webUpdate(up, u) {
 async function apkUpdate(up, u, info) {
   const silent = info && info.silent;
   const cfg = updateSheet('Pobieram nową wersję…', silent
-    ? 'Potem Groszek zainstaluje się sam, zamknie na chwilę i otworzy ponownie.'
+    ? 'Tym razem zmieniła się część androidowa: Groszek zainstaluje się w tle i zamknie. Potem otwórz go ikonką.'
     : 'Potem Android poprosi o zgodę na instalację.');
   let handle = null;
   let statusHandle = null;
@@ -306,7 +307,7 @@ async function apkUpdate(up, u, info) {
     await up.downloadAndInstall({ url: u.url, size: u.size || 0 });
     const bar = $('upd-bar');
     if (bar) bar.style.width = '100%';
-    updateText('Instaluję…', silent ? 'Groszek zamknie się na chwilę i otworzy ponownie.' : '');
+    updateText('Instaluję…', silent ? 'Za chwilę Groszek się zamknie. Otwórz go ponownie ikonką.' : '');
     await store.flush();
   } catch (e) {
     if (app.sheetCfg === cfg) closeSheet(true);

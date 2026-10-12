@@ -19,7 +19,7 @@ Jest darmowa, nie ma reklam ani kont. Wszystkie dane zostają w telefonie.
 1. Pobierz plik **groszek.apk** z wydania [„najnowsza”](https://github.com/Loop-hash/groszek/releases/tag/najnowsza).
 2. Otwórz go na telefonie. Za pierwszym razem Android zapyta, czy pozwolić na instalację z tego źródła.
 
-Kolejne wersje instalują się już z samej apki: **Ustawienia → O apce → Aktualizuj**. Zwykle Groszek pobiera wtedy samą nową stronę apki (kilkaset KB) i uruchamia się ponownie, bez żadnego okienka Androida. Gdy zmieniła się część androidowa, pobiera całe APK i instaluje je w tle (Android 12 i nowszy nie pyta o zgodę). Plik nie zostaje w Pobranych.
+Kolejne wersje instalują się już z samej apki: **Ustawienia → O apce → Aktualizuj**. Zwykle Groszek pobiera wtedy samą nową stronę apki (kilkaset KB) i uruchamia się ponownie, bez żadnego okienka Androida. Gdy zmieniła się część androidowa (rzadko), pobiera całe APK i instaluje je w tle (Android 12 i nowszy nie pyta o zgodę); Android zamyka wtedy apkę i trzeba ją otworzyć ikonką. Plik nie zostaje w Pobranych.
 
 ### iPhone
 

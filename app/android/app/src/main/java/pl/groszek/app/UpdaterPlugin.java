@@ -42,8 +42,9 @@ import java.util.zip.ZipInputStream;
  * nie zmieniły.
  *
  * Gdy zmieniła się część androidowa, pobiera całe APK i instaluje je sesją PackageInstaller.
- * Od Androida 12 apka może tak zaktualizować samą siebie bez okienka z pytaniem; po instalacji
- * UpdateReceiver próbuje ją od razu otworzyć.
+ * Od Androida 12 apka może tak zaktualizować samą siebie bez okienka z pytaniem. Po instalacji
+ * Android zamyka apkę; UpdateReceiver próbuje ją otworzyć, ale nowe Androidy na to nie pozwalają
+ * (blokada otwierania z tła), więc zwykle trzeba dotknąć ikonki.
  *
  * Gdyby nowa strona nie wystartowała dwa razy z rzędu, MainActivity wraca do wersji z APK.
  */
