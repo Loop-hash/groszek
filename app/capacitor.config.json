@@ -3,7 +3,8 @@
   "appName": "Groszek",
   "webDir": "www",
   "android": {
-    "backgroundColor": "#FAFAF7"
+    "backgroundColor": "#FAFAF7",
+    "webContentsDebuggingEnabled": true
   },
   "loggingBehavior": "production"
 }

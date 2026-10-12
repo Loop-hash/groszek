@@ -32,6 +32,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh release download najnowsza -p groszek.apk -D . --clobber
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Zdjęcia paragonów do testu odczytu
+        run: |
+          python3 -m pip install pillow websocket-client
+          python3 tools/paragony.py debug/paragony 6
+
       - name: Emulator i przeklikanie
         uses: reactivecircus/android-emulator-runner@v2
         with:

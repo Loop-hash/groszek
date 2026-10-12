@@ -40,7 +40,7 @@ async function scan(c, file) {
   const cfg = {
     mascot: 'pea',
     render: () => '<h2>Czytam paragon…</h2><p id="ocr-status">przygotowuję zdjęcie</p><div class="bar"><div class="fill" id="ocr-bar" style="width:3%"></div></div>' +
-      '<p class="tiny">Pierwszy raz trwa dłużej, bo wczytuję słownik. Wszystko dzieje się w telefonie, bez internetu.</p>',
+      '<p class="tiny">Wszystko dzieje się w telefonie, bez internetu.</p>',
     actions: {},
   };
   c.sheet(cfg);
@@ -49,15 +49,17 @@ async function scan(c, file) {
       const st = document.getElementById('ocr-status');
       const bar = document.getElementById('ocr-bar');
       if (st) st.textContent = STATUS[m.status] || m.status;
-      if (bar && m.status === 'recognizing text') bar.style.width = Math.max(5, Math.round((m.progress || 0) * 100)) + '%';
+      if (bar && (m.status === 'recognizing text' || m.status === 'czytam tekst')) bar.style.width = Math.max(5, Math.round((m.progress || 0) * 100)) + '%';
     });
     if (c.app.sheetCfg !== cfg) return; // ktoś zamknął arkusz
     c.closeSheet(true);
     const p = c.params;
-    p.ocr = { total: res.total, candidates: res.candidates, store: res.store, date: res.date };
+    // Data z paragonu tylko jako podpowiedź. Wcześniej od razu ją ustawialiśmy i wydatek ze starego
+    // (albo źle odczytanego) paragonu lądował w innym dniu, więc wyglądało, jakby się nie dodał.
+    const dateOk = res.date && res.date <= today() && res.date >= addDays(today(), -30);
+    p.ocr = { total: res.total, candidates: res.candidates, store: res.store, date: dateOk ? res.date : '' };
     if (res.total != null) p.amount = String(res.total.toFixed(2)).replace('.', ',');
     if (res.store) p.store = SHOPS.includes(res.store) ? res.store : 'Inny';
-    if (res.date && res.date <= today() && res.date >= addDays(today(), -30)) p.date = res.date;
     c.render();
     c.peek(res.total != null ? `Odczytałem ${fmt(res.total)} zł. Sprawdź i zapisz!` : 'Nie widzę sumy. Wpisz ją ręcznie.', res.total != null ? 'happy' : 'worried');
   } catch (e) {
@@ -91,12 +93,14 @@ export default {
     const ocr = p.ocr;
     const ocrCard = ocr ? `<div class="card ${ocr.total != null ? '' : 'dashed'} stack" style="gap:8px">
         <div class="row">${ui('receipt', 20)}<b class="grow">${ocr.total != null ? 'Odczytane z paragonu' : 'Nie znalazłem sumy na paragonie'}</b></div>
-        <span class="small muted">${ocr.total != null ? `Suma ${fmt(ocr.total)} zł${ocr.store ? ' · ' + esc(ocr.store) : ''}${ocr.date ? ' · ' + esc(dayLabel(ocr.date)) : ''}. Sprawdź, czy się zgadza.` : 'Wpisz kwotę ręcznie albo wybierz jedną z odczytanych:'}</span>
+        <span class="small muted">${ocr.total != null ? `Suma ${fmt(ocr.total)} zł${ocr.store ? ' · ' + esc(ocr.store) : ''}. Sprawdź, czy się zgadza.` : 'Wpisz kwotę ręcznie albo wybierz jedną z odczytanych:'}</span>
+        ${ocr.date && ocr.date !== p.date ? `<div class="row between small"><span class="muted">Na paragonie: ${esc(dayLabel(ocr.date))}</span><button class="chip" data-act="date" data-arg="${ocr.date}">Ustaw tę datę</button></div>` : ''}
         ${ocr.candidates.length ? `${ocr.total != null ? '<span class="small">Inna kwota?</span>' : ''}<div class="wrap">${ocr.candidates.map((a) => `<button class="chip" data-act="cand" data-arg="${a}">${fmt(a)} zł</button>`).join('')}</div>` : ''}
       </div>` : '';
     return `
       ${topbar(p.id ? 'Popraw wydatek' : 'Nowy wydatek', '', { right })}
-      ${p.id ? '' : `<div class="row"><button class="btn small grow" data-act="photo" data-arg="camera">${ui('camera', 16)} Zrób zdjęcie</button><button class="btn small grow" data-act="photo" data-arg="gallery">${ui('gallery', 16)} Z galerii</button></div>`}
+      ${p.id ? '' : `<div class="row"><button class="btn small grow" data-act="photo" data-arg="camera">${ui('camera', 16)} Zrób zdjęcie</button><button class="btn small grow" data-act="photo" data-arg="gallery">${ui('gallery', 16)} Z galerii</button></div>` +
+        (ocr ? '' : '<div class="tiny muted center">Połóż paragon na ciemnym tle i zrób zdjęcie z bliska, tak żeby wypełniał kadr. Dół z SUMĄ musi być ostry.</div>')}
       ${ocrCard}
       <div class="stack" style="gap:6px;padding-top:6px">
         <div class="amount" aria-live="polite">${esc(shown)}<small> zł</small></div>
@@ -176,7 +180,8 @@ export default {
       st.expenses.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : (a.created || 0) - (b.created || 0)));
       c.save();
       c.back();
-      c.toast(p.id ? 'Poprawiono wydatek' : `Zapisano ${fmt(amount)} zł`);
+      const when = p.date === today() ? '' : p.date === addDays(today(), -1) ? ' na wczoraj' : ` na ${dayLabel(p.date)}`;
+      c.toast(p.id ? 'Poprawiono wydatek' : `Zapisano ${fmt(amount)} zł${when}`);
     },
     del(c) {
       c.sheet({

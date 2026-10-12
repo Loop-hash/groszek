@@ -41,7 +41,7 @@ export function save() { store.save(app.state); }
 export function go(name, params = {}, opts = {}) {
   const cur = top();
   const scr = document.querySelector('#app .screen');
-  if (cur && scr) cur.scroll = scr.scrollTop;
+  if (cur && scr) { cur.scroll = scr.scrollTop; cur.hscroll = hScroll(scr); }
   app.stack.push({ name, params: { ...params }, scroll: 0, key: Math.random().toString(36).slice(2) });
   closeSheet(true);
   render();
@@ -70,6 +70,11 @@ export function back() {
   return false;
 }
 
+// poziome paski z chipami (kraje, sklepy): zapamiętaj przewinięcie, bo innerHTML wraca je na początek
+function hScroll(el) {
+  return [...el.querySelectorAll('.scroller')].map((x) => x.scrollLeft);
+}
+
 export function render() {
   const entry = top();
   if (!entry) return;
@@ -78,6 +83,7 @@ export function render() {
   let el = root.querySelector('.screen');
   const same = el && el.dataset.key === entry.key;
   const scroll = same ? el.scrollTop : (entry.scroll || 0);
+  const hscroll = same ? hScroll(el) : (entry.hscroll || []);
   // zapamiętaj pole z kursorem, żeby po odświeżeniu dało się dalej pisać
   const active = document.activeElement;
   const focusId = active && active.id && root.contains(active) ? active.id : null;
@@ -102,6 +108,7 @@ export function render() {
   }
   el.innerHTML = html;
   el.scrollTop = scroll;
+  el.querySelectorAll('.scroller').forEach((x, i) => { if (hscroll[i]) x.scrollLeft = hscroll[i]; });
   if (focusId) {
     const f = document.getElementById(focusId);
     if (f) {
@@ -125,7 +132,12 @@ export function renderSheet(first = false) {
   if (!cfg) { root.innerHTML = ''; return; }
   const body = cfg.render(ctx());
   if (!first && root.querySelector('.sheet-body')) {
-    root.querySelector('.sheet-body').innerHTML = body;
+    const sb = root.querySelector('.sheet-body');
+    const h = hScroll(sb);
+    const v = sb.scrollTop;
+    sb.innerHTML = body;
+    sb.querySelectorAll('.scroller').forEach((x, i) => { if (h[i]) x.scrollLeft = h[i]; });
+    sb.scrollTop = v;
     return;
   }
   const mascot = cfg.mascot

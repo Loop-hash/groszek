@@ -2,10 +2,13 @@
 
 Wyniki (zrzuty, logcat, drzewa widoków) trafiają do katalogu debug/ i dalej na gałąź ci-emu.
 """
+import base64
+import json
 import os
 import re
 import subprocess
 import time
+import urllib.request
 import xml.etree.ElementTree as ET
 
 OUT = "debug"
@@ -108,6 +111,73 @@ def back():
 def typ(s):
     sh("adb shell input text " + s.replace(" ", "%s"))
     time.sleep(0.5)
+
+
+def ocr_bench():
+    """Czyta wygenerowane paragony (tools/paragony.py) silnikiem ML Kit i Tesseract przez debuger WebView."""
+    try:
+        import websocket  # websocket-client
+    except ImportError:
+        log("ocr: brak websocket-client")
+        return
+    truth = {}
+    folder = os.path.join(OUT, "paragony")
+    if os.path.exists(os.path.join(folder, "wyniki.json")):
+        truth = json.load(open(os.path.join(folder, "wyniki.json")))
+    files = [(os.path.join(folder, k), v) for k, v in truth.items()]
+    files.append(("tools/test-paragon.jpg", {"total": 35.25, "store": "Biedronka"}))
+    pid = sh("adb shell pidof pl.groszek.app").strip()
+    socks = re.findall(r"@(webview_devtools_remote_\d+)", sh("adb shell cat /proc/net/unix"))
+    name = f"webview_devtools_remote_{pid}" if f"webview_devtools_remote_{pid}" in socks else (socks[-1] if socks else "")
+    if not name:
+        log("ocr: brak gniazda debugera WebView")
+        return
+    sh(f"adb forward tcp:9222 localabstract:{name}")
+    try:
+        pages = json.loads(urllib.request.urlopen("http://127.0.0.1:9222/json", timeout=20).read())
+        page = next(p for p in pages if p.get("type") == "page")
+        ws = websocket.create_connection(page["webSocketDebuggerUrl"], timeout=240, suppress_origin=True)
+    except Exception as e:  # noqa: BLE001
+        log("ocr: nie połączyłem się z WebView", e)
+        return
+    n = [0]
+
+    def ev(expr):
+        n[0] += 1
+        ws.send(json.dumps({"id": n[0], "method": "Runtime.evaluate",
+                            "params": {"expression": expr, "awaitPromise": True, "returnByValue": True}}))
+        while True:
+            m = json.loads(ws.recv())
+            if m.get("id") == n[0]:
+                return m
+
+    results = []
+    score = {}
+    for eng in ("auto", "tesseract"):
+        for path, t in files:
+            b64 = base64.b64encode(open(path, "rb").read()).decode()
+            expr = ("(async () => { const m = await import('./js/receipt.js'); m.opts.engine = '%s';"
+                    " const b = await (await fetch('data:image/jpeg;base64,%s')).blob(); const t0 = Date.now();"
+                    " const r = await m.readReceipt(b); return JSON.stringify({total: r.total, how: r.how, engine: r.engine,"
+                    " store: r.store, ms: Date.now() - t0, text: r.text}); })()") % (eng, b64)
+            try:
+                res = ev(expr)
+                val = res.get("result", {}).get("result", {}).get("value")
+                r = json.loads(val) if val else {"error": json.dumps(res)[:500]}
+            except Exception as e:  # noqa: BLE001
+                r = {"error": str(e)}
+            ok = r.get("total") == t["total"]
+            key = r.get("engine") or eng
+            score.setdefault(key, [0, 0])
+            score[key][0] += ok
+            score[key][1] += 1
+            log("ocr", key, os.path.basename(path), "OK" if ok else "ŹLE", "chciałem", t["total"], "mam", r.get("total"),
+                r.get("how"), r.get("store"), r.get("ms"), "ms", r.get("error", ""))
+            results.append({"file": os.path.basename(path), "want": t, "got": r})
+    ws.close()
+    json.dump(results, open(os.path.join(OUT, "ocr.json"), "w"), ensure_ascii=False, indent=1)
+    for k, (a, b) in score.items():
+        log(f"ocr wynik {k}: {a}/{b}")
 
 
 def main():
@@ -236,6 +306,8 @@ def main():
         log("nie znalazłem zdjęcia w wyborze")
     back()
     back()
+
+    ocr_bench()
 
     sh("adb shell cmd uimode night yes")
     time.sleep(4)
