@@ -35,7 +35,7 @@ export function buyRows(items, act = '') {
     const sub = subText(x);
     const paid = x.total != null ? paidOf(x) : null;
     const inner = `${food(ico, 24)}<span class="grow stack" style="gap:0;min-width:0"><span class="bname">${esc(x.name)}${q ? ` <span class="qty">${esc(q)}</span>` : ''}</span>` +
-      `${sub ? `<span class="tiny muted">${esc(sub)}</span>` : ''}</span>` +
+      `${x.raw ? `<span class="braw">${esc(x.raw)}</span>` : ''}${sub ? `<span class="tiny muted">${esc(sub)}</span>` : ''}</span>` +
       `${x.treat ? `<span class="btreat" title="zachcianka">${sprite('angry', 22)}</span>` : ''}${x.promo || x.disc > 0 ? '<span class="btag">promo</span>' : ''}` +
       `${paid != null ? `<span class="bprice pixel">${fmt(paid)}</span>` : ''}`;
     return act ? `<button class="bitem" data-act="${act}" data-arg="${i}">${inner}</button>` : `<div class="bitem">${inner}</div>`;

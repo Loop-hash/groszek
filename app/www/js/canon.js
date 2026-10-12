@@ -6,7 +6,7 @@ export const CANON = [
   // nabiał
   'masło', 'margaryna', 'mleko', 'mleko roślinne', 'napój owsiany', 'kefir', 'maślanka', 'jogurt', 'jogurt naturalny',
   'jogurt grecki', 'jogurt pitny', 'skyr', 'śmietana', 'śmietanka', 'serek wiejski', 'serek homogenizowany', 'serek śmietankowy',
-  'ser', 'ser żółty', 'ser biały', 'twaróg', 'mozzarella', 'feta', 'parmezan', 'ser pleśniowy', 'mascarpone', 'ricotta', 'halloumi',
+  'ser', 'ser żółty', 'ser w plastrach', 'ser biały', 'twaróg', 'mozzarella', 'feta', 'parmezan', 'ser pleśniowy', 'mascarpone', 'ricotta', 'halloumi',
   'jajka', 'budyń', 'kisiel', 'deser mleczny',
   // pieczywo
   'chleb', 'chleb tostowy', 'bułki', 'bagietka', 'rogale', 'tortilla', 'pita', 'bajgle', 'grahamki', 'kajzerki', 'bułka tarta',
@@ -19,14 +19,14 @@ export const CANON = [
   // mięso, wędliny, ryby
   'mięso', 'mięso mielone', 'kurczak', 'pierś z kurczaka', 'udka', 'skrzydełka', 'indyk', 'schab', 'karkówka', 'łopatka',
   'boczek', 'wołowina', 'wieprzowina', 'żeberka', 'wątróbka', 'kiełbasa', 'parówki', 'szynka', 'salami', 'kabanosy', 'pasztet',
-  'polędwica', 'ryba', 'łosoś', 'tuńczyk', 'śledzie', 'dorsz', 'makrela', 'paluszki rybne', 'paluszki krabowe', 'krewetki',
+  'polędwica', 'polędwiczki', 'ryba', 'łosoś', 'tuńczyk', 'śledzie', 'dorsz', 'makrela', 'paluszki rybne', 'paluszki krabowe', 'krewetki',
   'kalmary', 'małże', 'owoce morza',
   // warzywa
   'ziemniaki', 'bataty', 'cebula', 'czerwona cebula', 'czosnek', 'por', 'szczypiorek', 'dymka', 'pomidory', 'pomidorki koktajlowe',
   'pomidory z puszki', 'passata', 'koncentrat pomidorowy', 'ogórki', 'ogórki kiszone', 'papryka', 'marchew', 'pietruszka',
   'seler', 'buraki', 'kapusta', 'kapusta kiszona', 'kapusta pekińska', 'brokuł', 'kalafior', 'cukinia', 'bakłażan', 'dynia',
   'szpinak', 'sałata', 'rukola', 'rzodkiewka', 'kukurydza', 'groszek', 'fasolka szparagowa', 'pieczarki', 'grzyby', 'awokado',
-  'imbir', 'chili', 'natka pietruszki', 'koperek', 'bazylia', 'kolendra', 'mięta', 'kiełki', 'warzywa na patelnię',
+  'imbir', 'chili', 'czosnek granulowany', 'natka pietruszki', 'koperek', 'bazylia', 'kolendra', 'mięta', 'kiełki', 'warzywa na patelnię',
   'mieszanka warzyw', 'frytki',
   // strączki
   'fasola', 'fasola czerwona', 'fasola biała', 'ciecierzyca', 'soczewica', 'groch', 'tofu', 'hummus', 'bób',
@@ -52,9 +52,9 @@ export const CANON = [
   'chipsy', 'paluszki', 'chrupki', 'popcorn', 'krakersy', 'precle', 'nachosy', 'prażynki', 'orzeszki solone',
   // gotowce i fast food
   'pizza', 'pizza mrożona', 'zapiekanka', 'kebab', 'burger', 'hot dog', 'zupka chińska', 'pierogi', 'pyzy', 'kopytka',
-  'danie gotowe', 'gołąbki w słoiku', 'fasolka po bretońsku',
+  'danie gotowe', 'sushi', 'gołąbki w słoiku', 'fasolka po bretońsku',
   // chemia i dom
   'papier toaletowy', 'ręczniki papierowe', 'chusteczki', 'płyn do naczyń', 'gąbki', 'worki na śmieci', 'proszek do prania',
   'kapsułki do prania', 'płyn do płukania', 'mydło', 'żel pod prysznic', 'szampon', 'pasta do zębów', 'szczoteczka do zębów',
-  'dezodorant', 'folia aluminiowa', 'folia spożywcza', 'papier do pieczenia', 'woreczki', 'baterie',
+  'dezodorant', 'torba na zakupy', 'pojemniki', 'folia aluminiowa', 'folia spożywcza', 'papier do pieczenia', 'woreczki', 'baterie',
 ];

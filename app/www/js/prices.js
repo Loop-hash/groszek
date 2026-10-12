@@ -14,21 +14,53 @@ function wordsOf(name) {
 
 const CANON_STEMS = [...new Set(CANON)].map((n) => [n, wordsOf(n).map(stemPL)]).filter(([, s]) => s.length);
 
-// Do jakiej rzeczy z listy zakupów pasuje nazwa z paragonu: "Lubella świderki 400g" -> "świderki".
-// Krótki rdzeń musi pasować dokładnie, żeby "mieszanka" nie stała się mięsem.
+// Do jakiej rzeczy z listy pasuje nazwa z paragonu: "Lubella świderki 400g" -> "świderki".
+// Krótki rdzeń musi pasować dokładnie, żeby "mieszanka" nie stała się mięsem. Skrót z paragonu
+// ("POMID", "TOST") pasuje do pełnego słowa, które się od niego zaczyna.
 export function canonOf(name) {
   const ws = wordsOf(name);
   const st = ws.map(stemPL);
   let best = null;
   let bs = 0;
   for (const [n, cs] of CANON_STEMS) {
-    const ok = cs.every((c) => st.some((s, i) => s === c || (c.length >= 5 && ws[i].startsWith(c))));
+    const ok = cs.every((c) => st.some((s, i) => s === c || (c.length >= 5 && ws[i].startsWith(c)) || (ws[i].length >= 4 && c.startsWith(ws[i]))));
     if (!ok) continue;
     // pierwszy wyraz to zwykle rzeczownik ("Ser Kasztelan śmietankowy" to ser, nie śmietana)
     const sc = cs.length * 100 + cs.join('').length + (st[0] === cs[0] ? 50 : 0);
     if (sc > bs) { bs = sc; best = n; }
   }
   return best;
+}
+
+// Marki, które nie są nazwą z listy zakupów
+const BEERS = ['tyskie', 'zywiec', 'lech', 'harnas', 'perla', 'okocim', 'warka', 'carlsberg', 'heineken', 'tatra', 'kozel', 'zubr', 'somersby', 'desperados'];
+const BRAND_NAME = { ...Object.fromEntries(BEERS.map((b) => [b, 'piwo'])), fairy: 'płyn do naczyń', ludwik: 'płyn do naczyń', persil: 'proszek do prania', ariel: 'proszek do prania', vizir: 'proszek do prania', lenor: 'płyn do płukania' };
+
+// Ogólna nazwa produktu zamiast skrótu z paragonu: "MLEKOVITA MLEKUHT3,2%1L" -> "Mleko 3,2% 1 l".
+// Zwraca null, gdy nie wiadomo, co to jest.
+export function generalName(raw) {
+  let base = canonOf(raw);
+  if (!base) {
+    const n = norm(raw);
+    const brand = Object.keys(BRAND_NAME).find((b) => n.split(' ').some((w) => w.startsWith(b)));
+    if (brand) base = BRAND_NAME[brand];
+  }
+  if (!base) {
+    const hit = lookup(raw);
+    const kw = hit && hit.kw.replace(/^[=^]/, '');
+    if (kw && kw.length >= 4) {
+      const c = [...new Set(CANON)].filter((x) => norm(x).includes(kw)).sort((a, b) => (norm(b).startsWith(kw) - norm(a).startsWith(kw)) || a.length - b.length)[0];
+      if (c) base = c;
+    }
+  }
+  if (!base) return null;
+  const extra = [];
+  const pct = /(\d{1,2}(?:[,.]\d)?)\s?%/.exec(raw);
+  if (pct && !base.includes('%')) extra.push(pct[1].replace('.', ',') + '%');
+  const size = /(\d+(?:[,.]\d+)?)\s?(kg|g|ml|l)(?![a-ząćęłńóśźż])/i.exec(raw.replace(/(\d)\s?%/, '$1% '));
+  if (size && Number(size[1].replace(',', '.')) > 0) extra.push(size[1] + ' ' + size[2].toLowerCase());
+  const nm = [base, ...extra].join(' ');
+  return nm.charAt(0).toUpperCase() + nm.slice(1);
 }
 
 export const productKey = (name) => nameKey(name) || norm(name);
@@ -45,14 +77,16 @@ export function describe(x, state) {
 }
 
 // Czy produkt był w promocji: rabat na paragonie albo cena z gazetki tego sklepu
-export function promoFor(x, offers, storeId) {
+// Promocja z gazetki liczy się tylko wtedy, gdy paragon jest z czasu jej trwania.
+export function promoFor(x, offers, storeId, date) {
   if (x.disc > 0) return { kind: 'rabat', save: x.disc };
-  if (!storeId || !offers || !x.price) return null;
-  const hx = lookup(x.name);
+  if (!storeId || !offers || !x.price || !date) return null;
+  const hx = lookup(x.raw || x.name);
   for (const o of offers) {
     if (o.store !== storeId || !o.price || Math.abs(o.price - x.price) > 0.011) continue;
+    if ((o.from && o.from > date) || (o.to && o.to < date)) continue;
     const ho = lookup(o.name);
-    const same = offerScore(x.name, o) > 0 || (hx && ho && hx.kw === ho.kw);
+    const same = offerScore(x.name, o) > 0 || (x.raw && offerScore(x.raw, o) > 0) || (hx && ho && hx.kw === ho.kw);
     if (!same) continue;
     const save = o.oldPrice && o.oldPrice > o.price ? r2((o.oldPrice - o.price) * (x.unit === 'kg' ? 1 : x.qty || 1)) : 0;
     return { kind: 'gazetka', save, offer: o.name };
@@ -68,13 +102,13 @@ export function recordPrices(state, store, date, items) {
   let n = 0;
   for (const x of items || []) {
     if (!sure(x)) continue;
-    const key = productKey(x.name);
+    const key = productKey(x.raw || x.name);
     if (!key) continue;
     const paid = r2(paidOf(x) / x.qty);
     const prev = shop[key];
     const hist = [...((prev && prev.hist) || []), [date, paid]].sort((a, b) => (a[0] < b[0] ? -1 : 1)).slice(-6);
     if (prev && prev.date > date) { prev.hist = hist; continue; }
-    shop[key] = { name: x.name, canon: canonOf(x.name) || '', cat: x.cat || (lookup(x.name) || {}).cat || '', unit: x.unit || 'szt', price: x.price, paid, promo: !!x.promo, date, hist };
+    shop[key] = { name: x.raw || x.name, canon: canonOf(x.name) || canonOf(x.raw || '') || '', cat: x.cat || (lookup(x.name) || {}).cat || '', unit: x.unit || 'szt', price: x.price, paid, promo: !!x.promo, date, hist };
     n++;
   }
   return n;

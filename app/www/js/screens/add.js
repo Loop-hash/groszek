@@ -4,9 +4,9 @@ import { ui, food, sprite } from '../pixels.js';
 import { esc, topbar, chip, plural, toggle, settingRow } from '../ui.js';
 import { uid } from '../store.js';
 import { readReceipt } from '../receipt.js';
-import { offersFor } from '../offers.js';
+import { normalize as normOffer } from '../offers.js';
 import { buyRows, asItem } from '../buyitems.js';
-import { describe, promoFor, recordPrices, penaltyFor, paidOf } from '../prices.js';
+import { describe, promoFor, recordPrices, penaltyFor, paidOf, generalName } from '../prices.js';
 
 const SHOPS = ['Biedronka', 'Lidl', 'Kaufland', 'Aldi', 'Żabka', 'Inny'];
 const STORE_ID = { Kaufland: 'kaufland', Lidl: 'lidl', Aldi: 'aldi', Biedronka: 'biedronka' };
@@ -29,6 +29,7 @@ function init(c) {
       p.note = e.note || '';
       if (e.items && e.items.length) p.items = e.items.map((x) => ({ ...asItem(x) }));
       p.itemsReceipt = !!(p.items && p.items.some((x) => x.total != null));
+      p.promoKey = `${p.store}|${p.date}`; // promocje zapisane przy dodaniu zostają, dopóki nie zmieni się sklep albo dzień
       return;
     }
     delete p.id;
@@ -45,8 +46,25 @@ function init(c) {
 
 const itemLabel = (x) => x.name + (x.amount ? ' ' + x.amount : x.qty > 1 ? ' ×' + x.qty : '');
 
+// Promocje z gazetki sprawdzamy w dniu z paragonu (albo wybranym dniu), w wybranym sklepie.
+// Liczymy od nowa, gdy zmieni się sklep albo dzień.
+function applyPromos(c, p) {
+  const date = p.receiptDate || p.date;
+  const key = `${p.store}|${date}`;
+  if (!p.itemsReceipt || p.promoKey === key) return;
+  p.promoKey = key;
+  const offers = ((c.data.promos && c.data.promos.offers) || []).map(normOffer);
+  for (const x of p.items || []) {
+    delete x.promo;
+    delete x.save;
+    const pr = promoFor(x, offers, STORE_ID[p.store], date);
+    if (pr) { x.promo = pr.kind; x.save = pr.save; }
+  }
+}
+
 // Stan produktów względem kwoty: czy się zgadzają, kara w trybie ostrym, oszczędności na promocjach
 function itemsState(c, p, amount) {
+  applyPromos(c, p);
   const items = p.items || [];
   const priced = items.some((x) => x.total != null);
   const sum = r2(items.reduce((a, x) => a + (x.total != null ? paidOf(x) : 0), 0));
@@ -77,6 +95,7 @@ function itemSheet(c, idx) {
       const x = (p.items || [])[idx];
       if (!x) return '<p>Tego produktu już nie ma.</p><button class="btn block" data-act="sheet-close">Zamknij</button>';
       return `<div class="row">${food(x.ico, 40)}<h3 class="grow">${esc(x.name)}</h3></div>` +
+        (x.raw ? `<div class="small muted">Na paragonie: ${esc(x.raw)}</div>` : '') +
         `<label class="stack" style="gap:6px"><span class="label">Nazwa</span><input class="field small" id="itm-name" value="${esc(x.name)}" data-in="nm" autocomplete="off" enterkeyhint="done"></label>` +
         (x.total != null ? `<div class="row between"><span class="bold">Zapłacone</span><b class="pixel" style="font-size:20px">${fmt(paidOf(x))} zł</b></div>` : '') +
         (cc.state.settings.strict ? `<div class="rows">${settingRow('Zachcianka', 'W trybie ostrym Groszek odejmie za nią exp', toggle('treat', !!x.treat, 'Zachcianka'))}</div>` : '') +
@@ -117,7 +136,7 @@ function itemSheet(c, idx) {
 // Do zapisu: bez pól pomocniczych i pustych wartości
 function storedItem(x) {
   const o = {};
-  for (const k of ['name', 'qty', 'unit', 'price', 'total', 'disc', 'ico', 'cat', 'treat', 'promo', 'save', 'size']) {
+  for (const k of ['name', 'raw', 'qty', 'unit', 'price', 'total', 'disc', 'ico', 'cat', 'treat', 'promo', 'save', 'size']) {
     const v = x[k];
     if (v === undefined || v === null || v === '' || v === false || (k === 'disc' && !v) || (k === 'save' && !v)) continue;
     if (k === 'qty' && v === 1 && x.unit !== 'kg' && x.total == null) continue;
@@ -153,16 +172,17 @@ async function scan(c, file) {
     p.ocr = { total: res.total, candidates: res.candidates, store: res.store, date: dateOk ? res.date : '', itemsOk: !!res.itemsOk };
     if (res.total != null) p.amount = String(res.total.toFixed(2)).replace('.', ',');
     if (res.store) p.store = SHOPS.includes(res.store) ? res.store : 'Inny';
+    p.receiptDate = res.date && res.date <= today() ? res.date : '';
     if (res.items && res.items.length) {
-      const offers = offersFor(c.data, c.state.settings);
-      const sid = STORE_ID[res.store] || STORE_ID[p.store];
+      // ogólna nazwa ("Mleko 3,2% 1 l"), a skrót z paragonu zostaje pod spodem
       p.items = res.items.map((x) => {
-        const it = { name: x.name, qty: x.qty, unit: x.unit, price: x.price, total: x.total, disc: x.disc || 0, ...describe(x, c.state) };
-        const pr = promoFor(it, offers, sid);
-        if (pr) { it.promo = pr.kind; it.save = pr.save; }
-        return it;
+        const g = generalName(x.name);
+        const it = { name: g || x.name, qty: x.qty, unit: x.unit, price: x.price, total: x.total, disc: x.disc || 0 };
+        if (g) it.raw = x.name;
+        return { ...it, ...describe(it, c.state) };
       });
       p.itemsReceipt = true;
+      delete p.promoKey;
     }
     c.render();
     const n = (p.items || []).length;
@@ -317,7 +337,7 @@ export default {
           st.list = st.list.filter((i) => !ids.has(i.id));
         }
         if (s.priced) {
-          recordPrices(st, p.store, p.date, s.items);
+          recordPrices(st, p.store, p.receiptDate || p.date, s.items);
           extra = r2(s.save - listSaved);
           if (extra > 0) st.savings.push({ id: uid(), expenseId: e.id, amount: extra, date: p.date, name: 'Promocje z paragonu', store: p.store });
           if (s.pen.exp > 0) {

@@ -141,6 +141,14 @@ await t('baza cen z paragonów i kary w trybie ostrym', async () => {
   assert.equal(P.penaltyFor(withTreat, st, true).exp, 7);
   assert.equal(P.penaltyFor(withTreat, st, false).exp, 0);
   assert.equal(P.penaltyFor(withTreat, { ...st, settings: { strict: false } }, true).exp, 0);
+  // nazwa ogólna z paragonu i promocja z gazetki tylko w czasie jej trwania
+  assert.equal(P.generalName('Mlekovita mlekuht 3,2%1l'), 'Mleko 3,2% 1 l');
+  assert.equal(P.generalName('Fairy Extra+650ml'), 'Płyn do naczyń 650 ml');
+  const offer = { store: 'aldi', name: 'Mleko UHT 3,2%', price: 2.99, oldPrice: 4.49, from: '2026-10-01', to: '2026-10-05' };
+  const milk = { name: 'Mleko 3,2% 1 l', raw: 'Mlekovita mlekuht 3,2%1l', qty: 2, unit: 'szt', price: 2.99, total: 5.98 };
+  assert.equal(P.promoFor(milk, [offer], 'aldi', '2026-10-03').save, 3);
+  assert.equal(P.promoFor(milk, [offer], 'aldi', '2026-10-09'), null);
+  assert.equal(P.promoFor(milk, [offer], 'lidl', '2026-10-03'), null);
 });
 
 await t('lista: ilości, odmiany i literówki', async () => {
