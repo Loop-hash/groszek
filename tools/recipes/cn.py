@@ -9,8 +9,8 @@ CIASTO_PIEROZKI = "Zagnieć gładkie ciasto z mąki, soli i ciepłej wody. Odsta
 
 RECIPES = [
     D("cn-mapo", "Mapo tofu z mielonym", ("bowl", "tofu"), 4, 25, P, OBIAD, [
-        ("tofu", 540, "3 kostki"), ("mielone_wieprzowe", 200), ("miso", 30), ("chili", 3), ("czosnek", 10), ("imbir", 10),
-        ("dymka", 30), ("skrobia", 10), ("sos_sojowy", 20), ("olej", 30), ("pieprz", 2), ("ryz", 250)],
+        ("tofu", 540, "3 kostki"), ("mielone_wieprzowe", 200), ("miso", 30), ("chili", 3), ("czosnek", 10), ("imbir", 10), ("dymka", 30),
+        ("skrobia", 10), ("sos_sojowy", 20), ("olej", 30), ("pieprz", 2), ("ryz", 250), ("sol", 3)],
         ["Tofu pokrój w kostkę i włóż na 3 minuty do osolonej gorącej wody, żeby stężało.",
          "Na oleju smaż mięso, aż się zrumieni. Dodaj miso, chili, czosnek i imbir, smaż minutę.",
          "Wlej 250 ml wody i sos sojowy, włóż tofu. Gotuj 5 minut, delikatnie przesuwając łyżką.",
@@ -30,7 +30,7 @@ RECIPES = [
         ["Mięso w kawałku gotuj 20 minut, ostudź i pokrój w cienkie plastry.",
          "Smaż plastry na oleju, aż się zwiną i zrumienią.",
          "Dodaj miso, hoisin, chili i czosnek, smaż minutę.",
-         "Wrzuć kapustę w dużych kawałkach i paprykę, smaż 3 minuty z sosem sojowym i cukrem. Podawaj z ryżem."]),
+         "Wrzuć kapustę w dużych kawałkach i paprykę, smaż 3 minuty z sosem sojowym i cukrem. Posyp dymką i podawaj z ryżem."]),
     D("cn-dan-dan", "Dan dan, makaron z mielonym w sosie sezamowo-ostrym", ("noodles", "mince"), 3, 30, P, OBIAD, [
         ("makaron", 250), ("mielone_wieprzowe", 200), ("sos_sojowy", 30), ("kapusta_kiszona", 50), ("tahini", 40), ("chili", 3),
         ("olej", 30), ("olej_sezamowy", 10), ("ocet", 15), ("cukier", 10), ("czosnek", 10), ("orzeszki", 30),
@@ -65,7 +65,7 @@ RECIPES = [
         "Ostrość daje tu biały pieprz, a nie chili."),
     D("cn-bang-bang", "Kurczak bang bang w sosie sezamowym z ogórkiem", ("plate", "cucumber"), 3, 30, P, KOL, [
         ("kurczak", 500), ("ogorek", 300), ("tahini", 50), ("sos_sojowy", 30), ("ocet", 15), ("cukier", 10), ("chili", 2), ("olej", 10),
-        ("olej_sezamowy", 10), ("czosnek", 5), ("orzeszki", 30), ("sezam", 10), ("dymka", 20), ("ryz", 200)],
+        ("olej_sezamowy", 10), ("czosnek", 5), ("orzeszki", 30), ("sezam", 10), ("dymka", 20), ("ryz", 200), ("sol", 3)],
         ["Kurczaka gotuj w osolonej wodzie 15 minut, ostudź i porwij na włókna.",
          "Ogórek rozbij płaską stroną noża i pokrój w kawałki.",
          "Tahini rozmieszaj z sosem sojowym, octem, cukrem, chili, olejami, czosnkiem i odrobiną wody.",
@@ -98,9 +98,9 @@ RECIPES = [
         ("kurczak", 600), ("jajka", 50), ("skrobia", 50), ("maka", 30), ("olej", 50, "do smażenia"), ("cytryna", 120, "1 duża"),
         ("cukier", 40), ("miod", 20), ("ryz", 250), ("salata", 100), ("sol", 3)],
         ["Piersi przekrój na cienkie płaty, posól i obtocz w jajku, a potem w mące ze skrobią.",
-         "Smaż na złoto, po 3 minuty z każdej strony.",
+         "Smaż na oleju na złoto, po 3 minuty z każdej strony.",
          "Sok i skórkę z cytryny zagotuj z cukrem, miodem, 100 ml wody i łyżeczką skrobi na błyszczący sos.",
-         "Kurczaka pokrój w paski, ułóż na sałacie i polej sosem. Podawaj z ryżem."]),
+         "Kurczaka pokrój w paski, ułóż na liściach sałaty i polej sosem. Podawaj z ryżem."]),
     D("cn-bao-zai-fan", "Ryż z kiełbasą i kurczakiem z jednego garnka", ("claypot", "sausage"), 3, 45, P, OBIAD, [
         ("ryz", 300), ("kielbasa", 200), ("kurczak", 200), ("pieczarki", 150), ("kapusta_pekinska", 200), ("sos_sojowy", 40),
         ("cukier", 10), ("olej_sezamowy", 5), ("imbir", 10), ("jajka", 100, "2 szt."), ("olej", 15)],
@@ -161,7 +161,7 @@ RECIPES = [
         ["Mięso pokrój w małą kostkę i wymieszaj z olejem i startą cebulą.",
          "Nadziewaj ciasno na szpadki.",
          "Grilluj albo smaż na mocnym ogniu, posypując kminem, chili, pieprzem, solą i sezamem.",
-         "Podawaj z ciepłym pieczywem."],
+         "Podawaj z ciepłą pitą."],
         "W Xinjiangu robi się je z baraniny. Kmin to zapach ulic całego północnego zachodu Chin."),
     D("cn-di-san-xian", "Di san xian, ziemniaki, bakłażan i papryka", ("wok", "potato"), 3, 35, P, OBIAD, [
         ("ziemniaki", 400), ("baklazan", 400), ("papryka", 200), ("czosnek", 15), ("sos_sojowy", 40), ("cukier", 10), ("skrobia", 15),
@@ -181,9 +181,9 @@ RECIPES = [
     D("cn-suan-cai", "Wieprzowina z kapustą kiszoną i makaronem po mandżursku", ("pot", "cabbage"), 4, 60, P, OBIAD, [
         ("lopatka", 500), ("kapusta_kiszona", 600), ("makaron_ryzowy", 100, "cienki"), ("imbir", 15), ("dymka", 20), ("bulion", 10),
         ("pieprz", 1), ("czosnek", 10), ("sos_sojowy", 20), ("ryz", 250)],
-        ["Mięso w kawałku gotuj w 1,5 l wody z imbirem 30 minut. Wyjmij i pokrój w cienkie plastry.",
+        ["Mięso w kawałku gotuj w 1,5 l wody z kostką rosołową i imbirem 30 minut. Wyjmij i pokrój w cienkie plastry.",
          "Kapustę lekko opłucz i odciśnij. Wrzuć do wywaru i gotuj 15 minut.",
-         "Dodaj mięso i makaron, gotuj 5 minut. Dopraw pieprzem.",
+         "Dodaj mięso i makaron, gotuj 5 minut. Dopraw pieprzem i posyp dymką.",
          "Czosnek wymieszaj z sosem sojowym do maczania mięsa. Podawaj z ryżem."],
         "Zimowe danie z Mandżurii. Polska kapusta kiszona sprawdza się w nim świetnie."),
     D("cn-cong-you-ban-mian", "Makaron z olejem dymkowym po szanghajsku", ("noodles", "onion"), 3, 25, P, OK, [
@@ -222,7 +222,7 @@ RECIPES = [
         ("czosnek", 10), ("jajka", 200, "4 szt."), ("ryz", 300), ("kapusta_pekinska", 200), ("olej", 20)],
         ["Cebulę w cienkich piórkach usmaż na oleju na chrupko.",
          "Dodaj mięso i czosnek, smaż, aż się zrumieni.",
-         "Wlej sos sojowy, cukier, przyprawy i 500 ml wody. Włóż ugotowane obrane jajka. Duś 45 minut.",
+         "Wlej sos sojowy, cukier, cynamon, ziele angielskie i 500 ml wody. Włóż ugotowane obrane jajka. Duś 45 minut.",
          "Podawaj na ryżu z połówkami jajek i sparzoną kapustą."],
         "Najtańszy obiad na Tajwanie, jedzony w każdym barze."),
     D("cn-niu-rou-mian", "Zupa z wołowiną i makaronem po tajwańsku", ("ramen", "meat"), 4, 150, P, OBIAD, [
@@ -230,7 +230,7 @@ RECIPES = [
         ("ziele_angielskie", 1), ("imbir", 20), ("czosnek", 15), ("pomidory", 200), ("cebula", 110), ("cukier", 10),
         ("kapusta_pekinska", 200), ("dymka", 20), ("olej", 20)],
         ["Wołowinę obsmaż na oleju z cebulą, imbirem i czosnkiem. Dodaj miso i chili.",
-         "Wlej sos sojowy, 1,8 l wody, pomidory, przyprawy i cukier. Duś 2 godziny.",
+         "Wlej sos sojowy, 1,8 l wody, pomidory, cynamon, ziele angielskie i cukier. Duś 2 godziny.",
          "Ugotuj makaron i kapustę.",
          "Nałóż do misek, zalej zupą z mięsem, posyp dymką."]),
     D("cn-san-bei-ji", "San bei ji, kurczak trzech filiżanek z bazylią", ("claypot", "chicken"), 3, 30, P, OBIAD, [
@@ -252,8 +252,8 @@ RECIPES = [
     D("cn-jiu-cai-he-zi", "Smażone pierożki z jajkiem i dymką", ("pie", "egg"), 3, 50, P, SN, [
         ("maka", 300), ("sol", 4), ("jajka", 200, "4 szt."), ("dymka", 100), ("makaron_ryzowy", 50, "cienki"), ("sos_sojowy", 15),
         ("olej_sezamowy", 5), ("olej", 30), ("pieprz", 1)],
-        [CIASTO_PIEROZKI,
-         "Jajka usmaż jako jajecznicę i posiekaj. Makaron namocz i posiekaj. Wymieszaj z dymką, sosem, olejem sezamowym i pieprzem.",
+        ["Zagnieć gładkie ciasto z mąki, soli i ciepłej wody. Odstaw na 30 minut pod miską.",
+         "Jajka usmaż jako jajecznicę i posiekaj. Makaron namocz i posiekaj. Wymieszaj z dymką, sosem sojowym, olejem sezamowym i pieprzem.",
          "Rozwałkuj ciasto na koła wielkości dłoni, nałóż farsz i zlep w półksiężyce.",
          "Smaż na oleju pod przykryciem po 3 minuty z każdej strony."],
         "W Chinach robi się je z szczypiorem czosnkowym. Dymka smakuje łagodniej, ale podobnie."),
@@ -262,7 +262,7 @@ RECIPES = [
         ("sos_sojowy", 30), ("hoisin", 40), ("skrobia", 10), ("olej", 30), ("tortilla", 250, "4 placki")],
         ["Mięso pokrój w paski i wymieszaj ze skrobią i łyżką sosu sojowego.",
          "Usmaż jajecznicę w dużych płatach i odłóż.",
-         "Na mocnym ogniu usmaż mięso, dodaj pieczarki, kapustę i marchew w paskach. Wlej resztę sosu.",
+         "Na mocnym ogniu usmaż mięso na oleju, dodaj pieczarki, kapustę i marchew w paskach. Wlej resztę sosu sojowego.",
          "Dodaj jajka i dymkę. Placki posmaruj hoisin i zawijaj w nie farsz."],
         "W północnych Chinach podaje się je z cienkimi naleśnikami jak kaczkę po pekińsku."),
     D("cn-ma-yi", "Mrówki na drzewie, makaron z mielonym", ("bowl", "pasta"), 3, 25, P, OBIAD, [
@@ -277,7 +277,7 @@ RECIPES = [
         ("makaron", 300), ("tahini", 60), ("olej_sezamowy", 15), ("sos_sojowy", 40), ("ocet", 10), ("ogorki_kiszone", 100),
         ("dymka", 20), ("chili", 2), ("olej", 10), ("sol", 2)],
         ["Tahini rozrób z olejem sezamowym i 3 łyżkami ciepłej wody na gładki krem.",
-         "Ugotuj makaron, odcedź i wymieszaj z olejem.",
+         "Ugotuj makaron w osolonej wodzie, odcedź i wymieszaj z olejem.",
          "Polej sosem sojowym z octem i pastą sezamową.",
          "Posyp posiekanymi ogórkami, dymką i chili. Wymieszaj dokładnie."],
         "Śniadanie mieszkańców Wuhanu. Je się je szybko, często w drodze."),
@@ -287,7 +287,7 @@ RECIPES = [
         ("olej", 50), ("sos_sojowy", 20), ("ryz", 250)],
         ["Ziemniaki w plasterkach, kalafior i tofu obgotuj 3 minuty i odcedź. Mięso pokrój w cienkie plastry.",
          "Na oleju podsmaż chili, pieprz, czosnek, imbir i miso.",
-         "Wrzuć mięso, potem warzywa, tofu i kapustę. Smaż na mocnym ogniu 5 minut z sosem sojowym.",
+         "Wrzuć mięso, potem ziemniaki, kalafior, pieczarki, tofu i kapustę. Smaż na mocnym ogniu 5 minut z sosem sojowym.",
          "Posyp sezamem. Podawaj z ryżem."],
         "W Chinach każdy wybiera sobie do niego składniki z lady. Wrzuć to, co masz."),
     D("cn-hong-shao-rou", "Hong shao rou, czerwono duszona wieprzowina", ("pot", "meat"), 5, 100, P, OBIAD, [
@@ -295,8 +295,8 @@ RECIPES = [
         ("ryz", 300), ("kapusta_pekinska", 300)],
         ["Mięso pokrój w kostkę 3 cm i obgotuj 3 minuty, odcedź.",
          "Cukier rozpuść na patelni na ciemny karmel, wrzuć mięso i obtocz.",
-         "Dodaj sos sojowy, imbir, przyprawy i wodę do przykrycia. Duś 70 minut na małym ogniu.",
-         "Odparuj sos, aż będzie lepki i błyszczący. Podawaj z ryżem i sparzoną kapustą."],
+         "Dodaj sos sojowy, imbir, cynamon, ziele angielskie i wodę do przykrycia. Duś 70 minut na małym ogniu.",
+         "Odparuj sos, aż będzie lepki i błyszczący. Posyp dymką, podawaj z ryżem i sparzoną kapustą."],
         "Ulubione danie Mao Zedonga, który pochodził z Hunanu."),
     D("cn-zheng-dan", "Jajka gotowane na parze jak budyń", ("bowl", "egg"), 2, 25, P, KOL, [
         ("jajka", 300, "6 szt."), ("bulion", 5), ("sos_sojowy", 20), ("olej_sezamowy", 5), ("dymka", 15), ("mielone_wieprzowe", 100),
@@ -317,7 +317,7 @@ RECIPES = [
         ("kalafior", 800, "1 szt."), ("boczek", 150), ("czosnek", 15), ("papryczka_chili", 10), ("chili", 2), ("sos_sojowy", 30),
         ("cukier", 5), ("olej", 30), ("dymka", 20), ("ryz", 250)],
         ["Kalafior podziel na małe różyczki i obgotuj 2 minuty.",
-         "Boczek pokrój w plasterki i wytop na patelni.",
+         "Boczek pokrój w plasterki i wytop na patelni z łyżką oleju.",
          "Dodaj czosnek i chili, potem kalafior. Smaż na mocnym ogniu 6 minut, aż się przypiecze.",
          "Wlej sos sojowy z cukrem, posyp dymką. Podawaj z ryżem."],
         "Hunańskie danie podawane na małym palniku, żeby skwierczało do końca."),

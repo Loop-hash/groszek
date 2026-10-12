@@ -342,6 +342,8 @@ I.update({
                              n=[263, 6.1, 8.7, 72.1, 21.6, 0.2], kg=150.0, est=True, pkg=15, pantry=True, kw=["ziele angielskie"]),
     "lisc_laurowy": dict(name="Liść laurowy", icon="jar", cat="przyprawy", usda="Spices, bay leaf",
                          n=[313, 7.6, 8.4, 75.0, 26.3, 0.06], kg=200.0, est=True, pkg=6, pantry=True, kw=["lisc laurowy", "liscie laurowe"]),
+    "galka_muszkatolowa": dict(name="Gałka muszkatołowa", icon="jar", cat="przyprawy", usda="Spices, nutmeg, ground",
+                               n=[525, 5.8, 36.3, 49.3, 20.8, 0.04], kg=350.0, est=True, pkg=10, pantry=True, kw=["galka muszkat", "muszkatol"]),
     "tymianek": dict(name="Tymianek", icon="jar", cat="przyprawy", usda="Spices, thyme, dried",
                      n=[276, 9.1, 7.4, 63.9, 37.0, 0.14], kg=200.0, est=True, pkg=10, pantry=True, kw=["tymianek"]),
     "rozmaryn": dict(name="Rozmaryn", icon="jar", cat="przyprawy", usda="Spices, rosemary, dried",

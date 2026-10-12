@@ -72,6 +72,7 @@ Dla ciekawych:
 | `data/` | Przepisy, składniki i promocje w plikach JSON. Apka pobiera je z GitHuba, więc nowe przepisy i promocje nie wymagają nowej wersji apki. |
 | `tools/recipes/` | Przepisy pogrupowane według kuchni. `tools/build_data.py` składa z nich `data/recipes.json` i liczy ceny oraz wartości odżywcze. |
 | `tools/ingredients_src.py` | Składniki z cenami i wartościami odżywczymi z bazy USDA. |
+| `tools/audit.py` | Sprawdza przepisy: czy każdy składnik z nazwy i kroków jest na liście (z ceną), czy każda przyprawa z listy jest nazwana w kroku i czy wytrawne danie ma czym je doprawić. Powinno pokazywać same zera. |
 | `scraper/` | Pobieranie promocji ze stron sklepów. |
 
 Resztę robią automaty na GitHub Actions:

@@ -37,7 +37,7 @@ RECIPES = [
         ("oliwa", 10, "1 łyżka"), ("sol", 4), ("pieprz", 1), ("ser_zolty", 30, "do posypania")],
         ["Cebulę, marchew i czosnek drobno posiekaj albo zetrzyj.",
          "Na oliwie podsmaż warzywa 5 minut. Dodaj mięso i smaż, rozbijając łyżką, aż straci różowy kolor.",
-         "Wmieszaj koncentrat, pomidory i oregano. Duś na małym ogniu 20 minut, aż sos zgęstnieje.",
+         "Wmieszaj koncentrat, pomidory i oregano. Duś na małym ogniu 20 minut, aż sos zgęstnieje. Dopraw solą i pieprzem.",
          "W tym czasie ugotuj makaron w osolonej wodzie (jeśli masz jeden palnik, zrób to przed sosem i odstaw).",
          "Wymieszaj makaron z sosem, posyp startym serem."],
         "Sos możesz zrobić z podwójnej porcji i zamrozić połowę."),
@@ -48,7 +48,7 @@ RECIPES = [
          "Pieczarki pokrój w plasterki, cebulę i czosnek posiekaj. Podsmaż na połowie masła, aż pieczarki puszczą wodę i ją odparują.",
          "Wsyp ryż i smaż minutę, mieszając, aż się zeszkli.",
          "Wlewaj bulion po jednej chochli. Kolejną dodawaj, gdy poprzednia się wchłonie. Mieszaj często. Trwa to około 18 minut.",
-         "Gdy ryż jest miękki, ale lekko sprężysty, zdejmij z ognia. Wmieszaj resztę masła i starty ser. Posyp natką."],
+         "Gdy ryż jest miękki, ale lekko sprężysty, zdejmij z ognia. Wmieszaj resztę masła i starty ser, popieprz i posyp natką."],
         "Zwykły ryż też da radę, tylko risotto wyjdzie mniej kremowe."),
 
     # ---------------- Francja ----------------
@@ -78,7 +78,7 @@ RECIPES = [
         ("sol", 4), ("pieprz", 1)],
         ["Ziemniaki obierz i pokrój w cienkie plasterki, cebulę w piórka.",
          "Na patelni rozgrzej olej, wrzuć ziemniaki z cebulą i smaż pod przykryciem na średnim ogniu 15–20 minut, mieszając, aż będą miękkie.",
-         "Jajka roztrzep w misce z solą. Wrzuć do nich ziemniaki i odczekaj 5 minut.",
+         "Jajka roztrzep w misce z solą i pieprzem. Wrzuć do nich ziemniaki i odczekaj 5 minut.",
          "Wlej wszystko z powrotem na patelnię. Smaż na małym ogniu 6–8 minut, aż spód się zetnie.",
          "Przykryj talerzem, odwróć i zsuń tortillę z powrotem na patelnię. Smaż jeszcze 3 minuty."],
         "Na zimno też jest dobra, więc nadaje się na drugie śniadanie na uczelnię."),
@@ -86,10 +86,10 @@ RECIPES = [
         ("ryz", 250), ("kurczak", 400), ("papryka", 160, "1 szt."), ("cebula", 110, "1 szt."), ("czosnek", 10, "2 ząbki"),
         ("pomidory_puszka", 200, "pół puszki"), ("papryka_slodka", 4, "2 łyżeczki"), ("bulion", 10, "1 kostka"),
         ("olej", 20, "2 łyżki"), ("sol", 2), ("pieprz", 1)],
-        ["Kurczaka pokrój w kostkę i obsyp połową papryki w proszku i solą.",
+        ["Kurczaka pokrój w kostkę i obsyp połową słodkiej papryki, solą i pieprzem.",
          "W szerokim garnku obsmaż kurczaka na oleju, aż się zarumieni. Odłóż na talerz.",
          "Na tym samym tłuszczu podsmaż pokrojoną cebulę, paprykę i czosnek przez 5 minut.",
-         "Wsyp ryż i resztę papryki w proszku, wymieszaj. Dodaj pomidory i 600 ml wody z kostką rosołową.",
+         "Wsyp ryż i resztę słodkiej papryki, wymieszaj. Dodaj pomidory i 600 ml wody z kostką rosołową.",
          "Wróć kurczaka do garnka. Gotuj pod przykryciem na małym ogniu 18 minut, bez mieszania, aż ryż wchłonie płyn."]),
 
     # ---------------- Grecja ----------------
@@ -122,11 +122,11 @@ RECIPES = [
          "W garnku podsmaż na oleju cebulę z kiełbasą przez 5 minut.",
          "Dodaj ziemniaki, marchew, majeranek i litr wody z kostką rosołową. Gotuj 20 minut.",
          "Część ziemniaków rozgnieć tłuczkiem w garnku, żeby zupa zgęstniała.",
-         "Zdejmij z ognia, wmieszaj śmietanę i dopraw pieprzem."]),
+         "Zdejmij z ognia, wmieszaj śmietanę i dopraw solą i pieprzem."]),
     R("de-spaetzle", "Käsespätzle, kluseczki z serem i cebulą", "Niemcy", ("pot", "cheese"), 3, 35, ["palnik"], ["obiad"], [
         ("maka", 250), ("jajka", 150, "3 szt."), ("mleko", 100, "pół szklanki"), ("ser_zolty", 150), ("cebula", 220, "2 szt."),
-        ("maslo", 20, "1 łyżka"), ("sol", 3), ("pieprz", 1)],
-        ["Wymieszaj mąkę, jajka, mleko i szczyptę soli na gęste, lejące się ciasto. Odstaw na 10 minut.",
+        ("maslo", 20, "1 łyżka"), ("sol", 3), ("pieprz", 1), ("galka_muszkatolowa", 1)],
+        ["Wymieszaj mąkę, jajka, mleko, szczyptę soli i gałki muszkatołowej na gęste, lejące się ciasto. Odstaw na 10 minut.",
          "Cebulę pokrój w piórka i usmaż na maśle na złoto. Odłóż.",
          "Ciasto przecieraj przez tarkę o dużych oczkach albo durszlak prosto do osolonego wrzątku. Kluski gotuj 2 minuty od wypłynięcia.",
          "Odcedzone kluski wrzuć na patelnię, wymieszaj z tartym serem, aż się roztopi.",
@@ -148,9 +148,9 @@ RECIPES = [
         ("papryka", 480, "3 szt."), ("cebula", 110, "1 szt."), ("pomidory", 300, "2 szt."), ("kielbasa", 200),
         ("papryka_slodka", 4, "2 łyżeczki"), ("olej", 10), ("sol", 2), ("pieprz", 1), ("chleb", 140, "4 kromki")],
         ["Paprykę pokrój w paski, cebulę w piórka, pomidory w kostkę, kiełbasę w plasterki.",
-         "Na patelni podsmaż kiełbasę z cebulą przez 5 minut.",
+         "Na patelni podsmaż na oleju kiełbasę z cebulą przez 5 minut.",
          "Dodaj paprykę i smaż 10 minut, aż zmięknie.",
-         "Dorzuć pomidory i paprykę w proszku. Duś 10 minut.",
+         "Dorzuć pomidory i słodką paprykę. Duś 10 minut.",
          "Dopraw solą i pieprzem. Jedz z chlebem."],
         "Wersja bez mięsa: zamiast kiełbasy wbij na koniec 3 jajka i wymieszaj."),
 
@@ -162,7 +162,7 @@ RECIPES = [
         ["Buraki i marchew zetrzyj na tarce, cebulę posiekaj, ziemniaki pokrój w kostkę, kapustę poszatkuj.",
          "W dużym garnku podsmaż na oleju cebulę, buraki i marchew przez 10 minut. Dodaj koncentrat i ocet.",
          "Wlej 1,5 l wody z kostkami rosołowymi, wrzuć ziemniaki i kapustę. Gotuj 20 minut.",
-         "Dodaj odsączoną fasolę i przeciśnięty czosnek, gotuj jeszcze 5 minut.",
+         "Dodaj odsączoną fasolę i przeciśnięty czosnek, gotuj jeszcze 5 minut. Dopraw solą i pieprzem.",
          "Podawaj z łyżką śmietany."],
         "Wychodzi duży gar. Wystarczy na 4 obiady albo więcej."),
     R("ua-syrniki", "Syrniki, placuszki z twarogu", "Ukraina", ("pancakes", "cheese"), 2, 25, ["palnik"], ["sniadanie", "kolacja"], [
@@ -191,9 +191,9 @@ RECIPES = [
         ("ryz", 200)],
         ["Kurczaka pokrój w duże kawałki, cebulę w piórka, pomidory w kostkę.",
          "W garnku na maśle obsmaż kurczaka. Dodaj cebulę i smaż 10 minut, aż zmięknie.",
-         "Dodaj pomidory świeże i z puszki, paprykę i chili. Duś pod przykryciem 20 minut.",
+         "Dodaj pomidory świeże i z puszki, słodką paprykę i chili. Duś pod przykryciem 20 minut.",
          "Wmieszaj czosnek i natkę, dopraw solą i pieprzem.",
-         "Podawaj z ryżem albo chlebem."]),
+         "Podawaj z ryżem."]),
 
     # ---------------- Turcja ----------------
     R("tr-menemen", "Menemen, jajka z papryką i pomidorami", "Turcja", ("pan", "tomato"), 2, 20, ["palnik"], ["sniadanie", "kolacja"], [
@@ -220,8 +220,8 @@ RECIPES = [
         ("cynamon", 1, "szczypta"), ("sol", 4), ("pieprz", 1), ("jogurt", 200), ("ogorek", 150)],
         ["Soczewicę opłucz i gotuj w litrze wody 15 minut.",
          "W tym czasie cebulę pokrój w piórka i smaż na oleju na ciemnozłoto, około 20 minut. Połowę odłóż na talerz.",
-         "Do reszty cebuli w garnku dodaj kmin i cynamon, wsyp ryż i wymieszaj.",
-         "Dodaj soczewicę razem z wodą z gotowania (uzupełnij do 450 ml) i sól. Gotuj pod przykryciem 15 minut.",
+         "Do reszty cebuli w garnku dodaj kmin rzymski i cynamon, wsyp ryż i wymieszaj.",
+         "Dodaj soczewicę razem z wodą z gotowania (uzupełnij do 450 ml), sól i pieprz. Gotuj pod przykryciem 15 minut.",
          "Posyp odłożoną chrupiącą cebulą. Jedz z jogurtem i ogórkiem."],
         "Jedno z najtańszych dań na świecie, a syci na długo."),
     R("lb-kafta", "Kafta z grilla z pitą", "Liban", ("skewer", "onion"), 2, 25, ["opiekacz|palnik"], ["obiad", "kolacja"], [
@@ -229,20 +229,20 @@ RECIPES = [
         ("papryka_slodka", 2), ("sol", 4), ("pieprz", 1), ("pita", 140, "2 szt."), ("pomidory", 150, "1 szt."),
         ("jogurt", 150), ("czosnek", 5)],
         ["Cebulę zetrzyj na drobnej tarce i odciśnij sok. Natkę posiekaj.",
-         "Wymieszaj mięso z cebulą, natką, przyprawami i solą. Wyrabiaj ręką 2 minuty.",
+         "Wymieszaj mięso z cebulą, natką, kminem rzymskim, cynamonem, słodką papryką, solą i pieprzem. Wyrabiaj ręką 2 minuty.",
          "Uformuj podłużne kotleciki wokół palców, jak grube paluchy.",
          "Piecz na rozgrzanym grillu kontaktowym 6–8 minut (albo smaż na patelni, obracając).",
-         "Podawaj w picie z pomidorem i jogurtem z czosnkiem."],
+         "Jogurt wymieszaj z przeciśniętym czosnkiem. Podawaj w picie z pomidorem i sosem jogurtowym."],
         "W Libanie robi się kaftę z jagnięciny albo wołowiny. Wieprzowina jest tańsza i też smakuje."),
 
     # ---------------- Maroko ----------------
     R("ma-tajine", "Tajine z kurczakiem i ciecierzycą", "Maroko", ("tagine", "chickpea"), 3, 45, ["palnik"], ["obiad"], [
         ("kurczak", 400), ("ciecierzyca", 240, "1 puszka"), ("marchew", 160, "2 szt."), ("cebula", 110, "1 szt."), ("czosnek", 10),
-        ("pomidory_puszka", 400, "1 puszka"), ("kmin", 2), ("cynamon", 2), ("papryka_slodka", 2), ("imbir", 10),
-        ("cytryna", 30), ("olej", 15), ("sol", 4), ("kuskus", 200)],
+        ("pomidory_puszka", 400, "1 puszka"), ("kmin", 2), ("cynamon", 2), ("papryka_slodka", 2), ("imbir", 10), ("cytryna", 30),
+        ("olej", 15), ("sol", 4), ("kuskus", 200), ("pieprz", 1)],
         ["Kurczaka pokrój w kostkę, marchew w plasterki, cebulę w piórka. Czosnek i imbir zetrzyj.",
-         "W garnku obsmaż kurczaka na oleju. Dodaj cebulę, czosnek, imbir i przyprawy, smaż 2 minuty.",
-         "Dorzuć marchew, pomidory, odsączoną ciecierzycę i szklankę wody. Duś pod przykryciem 25 minut.",
+         "W garnku obsmaż kurczaka na oleju. Dodaj cebulę, czosnek, imbir, kmin rzymski, cynamon i słodką paprykę, smaż 2 minuty.",
+         "Dorzuć marchew, pomidory, odsączoną ciecierzycę i szklankę wody. Duś pod przykryciem 25 minut, dopraw solą i pieprzem.",
          "Kuskus zalej 250 ml wrzątku z solą, przykryj na 5 minut i rozpulchnij widelcem.",
          "Tajine skrop sokiem z cytryny i podawaj na kuskusie."]),
     R("ma-harira", "Harira, zupa z soczewicy i ciecierzycy", "Maroko", ("soup", "lemon"), 4, 45, ["palnik"], ["obiad"], [
@@ -397,9 +397,9 @@ RECIPES = [
         ("olej", 10), ("sol", 4), ("ryz", 250)],
         ["Cebulę, paprykę i czosnek pokrój w kostkę.",
          "Na oleju usmaż mięso, dodaj warzywa i smaż 5 minut.",
-         "Dodaj koncentrat i przyprawy, smaż minutę.",
+         "Dodaj koncentrat, kmin rzymski, słodką paprykę, chili i sól, smaż minutę.",
          "Wlej pomidory i szklankę wody, dodaj fasolę i kukurydzę. Duś 25 minut.",
-         "Podawaj z ryżem (albo z chlebem, tortillą, nachosami)."],
+         "Podawaj z ryżem."],
         "Najlepsze danie do gotowania na kilka dni. Dobrze się mrozi."),
     R("us-mac", "Mac and cheese", "USA", ("spaghetti", "cheese"), 3, 25, ["palnik"], ["obiad"], [
         ("makaron", 250), ("ser_zolty", 200), ("mleko", 400), ("maslo", 30), ("maka", 25), ("papryka_slodka", 1),
@@ -446,7 +446,7 @@ RECIPES = [
         ("jogurt", 300), ("platki_owsiane", 50), ("banan", 120), ("cukier", 5)],
         ["Do miski wlej jogurt.",
          "Dosyp płatki i pokrojonego banana.",
-         "Jeśli lubisz słodziej, dodaj łyżeczkę cukru albo miodu."]),
+         "Jeśli lubisz słodziej, dodaj łyżeczkę cukru."]),
     R("pd-nalesniki", "Naleśniki z twarogiem", "Podstawy", ("crepe", "cheese"), 2, 25, ["palnik"], ["sniadanie", "kolacja"], [
         ("maka", 120), ("mleko", 250), ("jajka", 50, "1 szt."), ("olej", 15), ("sol", 1), ("twarog", 200), ("cukier", 20), ("jogurt", 50)],
         ["Wymieszaj mąkę, mleko, jajko, szczyptę soli i łyżkę oleju na gładkie, rzadkie ciasto.",
@@ -473,12 +473,12 @@ RECIPES = [
          "Smaż na maśle po 2 minuty z każdej strony, aż się zarumienią.",
          "Podawaj z plasterkami banana, posyp cukrem."]),
     R("pd-kanapki-ser", "Kanapki z serem i pomidorem", "Podstawy", ("toast", "tomato"), 1, 5, [], ["sniadanie", "kolacja"], [
-        ("chleb", 140, "4 kromki"), ("maslo", 10), ("ser_zolty", 60), ("pomidory", 150, "1 szt."), ("sol", 0.5)],
+        ("chleb", 140, "4 kromki"), ("maslo", 10), ("ser_zolty", 60), ("pomidory", 150, "1 szt."), ("sol", 0.5), ("pieprz", 0.5)],
         ["Chleb posmaruj masłem.",
          "Połóż plastry sera i pomidora, posól i popieprz."]),
     R("pd-jajka-miekko", "Jajka na miękko z chlebem", "Podstawy", ("pot", "egg"), 1, 10, ["palnik"], ["sniadanie"], [
         ("jajka", 150, "3 szt."), ("chleb", 105, "3 kromki"), ("maslo", 10), ("ogorek", 100), ("sol", 1)],
         ["Jajka włóż do wrzątku i gotuj 4 minuty (żółtko płynne) albo 6 minut (lekko ścięte).",
          "Przelej zimną wodą.",
-         "Jedz łyżeczką z chlebem z masłem i ogórkiem."]),
+         "Posól i jedz łyżeczką z chlebem z masłem i ogórkiem."]),
 ]
