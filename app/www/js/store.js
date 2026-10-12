@@ -37,7 +37,7 @@ export async function kvSet(key, value) {
   try { localStorage.setItem(key, value); } catch (e) { /* brak miejsca albo zablokowane */ }
 }
 
-export const DEFAULT_CUISINES = ['Polska', 'Włochy', 'Francja', 'Hiszpania', 'Grecja', 'Niemcy', 'Węgry', 'Ukraina', 'Gruzja', 'Turcja',
+export const DEFAULT_CUISINES = ['Polska', 'Włochy', 'Francja', 'Hiszpania', 'Grecja', 'Niemcy', 'Węgry', 'Bośnia', 'Ukraina', 'Gruzja', 'Turcja',
   'Liban', 'Maroko', 'Indie', 'Tajlandia', 'Wietnam', 'Chiny', 'Japonia', 'Korea', 'Meksyk', 'USA'];
 
 export const GEAR = ['1 palnik', '2 palniki', 'Piekarnik', 'Opiekacz', 'Toster', 'Air fryer', 'Mikrofala', 'Blender'];

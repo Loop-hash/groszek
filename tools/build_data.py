@@ -25,7 +25,7 @@ for _f in sorted(glob.glob(os.path.join(HERE, "recipes", "*.py"))):
 ROOT = os.path.dirname(HERE)
 NUT = ["kcal", "protein", "fat", "carbs", "fiber", "salt"]
 FLAGS_FROM = {"meat", "pork", "beef", "fish", "seafood", "dairy", "egg", "gluten", "nuts", "wholecut"}
-COUNTRIES = ['Polska', 'Włochy', 'Francja', 'Hiszpania', 'Grecja', 'Niemcy', 'Węgry', 'Ukraina', 'Gruzja', 'Turcja',
+COUNTRIES = ['Polska', 'Włochy', 'Francja', 'Hiszpania', 'Grecja', 'Niemcy', 'Węgry', 'Bośnia', 'Ukraina', 'Gruzja', 'Turcja',
              'Liban', 'Maroko', 'Indie', 'Tajlandia', 'Wietnam', 'Chiny', 'Japonia', 'Korea', 'Meksyk', 'USA', 'Podstawy']
 NEEDS = {"palnik", "piekarnik", "opiekacz", "toster", "blender", "mikrofala"}
 
@@ -54,7 +54,7 @@ DISH_ALTS = {
     "patties": ["cutlet", "meatballs"], "cutlet": ["patties", "plate"], "meatballs": ["patties", "bowl"],
     "pie": ["casserole", "tray"], "flatbread": ["pizza", "wrap"], "wrap": ["taco", "flatbread"], "taco": ["wrap", "quesadilla"],
     "roll": ["wrap", "steamer"], "fries": ["plate", "tray"], "oats": ["bowl", "mug"], "skewer": ["plate"],
-    "cake": ["pie", "tray"], "burger": ["bun", "sandwich"], "pizza": ["flatbread"], "steamer": ["pierogi", "bowl"],
+    "cake": ["pie", "tray"], "spiral": ["pie", "casserole"], "cloche": ["pot", "claypot", "tureen"], "burger": ["bun", "sandwich"], "pizza": ["flatbread"], "steamer": ["pierogi", "bowl"],
 }
 DISHES = _pixel_keys("DISH")
 
@@ -136,6 +136,11 @@ def main():
                 tot[k] += val * g / 100
             cost += src["kg"] * g / 1000
             flags |= set(src.get("flags", [])) & FLAGS_FROM
+            prev = next((x for x in ings if x["i"] == iid), None)
+            if prev:  # ten sam składnik np. do ciasta i do sosu: jedna pozycja na liście zakupów
+                prev["g"] += g
+                prev.pop("q", None)
+                continue
             e = {"i": iid, "g": g}
             if q:
                 e["q"] = q

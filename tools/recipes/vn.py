@@ -179,15 +179,6 @@ RECIPES = [
          "Trawę cytrynową posiekaj bardzo drobno i podsmaż na oleju z czosnkiem i chili.",
          "Dodaj kurczaka i smaż na mocnym ogniu 6 minut. Dorzuć cebulę w piórkach.",
          "Wlej resztę sosu i cukru, smaż, aż się skarmelizuje. Podawaj z ryżem."]),
-    D("vn-canh-chua", "Canh chua, kwaśna zupa z kurczakiem, ananasem i pomidorami", ("soup", "pineapple"), 3, 35, P, OBIAD, [
-        ("kurczak", 400), ("ananas", 280, "pół puszki"), ("pomidory", 300), ("kielki", 150), ("cebula", 55), ("limonka", 60),
-        ("cukier", 10), ("sos_sojowy", 30), ("bazylia", 10), ("kolendra", 10), ("papryczka_chili", 5), ("bulion", 10),
-        ("ryz_jasminowy", 250)],
-        ["Zagotuj 1,2 l bulionu z cebulą, dodaj kurczaka w cienkich plasterkach. Gotuj 8 minut.",
-         "Dorzuć ananasa i pomidory w kawałkach, gotuj 5 minut.",
-         "Dopraw limonką, cukrem i sosem sojowym. Ma być wyraźnie kwaśna i lekko słodka.",
-         "Zdejmij z ognia, wrzuć kiełki, zioła i chili. Podawaj z ryżem."],
-        "Na południu Wietnamu kwaśność daje tamarynd. Limonka działa podobnie."),
     D("vn-hu-tieu", "Hủ tiếu, przejrzysta zupa z makaronem, wieprzowiną i jajkiem", ("ramen", "egg"), 3, 50, P, ["sniadanie", "obiad"], [
         ("makaron_ryzowy", 200), ("lopatka", 300), ("mielone_wieprzowe", 150), ("jajka", 150, "3 szt."), ("czosnek", 15),
         ("olej", 20), ("sos_sojowy", 30), ("cukier", 5), ("kielki", 100), ("kapusta_pekinska", 100), ("dymka", 20), ("kolendra", 10),

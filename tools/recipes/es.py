@@ -231,13 +231,6 @@ RECIPES = [
          "Gotuj 40 minut na małym ogniu.",
          "Dodaj fasolę, paprykę i kurkumę, gotuj 20 minut bez mieszania, tylko potrząsając garnkiem.",
          "Podawaj z chlebem."]),
-    D("es-fideua", "Fideuá z kurczakiem", ("pan", "chicken"), 3, 40, P, OBIAD, [
-        ("makaron", 300, "krótki, cienki"), ("kurczak", 300), ("papryka", 160), ("pomidory", 300), ("czosnek", 10), ("papryka_slodka", 4),
-        ("kurkuma", 1), ("oliwa", 30), ("bulion", 10), ("majonez", 40), ("sol", 2)],
-        ["Na szerokiej patelni podsmaż suchy makaron na oliwie, aż się zarumieni. Odłóż.",
-         "Usmaż kurczaka i paprykę, dodaj starte pomidory, czosnek i przyprawy.",
-         "Wsyp makaron i zalej 700 ml gorącego bulionu.",
-         "Gotuj bez mieszania 10 minut. Podawaj z majonezem czosnkowym."]),
     D("es-alinadas", "Patatas aliñadas, sałatka ziemniaczana", ("salad", "potato"), 2, 30, P, KOL, [
         ("ziemniaki", 600), ("cebula", 55), ("natka", 15), ("oliwa", 30), ("ocet", 15), ("jajka", 100), ("sol", 3), ("pieprz", 1)],
         ["Ugotuj ziemniaki w mundurkach, obierz i pokrój w plastry.",
