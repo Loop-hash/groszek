@@ -74,7 +74,10 @@ export async function checkUpdate(currentBuild) {
     const m = /build[:\s]+(\d+)/i.exec(rel.body || '');
     const build = m ? Number(m[1]) : 0;
     const asset = (rel.assets || []).find((a) => /\.apk$/.test(a.name));
-    return { build, newer: build > (Number(currentBuild) || 0), url: asset ? asset.browser_download_url : RELEASE_PAGE, name: rel.name };
+    return {
+      build, newer: build > (Number(currentBuild) || 0), url: asset ? asset.browser_download_url : RELEASE_PAGE,
+      size: asset ? asset.size : 0, name: rel.name,
+    };
   } catch (e) {
     return null;
   }

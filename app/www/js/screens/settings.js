@@ -188,7 +188,7 @@ export default {
       <span class="label">O apce</span>
       <div class="rows">
         ${settingRow('Wersja', `Groszek 0.1.${esc(build.build || 0)}${upd ? (upd.newer ? ' · jest nowsza wersja!' : ' · masz najnowszą') : ''}`,
-          upd && upd.newer ? `<button class="btn small dark" data-act="url" data-arg="${esc(upd.url)}">Pobierz</button>` : '<button class="btn small" data-act="checkUpd">Sprawdź</button>')}
+          upd && upd.newer ? '<button class="btn small dark" data-act="update">Pobierz</button>' : '<button class="btn small" data-act="checkUpd">Sprawdź</button>')}
         ${settingRow('Odśwież dane', 'promocje i przepisy z GitHuba', `<button class="btn small" data-act="refresh">${ui('refresh', 14)}</button>`)}
         <div class="item col"><span class="sub">Promocje: strony Kauflandu, Lidla i Aldi, pobierane automatycznie dwa razy w tygodniu. Wartości odżywcze: USDA FoodData Central. Ceny składników są szacunkowe, a te z promocji pochodzą ze sklepów.</span></div>
         <div class="item"><button class="btn small block" data-act="reset">Wyczyść wszystkie dane</button></div>

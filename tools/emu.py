@@ -113,6 +113,27 @@ def typ(s):
     time.sleep(0.5)
 
 
+def update_test(ev):
+    """Aktualizacja z apki: plik ma się pobrać do pamięci apki i otworzyć instalator, bez śladu w Pobranych."""
+    before = sh("adb shell ls /sdcard/Download").split()
+    sh("adb shell appops set pl.groszek.app REQUEST_INSTALL_PACKAGES allow")
+    r = ev("(async () => { const g = window.groszek; const u = await g.checkForUpdate(); if (!u) return 'brak'; "
+           "g.update = Object.assign({}, u, { newer: true }); g.installUpdate(); return JSON.stringify(g.update); })()")
+    log("aktualizacja: start", r.get("result", {}).get("result", {}).get("value"))
+    found = False
+    for _ in range(36):
+        time.sleep(5)
+        xml = sh("adb shell uiautomator dump /sdcard/ui.xml && adb shell cat /sdcard/ui.xml", timeout=40)
+        if "packageinstaller" in xml:
+            found = True
+            break
+    shot("17-instalator")
+    after = sh("adb shell ls /sdcard/Download").split()
+    log("aktualizacja: instalator", "jest" if found else "BRAK", "| nowe pliki w Pobranych:", sorted(set(after) - set(before)) or "brak")
+    sh("adb shell input keyevent KEYCODE_BACK")
+    time.sleep(2)
+
+
 def ocr_bench():
     """Czyta wygenerowane paragony (tools/paragony.py) silnikiem ML Kit i Tesseract przez debuger WebView."""
     try:
@@ -190,6 +211,7 @@ def ocr_bench():
             log("ocr", key, os.path.basename(path), "OK" if ok else "ŹLE", "chciałem", t["total"], "mam", r.get("total"),
                 r.get("how"), r.get("store"), r.get("ms"), "ms", r.get("error", ""))
             results.append({"file": os.path.basename(path), "want": t, "got": r})
+    update_test(ev)
     ws.close()
     json.dump(results, open(os.path.join(OUT, "ocr.json"), "w"), ensure_ascii=False, indent=1)
     for k, (a, b) in score.items():

@@ -194,6 +194,66 @@ function hidePeek(now = false) {
   setTimeout(() => { if (p.isConnected) root.innerHTML = ''; }, 420);
 }
 
+// ---------- aktualizacja ----------
+
+const mb = (b) => (b / 1048576).toFixed(b < 10485760 ? 1 : 0).replace('.', ',');
+
+// Nowa wersja pobiera się do pamięci apki (jeden plik, nadpisywany) i od razu otwiera instalator.
+// Przez przeglądarkę każde pobranie zostawiało kolejny groszek.apk w Pobranych.
+export async function installUpdate() {
+  const u = app.update;
+  if (!u) return;
+  const up = store.plugin('Updater');
+  if (!up || !/\.apk(\?|$)/.test(u.url || '')) { openUrl(u.url); return; }
+  let can = true;
+  try { can = (await up.canInstall()).allowed !== false; } catch (e) { /* starsza wersja wtyczki */ }
+  if (!can) {
+    sheet({
+      mascot: 'pea',
+      render: () => '<h2>Jedno pozwolenie</h2><p>Android musi pozwolić Groszkowi instalować aktualizacje. ' +
+        'W ustawieniach włącz „Zezwalaj z tego źródła” i wróć tutaj.</p>' +
+        '<div class="row"><button class="btn grow" data-act="open">Otwórz ustawienia</button><button class="btn dark grow" data-act="go">Pobierz</button></div>',
+      actions: {
+        open() { up.openInstallSettings().catch(() => {}); },
+        async go() {
+          let ok = true;
+          try { ok = (await up.canInstall()).allowed !== false; } catch (e) { /* dalej */ }
+          if (!ok) { toast('Najpierw włącz pozwolenie w ustawieniach'); return; }
+          closeSheet(true);
+          installUpdate();
+        },
+      },
+    });
+    return;
+  }
+  const cfg = {
+    mascot: 'pea',
+    render: () => `<h2>Pobieram nową wersję…</h2><p id="upd-status">${u.size ? `0 z ${mb(u.size)} MB` : 'zaczynam'}</p>` +
+      '<div class="bar"><div class="fill" id="upd-bar" style="width:3%"></div></div>' +
+      '<p class="tiny">Plik zostaje w apce, a nie w Pobranych, i znika po instalacji.</p>',
+    actions: {},
+  };
+  sheet(cfg);
+  let handle = null;
+  try {
+    handle = await up.addListener('progress', (e) => {
+      const bar = $('upd-bar');
+      const st = $('upd-status');
+      if (bar && e.progress >= 0) bar.style.width = Math.max(3, e.progress) + '%';
+      if (st && e.total > 0) st.textContent = `${mb(e.done)} z ${mb(e.total)} MB`;
+    });
+    await up.downloadAndInstall({ url: u.url, size: u.size || 0 });
+    if (app.sheetCfg === cfg) closeSheet(true);
+    toast('Zatwierdź instalację w okienku Androida');
+  } catch (e) {
+    if (app.sheetCfg === cfg) closeSheet(true);
+    toast((e && e.message) || 'Nie udało się pobrać');
+  } finally {
+    if (handle) handle.remove();
+  }
+}
+app.installUpdate = installUpdate;
+
 // ---------- linki zewnętrzne ----------
 
 function native() {
@@ -215,6 +275,7 @@ const GLOBAL = {
   'sheet-close': () => closeSheet(),
   'peek-hide': () => hidePeek(),
   url: (c, arg) => openUrl(arg),
+  update: () => installUpdate(),
 };
 
 function handlersFor(el) {
@@ -354,6 +415,10 @@ async function boot() {
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     if (mq.addEventListener) mq.addEventListener('change', applyTheme);
   }
+
+  // po aktualizacji pobrany plik nie jest już potrzebny
+  const upd = store.plugin('Updater');
+  if (upd) upd.cleanup().catch(() => {});
 
   const App = store.plugin('App');
   if (App) {

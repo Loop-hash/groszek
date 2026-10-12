@@ -26,8 +26,8 @@ export default {
     const ahead = s.aheadBy;
     const notchOut = s.fracPlan > s.fracRemaining;
     const upd = c.app.update && c.app.update.newer
-      ? `<div class="card dashed row between"><div class="stack" style="gap:2px"><b>Nowa wersja Groszka</b><span class="small muted">Pobierz i zainstaluj na starą.</span></div>` +
-        `<button class="btn small dark" data-act="url" data-arg="${esc(c.app.update.url)}">Pobierz</button></div>` : '';
+      ? `<div class="card dashed row between"><div class="stack" style="gap:2px"><b>Nowa wersja Groszka</b><span class="small muted">Zainstaluje się na starą, dane zostają.</span></div>` +
+        `<button class="btn small dark" data-act="update">Pobierz${c.app.update.size ? ` <span class="tiny">${Math.round(c.app.update.size / 1048576)} MB</span>` : ''}</button></div>` : '';
 
     const meals = todayMeals(c);
     let planned = false;
