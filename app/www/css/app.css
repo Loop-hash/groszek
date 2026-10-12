@@ -156,13 +156,13 @@ select.field { appearance: none; -webkit-appearance: none; }
 .home-hero .walker { position: absolute; top: 50%; left: 50%; width: var(--walker); transform: translate(-50%, -50%); transform-origin: left center; }
 .home-hero .walker svg { display: block; }
 .home-hero .bob { position: relative; }
-.home-hero.side .walker { left: 0; transform: translate(0, -50%) scale(var(--side, 0.8)); }
+.home-hero.side .walker { left: 12px; transform: translate(0, -50%) scale(var(--side, 0.8)); }
 .home-hero.walk-in .walker { animation: walkSide 0.9s steps(9) both; }
 .home-hero.walk-out .walker { animation: walkSide 0.9s steps(9) reverse both; }
 .home-hero.walk-in .bob, .home-hero.walk-out .bob { animation: bob 0.3s steps(1) infinite; }
-@keyframes walkSide { from { left: 50%; transform: translate(-50%, -50%) scale(1); } to { left: 0; transform: translate(0, -50%) scale(var(--side, 0.8)); } }
+@keyframes walkSide { from { left: 50%; transform: translate(-50%, -50%) scale(1); } to { left: 12px; transform: translate(0, -50%) scale(var(--side, 0.8)); } }
 @keyframes bob { 50% { transform: translateY(-4px); } }
-.fact { position: absolute; top: 50%; right: 0; left: calc(var(--walker) * var(--side, 0.8) + 16px); transform: translateY(-50%); transform-origin: left center;
+.fact { position: absolute; top: 50%; right: 0; left: calc(var(--walker) * var(--side, 0.8) + 28px); transform: translateY(-50%); transform-origin: left center;
   border: 2px solid var(--ink); border-radius: 16px; background: var(--paper); padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px;
   animation: factIn 0.3s steps(3) both; }
 .fact::before { content: ""; position: absolute; left: -9px; top: 50%; width: 14px; height: 14px; background: var(--paper);
