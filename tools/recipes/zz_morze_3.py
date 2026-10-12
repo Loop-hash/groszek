@@ -20,7 +20,7 @@ RECIPES = [
         "Pochodzą z Ensenady w Kalifornii Dolnej, gdzie rybę smaży się na straganach przy porcie."),
     MX("mx-coctel-camaron", "Cóctel de camarón, krewetki w pikantnym sosie pomidorowym z awokado", ("mug", "shrimp"), 3, 30, O, KOL, [
         ("krewetki", 400), ("passata", 200), ("ketchup", 60), ("limonka", 60), ("cebula", 110), ("ogorek", 200),
-        ("awokado", 200, "1 szt."), ("kolendra", 20), ("papryczka_chili", 10), ("tortilla", 200), ("sol", 3)],
+        ("awokado", 200, "1 szt."), ("kolendra", 20), ("papryczka_chili", 10), ("tortilla", 200), ("sol", 1)],
         ["Tortille pokrój w trójkąty i piecz w 200°C przez 8 minut, aż będą chrupiące.",
          "Krewetki ugotuj 2 minuty w osolonej wodzie i przelej zimną wodą. Zachowaj pół szklanki wywaru.",
          "Wymieszaj passatę, ketchup, sok z limonki i schłodzony wywar.",
@@ -59,7 +59,7 @@ RECIPES = [
     # ---------------- USA ----------------
     US("us-shrimp-grits", "Shrimp and grits, krewetki z boczkiem na kaszy kukurydzianej", ("oats", "shrimp"), 3, 30, P, OK, [
         ("krewetki", 400), ("maka_kukurydziana", 200), ("mleko", 400), ("maslo", 30), ("ser_zolty", 80), ("boczek", 100),
-        ("czosnek", 10), ("dymka", 30), ("cytryna", 30), ("papryka_slodka", 2), ("chili", 1), ("sol", 5)],
+        ("czosnek", 10), ("dymka", 30), ("cytryna", 30), ("papryka_slodka", 2), ("chili", 1), ("sol", 3)],
         ["Zagotuj mleko z 400 ml wody i solą. Wsypuj kaszę, mieszając, i gotuj na małym ogniu 15 minut.",
          "Wmieszaj masło i starty ser.",
          "Boczek pokrój w kostkę i wytop na patelni. Wyjmij skwarki.",
@@ -79,7 +79,7 @@ RECIPES = [
     US("us-po-boy", "Shrimp po'boy, bagietka z krewetkami w chrupiącej panierce", ("hotdog", "shrimp"), 3, 35, P, OK, [
         ("krewetki", 400), ("kefir", 100), ("maka_kukurydziana", 60), ("maka", 40), ("papryka_slodka", 2), ("chili", 1),
         ("czosnek_granulowany", 2), ("olej", 60, "do smażenia"), ("bagietka", 300), ("salata", 100), ("pomidory", 200),
-        ("majonez", 50), ("musztarda", 5), ("ogorki_kiszone", 60), ("sol", 4)],
+        ("majonez", 50), ("musztarda", 5), ("ogorki_kiszone", 60), ("sol", 2)],
         ["Krewetki zalej kefirem z solą na 10 minut.",
          "Obie mąki wymieszaj z papryką, chili i czosnkiem.",
          "Krewetki obtocz w mące i smaż partiami 2 minuty, aż będą chrupiące.",

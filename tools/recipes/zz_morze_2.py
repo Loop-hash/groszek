@@ -75,7 +75,7 @@ RECIPES = [
         "Ma być jednocześnie kwaśna, słona, słodka i ostra. Spróbuj sosu i popraw to, czego brakuje."),
     TH("th-goong-ob-woon-sen", "Goong ob woon sen, krewetki z makaronem szklanym z garnka", ("noodles", "shrimp"), 3, 30, P, OK, [
         ("krewetki", 400), ("makaron_ryzowy", 200), ("boczek", 100), ("imbir", 30), ("czosnek", 15), ("kolendra", 20),
-        ("pieprz", 2), ("sos_sojowy", 45), ("olej_sezamowy", 10), ("cukier", 10), ("maslo", 20), ("dymka", 30)],
+        ("pieprz", 2), ("sos_sojowy", 35), ("olej_sezamowy", 10), ("cukier", 10), ("maslo", 20), ("dymka", 30)],
         ["Makaron namocz w ciepłej wodzie na 10 minut i odcedź.",
          "Wymieszaj go z sosem sojowym, olejem sezamowym, cukrem, pieprzem i 150 ml wody.",
          "Na dnie grubego garnka ułóż plastry boczku, na nich plastry imbiru, czosnek i łodyżki kolendry.",
@@ -92,8 +92,8 @@ RECIPES = [
          "Posyp liśćmi kolendry. Podawaj z ryżem i plasterkami ogórka."]),
     TH("th-khao-tom-goong", "Khao tom goong, ryżowa zupa z krewetkami na śniadanie", ("bowl", "shrimp"), 3, 35, P, ["sniadanie", "kolacja"], [
         ("krewetki", 300), ("ryz_jasminowy", 200), ("czosnek", 20), ("imbir", 20), ("kolendra", 20), ("dymka", 30),
-        ("sos_sojowy", 30), ("bulion", 10, "1 kostka"), ("olej", 20), ("jajka", 150, "3 szt."), ("pieprz", 1)],
-        ["Ryż ugotuj w 1,2 l wody z kostką i plasterkami imbiru przez 20 minut, aż ziarna popękają.",
+        ("sos_sojowy", 30), ("bulion", 5, "1/2 kostki"), ("olej", 20), ("jajka", 150, "3 szt."), ("pieprz", 1)],
+        ["Ryż ugotuj w 1,2 l wody z pół kostki i plasterkami imbiru przez 20 minut, aż ziarna popękają.",
          "Czosnek posiekaj i usmaż na oleju na złoto. Odłóż razem z olejem.",
          "Do zupy wrzuć krewetki i sos sojowy, gotuj 2 minuty.",
          "Wbij jajka do garnka i gotuj 3 minuty bez mieszania.",
@@ -203,7 +203,7 @@ RECIPES = [
          "Wrzuć kalmary, posyp solą i pieprzem i podrzuć kilka razy. Podawaj z ryżem."]),
     CN("cn-har-gow", "Har gow, przezroczyste pierożki z krewetkami", ("dumpling", "shrimp"), 2, 60, P, OK, [
         ("krewetki", 400), ("skrobia", 200), ("olej", 15), ("boczek", 30), ("imbir", 5), ("cukier", 3), ("olej_sezamowy", 5),
-        ("sos_sojowy", 30), ("sol", 3), ("pieprz", 1)],
+        ("sos_sojowy", 20), ("sol", 1), ("pieprz", 1)],
         ["Farsz: połowę krewetek posiekaj na pastę, resztę pokrój w kawałki. Wymieszaj z drobno posiekanym boczkiem, startym imbirem, cukrem, solą, pieprzem i olejem sezamowym.",
          "Ciasto: 180 g skrobi zalej 170 ml wrzątku, wymieszaj łyżką, dodaj olej i zagnieć na ciepło. Podsypuj resztą skrobi.",
          "Dziel ciasto na 20 kulek i rozwałkuj każdą na cienki krążek. Trzymaj resztę pod miską, żeby nie wyschła.",

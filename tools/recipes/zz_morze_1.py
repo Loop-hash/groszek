@@ -153,7 +153,7 @@ RECIPES = [
 
     # ---------------- Hiszpania ----------------
     ES("es-gambas-ajillo", "Gambas al ajillo, krewetki w oliwie czosnkowej z bagietką", ("claypot", "shrimp"), 3, 15, P, OK, [
-        ("krewetki", 400), ("czosnek", 30), ("papryczka_chili", 10), ("oliwa", 80), ("natka", 15), ("sol", 3),
+        ("krewetki", 400), ("czosnek", 30), ("papryczka_chili", 10), ("oliwa", 80), ("natka", 15), ("sol", 1),
         ("bagietka", 250, "1 szt.")],
         ["Krewetki rozmroź, osusz i posól.",
          "Czosnek pokrój w plasterki, chili w krążki.",
@@ -228,7 +228,7 @@ RECIPES = [
          "Zapiekaj w 220°C przez 12–15 minut, aż wierzch się zrumieni."]),
     FR("fr-bisque", "Bisque, kremowa zupa z krewetek z grzankami", ("soup", "shrimp"), 3, 40, P, OK, [
         ("krewetki", 400), ("cebula", 110), ("marchew", 120), ("seler", 80), ("czosnek", 10), ("koncentrat", 40), ("maslo", 30),
-        ("ryz", 50), ("smietanka", 100), ("papryka_slodka", 2), ("bagietka", 200), ("sol", 5), ("pieprz", 1)],
+        ("ryz", 50), ("smietanka", 100), ("papryka_slodka", 2), ("bagietka", 200), ("sol", 3), ("pieprz", 1)],
         ["Odłóż 9 krewetek na wierzch. Pozostałe podsmaż na maśle 2 minuty.",
          "Dodaj pokrojoną cebulę, marchew, seler i czosnek, smaż 5 minut. Wmieszaj koncentrat i paprykę.",
          "Wsyp ryż i zalej 800 ml wody. Gotuj 20 minut, aż ryż i warzywa zmiękną.",
@@ -333,7 +333,7 @@ RECIPES = [
         "W Stambule robi się go z makreli smażonej na łodziach przy moście Galata. Filet z białej ryby jest łagodniejszy."),
     TR("tr-karides-guvec", "Karides güveç, krewetki zapiekane z papryką i serem", ("casserole", "shrimp"), 3, 30, PO, OK, [
         ("krewetki", 400), ("papryka", 200), ("pomidory", 300), ("cebula", 110), ("czosnek", 10), ("maslo", 30),
-        ("ser_zolty", 100), ("papryka_slodka", 2), ("chili", 1), ("chleb", 210, "6 kromek"), ("sol", 3)],
+        ("ser_zolty", 100), ("papryka_slodka", 2), ("chili", 1), ("chleb", 210, "6 kromek"), ("sol", 1)],
         ["Na maśle podsmaż cebulę, paprykę i czosnek przez 5 minut.",
          "Dodaj pokrojone pomidory i przyprawy, gotuj 5 minut.",
          "Wmieszaj krewetki i przełóż do żaroodpornych miseczek albo jednego naczynia.",

@@ -462,7 +462,7 @@ I.update({
 # ---------------- ryby, owoce morza i Bałkany ----------------
 I.update({
     "krewetki": dict(name="Krewetki mrożone", icon="shrimp", cat="ryby", usda="Crustaceans, shrimp, mixed species, raw",
-                     n=[106, 20.3, 1.7, 0.9, 0.0, 0.37], kg=60.0, est=True, pkg=400, flags=["seafood"], kw=["krewetki", "krewetka"]),
+                     n=[71, 13.6, 1.0, 0.9, 0.0, 1.42], kg=60.0, est=True, pkg=400, flags=["seafood"], kw=["krewetki", "krewetka"]),
     "kalmary": dict(name="Kalmary mrożone", icon="squid", cat="ryby", usda="Mollusks, squid, mixed species, raw",
                     n=[92, 15.6, 1.4, 3.1, 0.0, 0.11], kg=40.0, est=True, pkg=500, flags=["seafood"], kw=["kalmary", "kalmar"]),
     "malze": dict(name="Małże mrożone", icon="shell", cat="ryby", usda="Mollusks, mussel, blue, raw",
@@ -475,12 +475,12 @@ I.update({
     "dorsz": dict(name="Filet z dorsza albo mintaja", icon="fish", cat="ryby", usda="Fish, cod, Atlantic, raw",
                   n=[82, 17.8, 0.7, 0.0, 0.0, 0.14], kg=35.0, est=True, pkg=400, flags=["fish"], kw=["dorsz", "mintaj", "filet rybny"]),
     "tunczyk": dict(name="Tuńczyk w sosie własnym", icon="can", cat="ryby", usda="Fish, tuna, light, canned in water, drained solids",
-                    n=[116, 25.5, 0.8, 0.0, 0.0, 0.85], kg=50.0, est=True, pkg=120, flags=["fish"], kw=["tunczyk"]),
+                    n=[86, 19.4, 1.0, 0.0, 0.0, 0.62], kg=50.0, est=True, pkg=120, flags=["fish"], kw=["tunczyk"]),
     "sardynki": dict(name="Sardynki w oleju", icon="can", cat="ryby",
                      usda="Fish, sardine, Atlantic, canned in oil, drained solids with bone",
                      n=[208, 24.6, 11.5, 0.0, 0.0, 0.77], kg=45.0, est=True, pkg=90, flags=["fish"], kw=["sardynki"]),
     "pstrag": dict(name="Pstrąg", icon="fish", cat="ryby", usda="Fish, trout, rainbow, farmed, raw",
-                   n=[141, 20.8, 6.2, 0.0, 0.0, 0.13], kg=40.0, est=True, flags=["fish"], kw=["pstrag"]),
+                   n=[141, 19.9, 6.2, 0.0, 0.0, 0.13], kg=40.0, est=True, flags=["fish"], kw=["pstrag"]),
     "sledz": dict(name="Śledź (filety matjas)", icon="fish", cat="ryby", usda=None, n=[230, 15.0, 18.0, 1.0, 0.0, 4.0],
                   src="typowa etykieta filetów śledziowych matjas", kg=30.0, est=True, pkg=250, flags=["fish"], kw=["sledz", "matjas"]),
     "makrela": dict(name="Makrela wędzona", icon="fish", cat="ryby", usda=None, n=[300, 19.0, 25.0, 0.0, 0.0, 2.5],
@@ -493,6 +493,6 @@ I.update({
     "ciasto_filo": dict(name="Ciasto filo", icon="flour", cat="mrożonki", usda="Phyllo dough",
                         n=[299, 7.1, 6.0, 52.6, 1.9, 1.21], kg=32.0, est=True, pkg=250, flags=["gluten"], kw=["ciasto filo", "filo"]),
     "serek_smietankowy": dict(name="Serek śmietankowy", icon="cheese", cat="nabiał", usda="Cheese, cream",
-                              n=[342, 5.9, 34.2, 4.1, 0.0, 0.8], kg=40.0, est=True, pkg=135, flags=["dairy"],
+                              n=[350, 6.2, 34.4, 5.5, 0.0, 0.8], kg=40.0, est=True, pkg=135, flags=["dairy"],
                               kw=["serek smietankowy", "serek kremowy"]),
 })
