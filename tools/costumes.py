@@ -237,7 +237,7 @@ def fill_rows(c, y0, y1, ch, x0=0, x1=W - 1):
         interior(c, y, ch, x0, x1)
 
 
-# ---------- szkice 16 nowych przebrań ----------
+# ---------- kolejne przebrania ----------
 
 def kopernik(c):
     """Polska: Kopernik z włosami do ramion i modelem Układu Słonecznego na kiju."""
@@ -279,15 +279,10 @@ def cezar(c):
     """Włochy: Juliusz Cezar w wieńcu laurowym, z miską sałatki Cezar."""
     sprout_off(c)
     drop_arm(c, "r")
-    # gałązka wieńca biegnie tuż nad konturem głowy, listki co drugi piksel
-    laurel = [(8, 22), (8, 21), (8, 20), (8, 19), (9, 18), (10, 17), (11, 16), (12, 16), (13, 15)]
-    for sx, stem in ((-1, laurel), (1, [(W - 1 - x, y) for x, y in laurel])):
-        for i, (x, y) in enumerate(stem):
-            c[y][x] = "#"
-            if i % 2 == 0:
-                for d in (1, 2):
-                    if c[y - d][x + d * sx] == ".":
-                        c[y - d][x + d * sx] = "#"
+    # wieniec dookoła czubka głowy: listki na przemian, z przerwą z przodu u góry
+    for x, y in [(12, 14), (14, 14), (17, 14), (19, 14), (11, 15), (13, 15), (15, 15), (16, 15), (18, 15), (20, 15),
+                 (10, 16), (11, 16), (20, 16), (21, 16), (9, 17), (22, 17), (8, 18), (23, 18), (8, 19), (23, 19)]:
+        c[y][x] = "#"
     put(c, 24, 26, ["##"])
     put(c, 24, 19, [
         ".##..##.",
@@ -458,7 +453,7 @@ def mehter(c):
     """Turcja: muzyk orkiestry mehter w wysokiej czapce z opadającym rękawem, z bębnem davul."""
     sprout_off(c)
     drop_arm(c, "r")
-    put(c, 11, 1, [
+    put(c, 11, 3, [
         "...######.....",
         "..#oooooo#....",
         "..#oooooo##...",
@@ -521,8 +516,19 @@ def fenicjanin(c):
 
 
 def battuta(c):
-    """Maroko: Ibn Battuta z rozwiniętym zwojem mapy i kijem podróżnym."""
+    """Maroko: Ibn Battuta w turbanie, z rozwiniętym zwojem mapy i kijem podróżnym."""
+    sprout_off(c)
     drop_arm(c, "r")
+    put(c, 8, 10, [
+        "......####......",
+        "....##oooo##....",
+        "..##ooooo##o##..",
+        ".#ooooo##oo##o#.",
+        "#oooo##oo##oooo#",
+        "#oo##oo##oooooo#",
+        "#o#oo##oooooooo#",
+        ".##############.",
+    ])
     put(c, 4, 26, [
         "###.................###",
         "#o###################o#",
@@ -680,12 +686,18 @@ def skoczek(c):
     ])
 
 
-DRAFT = {
-    "Polska": ("kopernik", kopernik, "Kopernik"),
+# kuchnia -> (klucz, rysowanie, podpis)
+COSTUMES = {
+    "Francja": ("napoleon", napoleon, "Napoleon"),
+    "Grecja": ("sokrates", sokrates, "Sokrates"),
+    "USA": ("lincoln", lincoln, "Abraham Lincoln"),
+    "Meksyk": ("luchador", luchador, "Luchador"),
+    "Japonia": ("ando", ando, "Momofuku Ando"),
+    "Polska": ("kopernik", kopernik, "Mikołaj Kopernik"),
     "Włochy": ("cezar", cezar, "Juliusz Cezar"),
     "Hiszpania": ("donkichot", donkichot, "Don Kichot"),
     "Niemcy": ("beethoven", beethoven, "Beethoven"),
-    "Węgry": ("houdini", houdini, "Houdini"),
+    "Węgry": ("houdini", houdini, "Harry Houdini"),
     "Ukraina": ("kozak", kozak, "Kozak"),
     "Gruzja": ("rycerz", rycerz, "Rycerz w tygrysiej skórze"),
     "Turcja": ("mehter", mehter, "Muzyk mehter"),
@@ -699,19 +711,10 @@ DRAFT = {
     "Bośnia": ("skoczek", skoczek, "Skoczek z Mostaru"),
 }
 
-# kuchnia -> (klucz, rysowanie, podpis)
-COSTUMES = {
-    "Francja": ("napoleon", napoleon, "Napoleon"),
-    "Grecja": ("sokrates", sokrates, "Sokrates"),
-    "USA": ("lincoln", lincoln, "Abraham Lincoln"),
-    "Meksyk": ("luchador", luchador, "Luchador"),
-    "Japonia": ("ando", ando, "Momofuku Ando"),
-}
 
-
-def build(which=None):
+def build():
     out = {}
-    for country, (key, draw, label) in (which or COSTUMES).items():
+    for country, (key, draw, label) in COSTUMES.items():
         moods = {}
         for mood in MOODS:
             c = base(mood)
@@ -758,5 +761,5 @@ if __name__ == "__main__":
     data = build()
     write_js(data)
     if len(sys.argv) > 1:
-        preview(build(DRAFT) if "--szkice" in sys.argv else data, sys.argv[1])
+        preview(data, sys.argv[1])
     print(f"{len(data)} przebrań -> {os.path.relpath(OUT)}")

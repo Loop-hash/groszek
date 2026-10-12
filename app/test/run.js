@@ -247,28 +247,88 @@ await t('lista: wszystkie sposoby wpisania ilości', async () => {
 });
 
 await t('ciekawostki: bez powtórek, dopóki nie pokażą się wszystkie', async () => {
-  const { FACTS, nextFactIndex } = await import('../www/js/facts.js');
+  const { FACTS, GENERAL, CHARS, nextFactIndex, nextCharacterIndex } = await import('../www/js/facts.js');
   assert.ok(FACTS.length >= 100);
+  assert.equal(GENERAL.length + CHARS.length, FACTS.length);
   const st = {};
   const seen = new Set();
-  for (let k = 0; k < FACTS.length; k++) seen.add(nextFactIndex(st));
-  assert.equal(seen.size, FACTS.length);
+  for (let k = 0; k < GENERAL.length; k++) seen.add(nextFactIndex(st));
+  assert.equal(seen.size, GENERAL.length);
+  for (const i of seen) assert.ok(!FACTS[i].k); // postacie tylko z przebraniem
   const again = nextFactIndex(st); // nowe losowanie po komplecie
-  assert.ok(again >= 0 && again < FACTS.length); assert.equal(st.facts.pos, 1);
+  assert.ok(GENERAL.includes(again)); assert.equal(st.facts.pos, 1);
+  const chars = new Set();
+  for (let k = 0; k < CHARS.length; k++) chars.add(nextCharacterIndex(st));
+  assert.equal(chars.size, CHARS.length);
   for (const f of FACTS) assert.ok(f.t.length <= 150, f.t);
+  // stary stan ze wszystkimi ciekawostkami w kolejce: nowe losowanie, bez postaci
+  const old = { facts: { order: FACTS.map((_, i) => i), pos: 3 } };
+  assert.ok(!FACTS[nextFactIndex(old)].k);
+});
+
+await t('ciekawostki: postać rzadko i nigdy dwa razy z rzędu', async () => {
+  const { FACTS, pickOpening, CHAR_CHANCE } = await import('../www/js/facts.js');
+  assert.ok(CHAR_CHANCE > 0 && CHAR_CHANCE <= 0.2);
+  const st = {};
+  const kinds = [];
+  for (let k = 0; k < 6; k++) kinds.push(!!FACTS[pickOpening(st, () => 0)].k); // los zawsze „trafia”
+  assert.deepEqual(kinds, [true, false, true, false, true, false]);
+  const st2 = {};
+  for (let k = 0; k < 10; k++) assert.ok(!FACTS[pickOpening(st2, () => 0.5)].k);
+  let n = 0;
+  const st3 = {};
+  let seed = 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let k = 0; k < 2000; k++) if (FACTS[pickOpening(st3, rnd)].k) n++;
+  assert.ok(n > 120 && n < 300, String(n)); // około co ósme otwarcie
+});
+
+await t('przebrania: 21 postaci, każda z ciekawostką i kuchnią z przepisami', async () => {
+  const { COSTUMES } = await import('../www/js/costumes-data.js');
+  const { FACTS } = await import('../www/js/facts.js');
+  const { costumeByKey, randomRecipe } = await import('../www/js/costumes.js');
+  const fs = await import('node:fs');
+  const recipes = JSON.parse(fs.readFileSync(new URL('../../data/recipes.json', import.meta.url))).recipes;
+  const countries = new Set(recipes.map((r) => r.country));
+  const keys = Object.values(COSTUMES).map((x) => x.key);
+  assert.equal(keys.length, 21); assert.equal(new Set(keys).size, 21);
+  for (const [country, cos] of Object.entries(COSTUMES)) {
+    assert.ok(countries.has(country), country);
+    for (const m of ['pea', 'happy', 'worried']) {
+      assert.equal(cos.rows[m].length, 38); assert.ok(cos.rows[m].every((r) => r.length === 32), cos.key);
+    }
+    assert.equal(costumeByKey(cos.key).country, country);
+  }
+  const factKeys = FACTS.filter((f) => f.k).map((f) => f.k);
+  assert.deepEqual([...factKeys].sort(), [...keys].sort()); // każda postać ma dokładnie jedną ciekawostkę
+  for (const c of countries) if (c !== 'Podstawy') assert.ok(COSTUMES[c], c); // każda kuchnia ma postać
+  const settings = { cuisines: {}, avoid: {}, gear: { '1 palnik': true, 'Piekarnik': true, 'Blender': true, 'Mikrofala': true, 'Toster': true } };
+  const c = { state: { customRecipes: [], settings, ratings: {} }, data: { recipes: { recipes } } };
+  const id = randomRecipe(c, 'Polska', () => 0.5);
+  assert.equal(recipes.find((r) => r.id === id).country, 'Polska');
+  settings.cuisines.Polska = false; // kuchnia wyłączona: bez linku
+  assert.equal(randomRecipe(c, 'Polska'), null);
+  assert.equal(costumeByKey('nikt'), null);
 });
 
 await t('przebrania: kuchnia z planu z ostatnich 30 dni', async () => {
   const { topCuisine, costumeFor } = await import('../www/js/costumes.js');
   const { today, addDays } = await import('../www/js/budget.js');
-  const recipes = [{ id: 'a', country: 'Francja' }, { id: 'b', country: 'Polska' }, { id: 'c', country: 'USA' }];
+  const recipes = [{ id: 'a', country: 'Francja' }, { id: 'b', country: 'Polska' }, { id: 'c', country: 'USA' }, { id: 'p', country: 'Podstawy' }];
   const plan = { [today()]: [{ id: 'a' }, { id: 'b' }], [addDays(today(), -3)]: [{ id: 'a' }], [addDays(today(), -40)]: [{ id: 'c' }, { id: 'c' }, { id: 'c' }] };
   const c = { state: { plan, customRecipes: [], settings: {} }, data: { recipes: { recipes } } };
   assert.equal(topCuisine(c), 'Francja');
   assert.equal(costumeFor(c).key, 'napoleon');
   c.state.settings.costume = false; assert.equal(costumeFor(c), null);
   c.state.settings.costume = true; c.state.plan = { [today()]: [{ id: 'b' }] };
-  assert.equal(costumeFor(c), null); // Polska jeszcze bez przebrania
+  assert.equal(costumeFor(c).key, 'kopernik');
+  // Podstawy się nie liczą, remis wygrywa danie zjedzone później
+  c.state.plan = { [today()]: [{ id: 'p' }, { id: 'p' }, { id: 'c' }], [addDays(today(), -5)]: [{ id: 'a' }] };
+  assert.equal(topCuisine(c), 'USA');
+  c.state.plan = { [addDays(today(), -1)]: [{ id: 'b' }], [addDays(today(), -2)]: [{ id: 'a' }] };
+  assert.equal(topCuisine(c), 'Polska');
+  c.state.plan = { [addDays(today(), -2)]: [{ id: 'b' }], [addDays(today(), -1)]: [{ id: 'a' }] };
+  assert.equal(topCuisine(c), 'Francja');
   const { pixelSvg, sprite } = await import('../www/js/pixels.js');
   assert.ok(sprite('happy', 40).includes('px-cheek'));
   assert.ok(pixelSvg(['#rco'], 8).includes('px-red'));

@@ -1,8 +1,8 @@
 // Start: ile możesz dziś wydać, pasek budżetu i skróty do reszty apki.
 import { status, fmt, totalExp, levelFor, addDays, today } from '../budget.js';
 import { sprite, spark, ui, dish } from '../pixels.js';
-import { FACTS, nextFactIndex } from '../facts.js';
-import { costumeFor, costumeSvg } from '../costumes.js';
+import { FACTS, pickOpening } from '../facts.js';
+import { costumeFor, costumeByKey, costumeSvg, randomRecipe } from '../costumes.js';
 import { findRecipe } from '../recipes.js';
 import { esc, plural } from '../ui.js';
 import { listMatches } from '../offers.js';
@@ -18,13 +18,23 @@ function sparks(mood) {
 
 // ---------- ciekawostka przy otwarciu apki ----------
 // Groszosław przechodzi ze środka na bok, przez minutę pokazuje ciekawostkę i wraca.
+// Czasem przebiera się przy tym za postać, opowiada o niej i podsuwa losowe danie z jej kuchni.
 const WALK = 900;
 const SHOW = 60000;
 
-function nextFact(c) {
-  const i = nextFactIndex(c.state);
+function openingFact(c) {
+  const i = pickOpening(c.state);
+  const fact = { i, at: Date.now() + 700 };
+  const cos = FACTS[i].k ? costumeByKey(FACTS[i].k) : null;
+  if (cos) {
+    fact.k = cos.key;
+    fact.label = cos.label;
+    fact.r = randomRecipe(c, cos.country);
+  } else {
+    fact.r = FACTS[i].r || null;
+  }
   c.save();
-  return i;
+  return fact;
 }
 
 function factPhase(app) {
@@ -38,10 +48,11 @@ function factPhase(app) {
   return { phase: 'done' };
 }
 
-function factBubble(c, f, e) {
-  const r = f.r ? findRecipe(c, f.r) : null;
+function factBubble(c, fact, e) {
+  const f = FACTS[fact.i];
+  const r = fact.r ? findRecipe(c, fact.r) : null;
   return `<div class="fact" style="animation-delay:-${Math.round(e)}ms" role="status">` +
-    `<button class="fact-text" data-act="factHide" aria-label="Schowaj ciekawostkę"><span class="fact-label pixel">Ciekawostka</span><span>${esc(f.t)}</span></button>` +
+    `<button class="fact-text" data-act="factHide" aria-label="Schowaj ciekawostkę"><span class="fact-label pixel">${esc(fact.label || 'Ciekawostka')}</span><span>${esc(f.t)}</span></button>` +
     (r ? `<button class="fact-link" data-act="factRecipe" data-arg="${esc(r.id)}">Przepis: ${esc(r.name.split(',')[0])}${ui('arrow', 12, 'flip')}</button>` : '') +
     '</div>';
 }
@@ -51,16 +62,18 @@ function hero(c, s, small) {
   const st = c.state;
   if (app.factPending && st.onboarded && st.settings.peek !== false && !app.fact && FACTS.length) {
     app.factPending = false;
-    app.fact = { i: nextFact(c), at: Date.now() + 700 };
+    app.fact = openingFact(c);
   }
   let ph = factPhase(app);
   if (ph.phase === 'done') { app.fact = null; ph = { phase: 'center' }; }
   const peaW = small ? 112 : 140;
-  const cos = costumeFor(c);
+  // przebranie postaci tylko na czas ciekawostki o niej, potem zwykły wygląd
+  const dressed = app.fact && app.fact.k && ph.phase !== 'center' && st.settings.costume !== false;
+  const cos = dressed ? costumeByKey(app.fact.k) : costumeFor(c);
   const art = cos ? costumeSvg(cos, s.mood, peaW) : sprite(s.mood, peaW);
   const w = cos ? Math.round((peaW * 32) / 24) : peaW;
   const delay = ph.e != null && ph.phase !== 'side' ? ` style="animation-delay:-${Math.round(ph.e)}ms"` : '';
-  const fact = ph.phase === 'side' && app.fact ? FACTS[app.fact.i] : null;
+  const fact = ph.phase === 'side' && app.fact && FACTS[app.fact.i] ? app.fact : null;
   // przebranie jest szersze (kapelusze, rekwizyty), więc na boku zmniejsza się bardziej
   return `<div class="hero home-hero ${ph.phase}" style="--walker:${w}px;--side:${cos ? 0.68 : 0.8}">` +
     `<div class="walker"${delay}><div class="bob">${sparks(s.mood)}${art}</div></div>` +

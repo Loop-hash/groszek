@@ -77,7 +77,9 @@ export function defaults() {
     trips: [],
     closedPeriods: [],
     seenSummary: null,
-    facts: { order: [], pos: 0 },
+    facts: { order: [], pos: 0 }, // kolejka zwykłych ciekawostek
+    chars: { order: [], pos: 0 }, // kolejka postaci z przebraniem
+    factChar: false, // czy ostatnia ciekawostka była o postaci
   };
 }
 

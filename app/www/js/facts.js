@@ -1,28 +1,28 @@
 // Ciekawostki Groszosława: jedna przy otwarciu apki, bez powtórek, dopóki nie pokażą się wszystkie.
 // t: tekst (sprawdzone fakty; mity podpisane jako mity), r: przepis z apki, do którego prowadzi link.
 export const FACTS = [
-  // postacie z przebrań Groszosława
-  { t: 'Mikołaj Kopernik napisał traktat o monecie i opisał w nim, że gorszy pieniądz wypiera z obiegu lepszy. To prawo Kopernika-Greshama.' },
-  { t: 'Sałatka Cezar nie ma nic wspólnego z Juliuszem Cezarem. Wymyślił ją w latach 20. XX wieku Caesar Cardini w meksykańskiej Tijuanie.' },
-  { t: 'Napoleonki, czyli kremówki, nie wymyślił Napoleon. Według jednej z teorii nazwa pochodzi od francuskiego napolitain, czyli neapolitański.' },
-  { t: 'Don Kichot nosił na głowie miednicę golibrody, którą wziął za legendarny hełm Mambryna.' },
-  { t: 'Sokrates nie napisał ani jednej książki. Wszystko, co o nim wiemy, spisali jego uczniowie, głównie Platon i Ksenofont.' },
-  { t: 'Beethoven podobno odliczał do każdej filiżanki kawy dokładnie 60 ziaren.' },
-  { t: 'Harry Houdini, mistrz ucieczek z kajdan i zamkniętych skrzyń, urodził się w Budapeszcie jako Erik Weisz.' },
-  { t: 'Kozacy zaporoscy wzięli nazwę od miejsca: ich Sicz leżała za porohami, czyli skalnymi progami na Dnieprze.' },
-  { t: '„Rycerz w tygrysiej skórze” Szoty Rustawelego to gruzińska epopeja narodowa z przełomu XII i XIII wieku.' },
-  { t: 'Janczarska orkiestra mehter to jedna z najstarszych orkiestr wojskowych świata. Jej brzmienie naśladował Mozart w „Marszu tureckim”.' },
-  { t: 'Fenicjanie z wybrzeża dzisiejszego Libanu barwili tkaniny purpurą z morskich ślimaków. Była tak droga, że stała się kolorem władców.' },
-  { t: 'Ibn Battuta z Tangeru przemierzył w XIV wieku świat od Afryki Zachodniej po Chiny, w sumie około 120 tysięcy kilometrów.' },
-  { t: 'Indyjski matematyk Brahmagupta w 628 roku opisał zasady liczenia z zerem jako pełnoprawną liczbą.' },
-  { t: 'Muay thai to sztuka ośmiu kończyn: walczy się pięściami, łokciami, kolanami i stopami.' },
-  { t: 'W Wietnamie phở je się często na śniadanie, prosto z ulicznych straganów.', r: 'vn-pho-ga' },
-  { t: 'Terakotowa armia cesarza Qin Shi Huanga liczy około 8 tysięcy figur, a twarze żołnierzy podobno się nie powtarzają.' },
-  { t: 'Momofuku Ando wymyślił zupkę instant w 1958 roku w szopie za domem. Miał wtedy 48 lat.' },
-  { t: 'Król Sejong Wielki w XV wieku stworzył hangul, koreański alfabet, żeby czytać mogli nie tylko uczeni.' },
-  { t: 'W lucha libre największym upokorzeniem jest przegrać walkę o maskę i musieć ją zdjąć na oczach publiczności.' },
-  { t: 'Abraham Lincoln jest na amerykańskiej monecie jednocentowej od 1909 roku, setnej rocznicy swoich urodzin.' },
-  { t: 'Ze Starego Mostu w Mostarze skacze się do rzeki z ponad 20 metrów. Most z 1566 roku zniszczono w 1993 roku i odbudowano.' },
+  // postacie z przebrań Groszosława (k: klucz przebrania). Pokazują się tylko z przebraniem, link do dania losuje apka.
+  { t: 'Mikołaj Kopernik napisał traktat o monecie i opisał w nim, że gorszy pieniądz wypiera z obiegu lepszy. To prawo Kopernika-Greshama.', k: 'kopernik' },
+  { t: 'Sałatka Cezar nie ma nic wspólnego z Juliuszem Cezarem. Wymyślił ją w latach 20. XX wieku Caesar Cardini w meksykańskiej Tijuanie.', k: 'cezar' },
+  { t: 'Napoleonki, czyli kremówki, nie wymyślił Napoleon. Według jednej z teorii nazwa pochodzi od francuskiego napolitain, czyli neapolitański.', k: 'napoleon' },
+  { t: 'Don Kichot nosił na głowie miednicę golibrody, którą wziął za legendarny hełm Mambryna.', k: 'donkichot' },
+  { t: 'Sokrates nie napisał ani jednej książki. Wszystko, co o nim wiemy, spisali jego uczniowie, głównie Platon i Ksenofont.', k: 'sokrates' },
+  { t: 'Beethoven podobno odliczał do każdej filiżanki kawy dokładnie 60 ziaren.', k: 'beethoven' },
+  { t: 'Harry Houdini, mistrz ucieczek z kajdan i zamkniętych skrzyń, urodził się w Budapeszcie jako Erik Weisz.', k: 'houdini' },
+  { t: 'Kozacy zaporoscy wzięli nazwę od miejsca: ich Sicz leżała za porohami, czyli skalnymi progami na Dnieprze.', k: 'kozak' },
+  { t: '„Rycerz w tygrysiej skórze” Szoty Rustawelego to gruzińska epopeja narodowa z przełomu XII i XIII wieku.', k: 'rycerz' },
+  { t: 'Janczarska orkiestra mehter to jedna z najstarszych orkiestr wojskowych świata. Jej brzmienie naśladował Mozart w „Marszu tureckim”.', k: 'mehter' },
+  { t: 'Fenicjanie z wybrzeża dzisiejszego Libanu barwili tkaniny purpurą z morskich ślimaków. Była tak droga, że stała się kolorem władców.', k: 'fenicjanin' },
+  { t: 'Ibn Battuta z Tangeru przemierzył w XIV wieku świat od Afryki Zachodniej po Chiny, w sumie około 120 tysięcy kilometrów.', k: 'battuta' },
+  { t: 'Indyjski matematyk Brahmagupta w 628 roku opisał zasady liczenia z zerem jako pełnoprawną liczbą.', k: 'brahmagupta' },
+  { t: 'Muay thai to sztuka ośmiu kończyn: walczy się pięściami, łokciami, kolanami i stopami.', k: 'muaythai' },
+  { t: 'W Wietnamie phở je się często na śniadanie, prosto z ulicznych straganów.', k: 'pho' },
+  { t: 'Terakotowa armia cesarza Qin Shi Huanga liczy około 8 tysięcy figur, a twarze żołnierzy podobno się nie powtarzają.', k: 'terakota' },
+  { t: 'Momofuku Ando wymyślił zupkę instant w 1958 roku w szopie za domem. Miał wtedy 48 lat.', k: 'ando' },
+  { t: 'Król Sejong Wielki w XV wieku stworzył hangul, koreański alfabet, żeby czytać mogli nie tylko uczeni.', k: 'sejong' },
+  { t: 'W lucha libre największym upokorzeniem jest przegrać walkę o maskę i musieć ją zdjąć na oczach publiczności.', k: 'luchador' },
+  { t: 'Abraham Lincoln jest na amerykańskiej monecie jednocentowej od 1909 roku, setnej rocznicy swoich urodzin.', k: 'lincoln' },
+  { t: 'Ze Starego Mostu w Mostarze skacze się do rzeki z ponad 20 metrów. Most z 1566 roku zniszczono w 1993 roku i odbudowano.', k: 'skoczek' },
   // skąd się wzięło
   { t: 'Ziemniaki trafiły do Europy z Ameryki Południowej dopiero w XVI wieku. Wcześniej nikt tu nie znał ani frytek, ani placków.', r: 'pl-placki' },
   { t: 'Pomidory przypłynęły do Europy z Ameryk w XVI wieku, więc starożytni Rzymianie nie znali sosu pomidorowego.', r: 'it-bolognese' },
@@ -123,18 +123,42 @@ export const FACTS = [
   { t: 'Ryż jest podstawą diety ponad połowy ludzi na świecie.' },
 ];
 
-// Indeks następnej ciekawostki. Kolejność losowana raz i zapisywana w stanie (st.facts),
-// więc nic się nie powtarza, dopóki nie pokażą się wszystkie; potem nowe losowanie.
-export function nextFactIndex(st, rnd = Math.random) {
-  let f = st.facts;
-  if (!f || !Array.isArray(f.order) || f.order.length !== FACTS.length || !(f.pos < f.order.length)) {
-    const order = FACTS.map((_, i) => i);
+// Zwykłe ciekawostki i ciekawostki o postaciach (z przebraniem) losowane są z osobnych pul.
+export const GENERAL = FACTS.map((f, i) => (f.k ? -1 : i)).filter((i) => i >= 0);
+export const CHARS = FACTS.map((f, i) => (f.k ? i : -1)).filter((i) => i >= 0);
+
+// Mniej więcej co ósme otwarcie z ciekawostką Groszosław przebiera się za postać (nigdy dwa razy z rzędu).
+export const CHAR_CHANCE = 0.12;
+
+// Następny element puli bez powtórek: kolejność losowana raz i zapisywana w stanie (st[name]),
+// więc nic się nie powtarza, dopóki nie pokaże się cała pula; potem nowe losowanie.
+function draw(st, name, pool, rnd) {
+  let f = st[name];
+  const ok = f && Array.isArray(f.order) && f.order.length === pool.length && f.pos < f.order.length &&
+    f.order.every((i) => pool.includes(i));
+  if (!ok) {
+    const order = pool.slice();
     for (let i = order.length - 1; i > 0; i--) {
       const j = Math.floor(rnd() * (i + 1));
       [order[i], order[j]] = [order[j], order[i]];
     }
     f = { order, pos: 0 };
   }
-  st.facts = { order: f.order, pos: f.pos + 1 };
+  st[name] = { order: f.order, pos: f.pos + 1 };
   return f.order[f.pos];
+}
+
+export function nextFactIndex(st, rnd = Math.random) {
+  return draw(st, 'facts', GENERAL, rnd);
+}
+
+export function nextCharacterIndex(st, rnd = Math.random) {
+  return draw(st, 'chars', CHARS, rnd);
+}
+
+// Ciekawostka na otwarcie apki: zwykle zwykła, czasem postać z przebraniem.
+export function pickOpening(st, rnd = Math.random) {
+  const char = !st.factChar && CHARS.length > 0 && rnd() < CHAR_CHANCE;
+  st.factChar = char;
+  return char ? nextCharacterIndex(st, rnd) : nextFactIndex(st, rnd);
 }
