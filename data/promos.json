@@ -1,6 +1,6 @@
 {
  "version": 1,
- "updated": "2026-10-11T19:32+02:00",
+ "updated": "2026-10-12T06:06+02:00",
  "stores": {
   "kaufland": {
    "ok": true,
@@ -14,7 +14,7 @@
   },
   "aldi": {
    "ok": true,
-   "count": 84,
+   "count": 58,
    "error": null
   },
   "biedronka": {
@@ -4224,7 +4224,7 @@
    "week": "current"
   },
   {
-   "id": "bd0915f29331",
+   "id": "64dabd305998",
    "store": "aldi",
    "name": "Czekolada",
    "brand": "CHOCEUR",
@@ -4235,13 +4235,13 @@
    "oldLabel": "cena regularna",
    "discount": "-25%",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Słodycze",
    "week": "current"
   },
   {
-   "id": "79ff2aeba376",
+   "id": "6e67b3047eb5",
    "store": "aldi",
    "name": "Merci",
    "brand": "STORCK",
@@ -4252,7 +4252,7 @@
    "oldLabel": "cena regularna",
    "discount": "-20%",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Słodycze",
    "week": "current"
@@ -4275,7 +4275,7 @@
    "week": "current"
   },
   {
-   "id": "151e1a418ccb",
+   "id": "64ed6c44c3f1",
    "store": "aldi",
    "name": "Raffaello",
    "brand": "FERRERO",
@@ -4286,13 +4286,13 @@
    "oldLabel": "cena regularna",
    "discount": "-20%",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Słodycze",
    "week": "current"
   },
   {
-   "id": "9fca494f330b",
+   "id": "10c310d9d0ad",
    "store": "aldi",
    "name": "Prince Polo",
    "brand": "OLZA",
@@ -4303,13 +4303,13 @@
    "oldLabel": "cena regularna",
    "discount": "-25%",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "",
    "week": "current"
   },
   {
-   "id": "e2b31aec5e6b",
+   "id": "d3b31de7fefd",
    "store": "aldi",
    "name": "Praliny Délice z nadzieniem",
    "brand": "MOSER ROTH",
@@ -4320,13 +4320,13 @@
    "oldLabel": "cena regularna",
    "discount": "-23%",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Słodycze",
    "week": "current"
   },
   {
-   "id": "509059275e4d",
+   "id": "9774083c9460",
    "store": "aldi",
    "name": "Winogrona zielone bezpestkowe",
    "brand": "",
@@ -4337,7 +4337,7 @@
    "oldLabel": "cena regularna",
    "discount": "-53%",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Owoce i warzywa",
    "week": "current"
@@ -4360,7 +4360,7 @@
    "week": "current"
   },
   {
-   "id": "8e6c3627cd9e",
+   "id": "5627d71a3b9f",
    "store": "aldi",
    "name": "Pomidory mięsiste",
    "brand": "",
@@ -4371,13 +4371,13 @@
    "oldLabel": "cena regularna",
    "discount": "-43%",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Owoce i warzywa",
    "week": "current"
   },
   {
-   "id": "d78db8214e58",
+   "id": "ace0c76636f6",
    "store": "aldi",
    "name": "Boczek wędzony surowy",
    "brand": "WĘDLINIARNIA",
@@ -4388,13 +4388,13 @@
    "oldLabel": "",
    "discount": "-29%",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Wędliny i mięso",
    "week": "current"
   },
   {
-   "id": "4cc19a902cda",
+   "id": "25c917e93c50",
    "store": "aldi",
    "name": "Belgijskie praliny",
    "brand": "CHOCEUR",
@@ -4405,7 +4405,7 @@
    "oldLabel": "cena regularna",
    "discount": "-27%",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Słodycze",
    "week": "current"
@@ -4445,7 +4445,7 @@
    "week": "current"
   },
   {
-   "id": "491ade634110",
+   "id": "035df95eb02e",
    "store": "aldi",
    "name": "Chude mięso mielone z szynki wieprzowej",
    "brand": "MIĘSNE SPECJAŁY",
@@ -4456,13 +4456,13 @@
    "oldLabel": "cena regularna",
    "discount": "",
    "cond": "-83% co druga szt.",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "",
    "week": "current"
   },
   {
-   "id": "3138051e63d3",
+   "id": "b41eb2169bda",
    "store": "aldi",
    "name": "Polędwiczki z piersi kurczaka",
    "brand": "MIĘSNE SPECJAŁY",
@@ -4473,7 +4473,7 @@
    "oldLabel": "cena regularna",
    "discount": "",
    "cond": "-25% przy zakupie 2 szt.",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Wędliny i mięso",
    "week": "current"
@@ -4496,7 +4496,7 @@
    "week": "current"
   },
   {
-   "id": "e3ec15e8afbc",
+   "id": "69fa4d877855",
    "store": "aldi",
    "name": "Jaja z chowu ekologicznego",
    "brand": "WESOŁY KURNIK",
@@ -4507,13 +4507,13 @@
    "oldLabel": "cena regularna",
    "discount": "",
    "cond": "-50% co druga szt.",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Nabiał i jaja",
    "week": "current"
   },
   {
-   "id": "d3f15bc3ad75",
+   "id": "ed53ee8bb3cb",
    "store": "aldi",
    "name": "Ser Królewski",
    "brand": "SIERPC",
@@ -4524,7 +4524,7 @@
    "oldLabel": "cena regularna",
    "discount": "",
    "cond": "-61% co druga szt.",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Sery i twarogi",
    "week": "current"
@@ -4581,7 +4581,7 @@
    "week": "current"
   },
   {
-   "id": "8b5f8e1b7b06",
+   "id": "a4cb337680a3",
    "store": "aldi",
    "name": "Śliwki polskie",
    "brand": "",
@@ -4592,13 +4592,13 @@
    "oldLabel": "cena regularna",
    "discount": "-50%",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "",
    "week": "current"
   },
   {
-   "id": "2ce2aab1d975",
+   "id": "f1548c0a8bca",
    "store": "aldi",
    "name": "Czekoladowe kule Halloween",
    "brand": "",
@@ -4609,13 +4609,13 @@
    "oldLabel": "",
    "discount": "",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "",
    "week": "current"
   },
   {
-   "id": "4bdaa218bb24",
+   "id": "ed211ba8fdd5",
    "store": "aldi",
    "name": "Czekoladki Mleczne Myszki XXL",
    "brand": "CHOCEUR",
@@ -4626,13 +4626,13 @@
    "oldLabel": "",
    "discount": "",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "",
    "week": "current"
   },
   {
-   "id": "62604c8280f6",
+   "id": "4d1ba4de96e4",
    "store": "aldi",
    "name": "Krówka mleczna, luz",
    "brand": "SWEET LAND",
@@ -4643,7 +4643,7 @@
    "oldLabel": "cena regularna",
    "discount": "-25%",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Słodycze",
    "week": "current"
@@ -4666,7 +4666,7 @@
    "week": "current"
   },
   {
-   "id": "890b607272b8",
+   "id": "4516d4725438",
    "store": "aldi",
    "name": "Kawa mielona Mocca Fix Gold",
    "brand": "WOSEBA",
@@ -4677,13 +4677,13 @@
    "oldLabel": "cena regularna",
    "discount": "",
    "cond": "-56% co druga szt.",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Kawa",
    "week": "current"
   },
   {
-   "id": "b7bf93e39d5b",
+   "id": "f66e640b9735",
    "store": "aldi",
    "name": "Ciastka Halloween z drażetkami",
    "brand": "BISCOTTO",
@@ -4694,7 +4694,7 @@
    "oldLabel": "",
    "discount": "",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "",
    "week": "current"
@@ -4717,7 +4717,7 @@
    "week": "current"
   },
   {
-   "id": "0e9e6bb342b9",
+   "id": "0cf5d2022e3e",
    "store": "aldi",
    "name": "Jabłka polskie",
    "brand": "",
@@ -4728,13 +4728,13 @@
    "oldLabel": "",
    "discount": "",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "",
    "week": "current"
   },
   {
-   "id": "be513b721bdb",
+   "id": "7a3719012679",
    "store": "aldi",
    "name": "Masło polskie extra",
    "brand": "MLEKOVITA",
@@ -4745,13 +4745,13 @@
    "oldLabel": "cena regularna",
    "discount": "",
    "cond": "-33% przy zakupie 4 szt.",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Nabiał i jaja",
    "week": "current"
   },
   {
-   "id": "4317a643545e",
+   "id": "c30311656c63",
    "store": "aldi",
    "name": "Ser żółty Protein/Keto",
    "brand": "SIERPC",
@@ -4762,7 +4762,7 @@
    "oldLabel": "cena regularna",
    "discount": "",
    "cond": "-61% co druga szt.",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Sery i twarogi",
    "week": "current"
@@ -4785,7 +4785,7 @@
    "week": "current"
   },
   {
-   "id": "87730ca99155",
+   "id": "a939f18a86f0",
    "store": "aldi",
    "name": "Czekolada kawowo-śmietankowa",
    "brand": "CHOCEUR",
@@ -4796,7 +4796,7 @@
    "oldLabel": "cena regularna",
    "discount": "-25%",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Słodycze",
    "week": "current"
@@ -4819,7 +4819,7 @@
    "week": "current"
   },
   {
-   "id": "1e77857e7f6a",
+   "id": "ecade27228f4",
    "store": "aldi",
    "name": "Czekolada mleczna",
    "brand": "CHOCEUR",
@@ -4830,13 +4830,13 @@
    "oldLabel": "cena regularna",
    "discount": "-25%",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Słodycze",
    "week": "current"
   },
   {
-   "id": "8929143a7fb2",
+   "id": "87db404a2126",
    "store": "aldi",
    "name": "Woda mineralna",
    "brand": "MUSZYNIANKA",
@@ -4847,7 +4847,7 @@
    "oldLabel": "",
    "discount": "",
    "cond": "8+4 gratis",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Napoje i soki",
    "week": "current"
@@ -4887,7 +4887,7 @@
    "week": "current"
   },
   {
-   "id": "d9dd4a048f10",
+   "id": "82b657ea00a6",
    "store": "aldi",
    "name": "SIERPC LEKKI 135 G",
    "brand": "SIERPC",
@@ -4898,7 +4898,7 @@
    "oldLabel": "cena regularna",
    "discount": "",
    "cond": "-61% co druga szt.",
-   "from": "2026-10-11",
+   "from": "2026-10-12",
    "to": "2026-10-17",
    "category": "Sery i twarogi",
    "week": "current"
