@@ -1,0 +1,80 @@
+10-12 12:11:51.830   557   615 I ActivityManager: Force stopping pl.groszek.app appid=10209 user=0: pkg removed
+10-12 12:11:51.852   557  1524 W PackageManager: Cannot suspend package "com.android.dynsystem": has OP_SYSTEM_EXEMPT_FROM_SUSPENSION set
+10-12 12:11:51.863   557  1524 W PackageManager: Cannot suspend package "android": has OP_SYSTEM_EXEMPT_FROM_SUSPENSION set
+10-12 12:11:51.868  1152  1173 W PackageManager: Failure retrieving resources for com.android.systemui: Drawable com.android.systemui:drawable/ic_bubbles_shortcut_widget with resource ID #0x7f080709
+10-12 12:11:51.868  1152  1173 W PackageManager: Failure retrieving resources for com.android.systemui: Drawable com.android.systemui:drawable/android15_patch_adaptive with resource ID #0x7f080609
+10-12 12:11:51.871   557  1524 W PackageManager: Cannot suspend package "com.google.android.permissioncontroller": required for permissions management
+10-12 12:11:51.877   557  1524 W PackageManager: Cannot suspend package "com.android.providers.settings": has OP_SYSTEM_EXEMPT_FROM_SUSPENSION set
+10-12 12:11:51.877   557  1524 W PackageManager: Cannot suspend package "com.android.inputdevices": has OP_SYSTEM_EXEMPT_FROM_SUSPENSION set
+10-12 12:11:51.877   557  1524 W PackageManager: Cannot suspend package "com.google.android.dialer": is the default dialer
+10-12 12:11:51.880   557   688 W PackageConfigPersister: App-specific configuration not found for packageName: pl.groszek.app and userId: 0
+10-12 12:11:51.884   557  1524 W PackageManager: Cannot suspend package "com.android.server.telecom": has OP_SYSTEM_EXEMPT_FROM_SUSPENSION set
+10-12 12:11:51.884  1961  1961 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.884  1068  1068 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.884  2590  2590 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.885  2101  2101 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.885   907   907 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.886  1353  1353 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.886  2706  2706 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.886  1406  1406 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.886  1152  1152 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.886  2164  2164 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.886  1664  1664 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.887  1460  1460 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.887  1369  1369 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.887  2651  2651 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.887  1801  1801 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.897  2073  2073 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.901  1330  1330 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.904  2533  2533 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.905  2365  2365 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.905  2478  2478 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.905  2399  2399 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.905  1573  1573 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.905  2207  2207 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.905  2239  2239 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.905  1646  1646 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.906  1611  1611 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.906  2166  2166 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.909   557  1524 W PackageManager: Cannot suspend package "com.android.keychain": has OP_SYSTEM_EXEMPT_FROM_SUSPENSION set
+10-12 12:11:51.916  1372  1372 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.927  1106  1106 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.927  1936  1936 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.928   557  1524 W PackageManager: Cannot suspend package "com.google.android.packageinstaller": required for package installation
+10-12 12:11:51.929  1420  1420 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.929   988   988 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.929  1328  1328 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.930  1036  1036 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.931   557  1524 W PackageManager: Cannot suspend package "com.android.localtransport": has OP_SYSTEM_EXEMPT_FROM_SUSPENSION set
+10-12 12:11:51.935   557  1524 W PackageManager: Cannot suspend package "com.google.android.apps.nexuslauncher": contains the active launcher
+10-12 12:11:51.942   557  1524 W PackageManager: Cannot suspend package "com.android.DeviceAsWebcam": has OP_SYSTEM_EXEMPT_FROM_SUSPENSION set
+10-12 12:11:51.942   557  1524 W PackageManager: Cannot suspend package "com.android.emulator.multidisplay": has OP_SYSTEM_EXEMPT_FROM_SUSPENSION set
+10-12 12:11:51.946   557  1524 W PackageManager: Cannot suspend package "com.android.settings": has OP_SYSTEM_EXEMPT_FROM_SUSPENSION set
+10-12 12:11:51.949   557  1524 W PackageManager: Cannot suspend package "com.android.location.fused": has OP_SYSTEM_EXEMPT_FROM_SUSPENSION set
+10-12 12:11:51.968   557   615 D PackageInstallerSession: Marking session 20765797 as applied
+10-12 12:11:51.969   557   557 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.969  1601  1601 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.985  2141  2141 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:51.992   557   875 I SdkSandboxManager: No SDKs used. Skipping SDK data reconcilation for CallingInfo{mUid=10209, mPackageName='pl.groszek.app, mAppProcessToken='null'}
+10-12 12:11:52.009   557   868 D ShortcutService: replacing package: pl.groszek.app userId0
+10-12 12:11:52.009   557   868 D ShortcutService: handlePackageUpdateFinished: pl.groszek.app user=0
+10-12 12:11:52.009   557   868 D ShortcutService: rescanPackageIfNeeded 0@pl.groszek.app, forceRescan=true , isNewApp=true
+10-12 12:11:52.009   557   868 D ShortcutService: Package pl.groszek.app has 0 manifest shortcut(s), and 0 share target(s)
+10-12 12:11:52.043   900   900 D ActivityThread: Package [pl.groszek.app] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-12 12:11:52.098   557   875 I SdkSandboxManager: No SDKs used. Skipping SDK data reconcilation for CallingInfo{mUid=10209, mPackageName='pl.groszek.app, mAppProcessToken='null'}
+10-12 12:11:52.118  1372  1372 I AiAiEcho: AppFetcherImpl onPackageChanged pl.groszek.app.
+10-12 12:11:52.118  1372  2113 I AiAiEcho: AppIndexer Package:[pl.groszek.app] UserProfile:[0] Enabled:[true].
+10-12 12:11:52.118  1372  2113 I AiAiEcho: AppFetcherImplV2 updateApps package:[pl.groszek.app], userId:[0], reason:[package is updated.].
+10-12 12:11:52.131   697   697 I artd    : Dex parent of /data/app/~~aPjYIGhDtizhUsx5iJKRQQ==/pl.groszek.app-IOiu5NxU3MV5T692nMM-kQ==/base.apk is not writable: Permission denied
+10-12 12:11:52.131   697   697 I artd    : GetBestInfo checking odex in dalvik-cache (/data/dalvik-cache/x86_64/data@app@~~aPjYIGhDtizhUsx5iJKRQQ==@pl.groszek.app-IOiu5NxU3MV5T692nMM-kQ==@base.apk@classes.dex)
+10-12 12:11:52.131   697   697 I artd    : Loading /data/dalvik-cache/x86_64/data@app@~~aPjYIGhDtizhUsx5iJKRQQ==@pl.groszek.app-IOiu5NxU3MV5T692nMM-kQ==@base.apk@classes.dex with executable: 0
+10-12 12:11:52.131   697   697 I artd    : OatFileAssistant test for existing oat file /data/dalvik-cache/x86_64/data@app@~~aPjYIGhDtizhUsx5iJKRQQ==@pl.groszek.app-IOiu5NxU3MV5T692nMM-kQ==@base.apk@classes.dex: File /data/dalvik-cache/x86_64/data@app@~~aPjYIGhDtizhUsx5iJKRQQ==@pl.groszek.app-IOiu5NxU3MV5T692nMM-kQ==@base.apk@classes.vdex does not exist.
+10-12 12:11:52.131   697   697 I artd    : GetBestInfo checking odex next to the dex file (/data/app/~~aPjYIGhDtizhUsx5iJKRQQ==/pl.groszek.app-IOiu5NxU3MV5T692nMM-kQ==/oat/x86_64/base.odex)
+10-12 12:11:52.131   697   697 I artd    : Loading /data/app/~~aPjYIGhDtizhUsx5iJKRQQ==/pl.groszek.app-IOiu5NxU3MV5T692nMM-kQ==/oat/x86_64/base.odex with executable: 0
+10-12 12:11:52.132   697   697 I artd    : Successfully loaded /data/app/~~aPjYIGhDtizhUsx5iJKRQQ==/pl.groszek.app-IOiu5NxU3MV5T692nMM-kQ==/oat/x86_64/base.odex with executable: 0
+10-12 12:11:52.132   697   697 I artd    : /data/app/~~aPjYIGhDtizhUsx5iJKRQQ==/pl.groszek.app-IOiu5NxU3MV5T692nMM-kQ==/oat/x86_64/base.odex is kOatUpToDate with filter verify
+10-12 12:11:52.202   557   971 D PackageManager: Instant App installer not found with android.intent.action.INSTALL_INSTANT_APP_PACKAGE
+10-12 12:11:52.202   557   971 D PackageManager: Clear ephemeral installer activity
+10-12 12:11:52.236   557   557 I Telecom : CarModeTracker: Package pl.groszek.app is not tracked.: SSH.oR@AHg🔒
+10-12 12:11:52.248  1152  1158 W s.nexuslauncher: ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~aPjYIGhDtizhUsx5iJKRQQ==/pl.groszek.app-IOiu5NxU3MV5T692nMM-kQ==/base.apk' with 1 weak references
+10-12 12:11:52.251   907   907 I SafetyLabelChangedBroadcastReceiver: received broadcast packageName: pl.groszek.app, current user: UserHandle{0}, packageChangeEvent: UPDATE, intent user: UserHandle{0}

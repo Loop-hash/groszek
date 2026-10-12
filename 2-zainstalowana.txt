@@ -1,0 +1,5 @@
+    flags=0x0
+    primaryCpuAbi=arm64-v8a
+    versionCode=119 minSdk=24 targetSdk=36
+    versionName=0.1.19
+    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
