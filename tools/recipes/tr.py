@@ -127,7 +127,7 @@ RECIPES = [
          "Zagotuj wodę z octem, zmniejsz ogień i wbijaj po jednym jajku. Gotuj 3 minuty.",
          "Ułóż jajka na jogurcie.",
          "Roztop masło z papryką i chili, polej jajka i posyp koperkiem. Podawaj z chlebem."]),
-    D("tr-kahvalti", "Kahvaltı, tureckie śniadanie na talerzu", ("plate", "olive"), 2, 15, P, SN, [
+    D("tr-kahvalti", "Kahvaltı, tureckie śniadanie na talerzu", ("plate", "olive"), 3, 15, P, SN, [
         ("jajka", 200, "4 szt."), ("feta", 150), ("ser_zolty", 100), ("oliwki", 80), ("pomidory", 300), ("ogorek", 200),
         ("chleb", 140, "4 kromki"), ("miod", 30), ("maslo", 20), ("dzem", 40)],
         ["Jajka gotuj 8 minut.",
@@ -218,7 +218,7 @@ RECIPES = [
          "Placki podgrzej na tej samej patelni, żeby nasiąkły tłuszczem.",
          "Nakładaj mięso, pomidory i cebulę z natką, skrop cytryną i zwijaj."],
         "Uliczny przysmak z Mersin."),
-    D("tr-kumpir", "Kumpir, pieczony ziemniak z dodatkami", ("plate", "corn"), 2, 75, O, OK, [
+    D("tr-kumpir", "Kumpir, pieczony ziemniak z dodatkami", ("plate", "corn"), 3, 75, O, OK, [
         ("ziemniaki", 800, "2 duże"), ("maslo", 40), ("ser_zolty", 150), ("kukurydza", 140), ("kielbasa", 100),
         ("ogorki_kiszone", 100), ("oliwki", 50), ("ketchup", 30), ("majonez", 30), ("sol", 2)],
         ["Duże ziemniaki umyj, nakłuj widelcem i piecz 60 minut w 220°C.",
@@ -331,12 +331,12 @@ RECIPES = [
          "Wmieszaj koncentrat, marchew i ziemniaki w kostce, podlej 400 ml wody i gotuj 15 minut.",
          "Dodaj groszek i gotuj 10 minut.",
          "Ugotuj ryż i podawaj razem."]),
-    D("tr-kiymali-pide", "Kıymalı pide, łódki z mięsem", ("pie", "mince"), 3, 80, O, OBIAD, CIASTO + [
+    D("tr-kiymali-pide", "Kıymalı pide, łódki z mięsem", ("pie", "mince"), 4, 80, O, OBIAD, CIASTO + [
         ("wolowina_mielona", 400), ("cebula", 110), ("papryka", 150), ("pomidory", 200), ("koncentrat", 20), ("natka", 15),
         ("maslo", 20), ("jajka", 50)],
         [CIASTO_KROK,
          "Podsmaż mięso z cebulą, papryką, pomidorami i koncentratem przez 5 minut. Dodaj natkę.",
-         "Podziel ciasto na 3 części i rozwałkuj długie owale. Nałóż farsz, zawiń brzegi i ściśnij końce jak łódkę.",
+         "Podziel ciasto na 4 części i rozwałkuj długie owale. Nałóż farsz, zawiń brzegi i ściśnij końce jak łódkę.",
          "Posmaruj brzegi jajkiem, piecz 12–15 minut w 230°C i natrzyj masłem."]),
     D("tr-dalyan-kofte", "Dalyan köfte, rolada z mielonego z jajkiem", ("cutlet", "egg"), 4, 70, O, OBIAD, [
         ("wolowina_mielona", 400), ("mielone_drobiowe", 250), ("jajka", 200, "4 szt."), ("bulka_tarta", 50), ("cebula", 110),

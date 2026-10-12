@@ -8,3 +8,4 @@ app/android/build/
 app/android/.gradle/
 app/android/local.properties
 app/android/capacitor-cordova-android-plugins/build/
+__pycache__/

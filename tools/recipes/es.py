@@ -75,7 +75,7 @@ RECIPES = [
          "Pomidora zetrzyj na tarce (skórka zostanie w dłoni) i rozsmaruj miąższ na chlebie.",
          "Polej oliwą, posól, połóż szynkę."],
         "Tak jedzą śniadanie w Katalonii."),
-    D("es-migas", "Migas z boczkiem i papryką", ("pan", "bread"), 2, 25, P, OK, [
+    D("es-migas", "Migas z boczkiem i papryką", ("pan", "bread"), 3, 25, P, OK, [
         ("chleb", 300, "czerstwy"), ("boczek", 100), ("kielbasa", 80), ("papryka", 160), ("czosnek", 15), ("oliwa", 30),
         ("papryka_slodka", 2), ("jajka", 100), ("sol", 2)],
         ["Czerstwy chleb pokrój w drobną kostkę i skrop lekko osoloną wodą.",

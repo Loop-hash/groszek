@@ -446,3 +446,15 @@ I.update({
     "bajgle": dict(name="Bajgle", icon="bread", cat="pieczywo", usda=None, n=[260, 10.0, 1.6, 50.0, 2.5, 1.1],
                    src="typowa etykieta bajgli", kg=20.0, est=True, pkg=340, flags=["gluten"], kw=["bajgle", "bajgiel"]),
 })
+
+# ---------------- polskie dodatki ----------------
+I.update({
+    "zakwas_zurek": dict(name="Zakwas na żurek", icon="bottle", cat="sosy i dodatki", usda=None, n=[25, 0.8, 0.1, 5.0, 0.3, 1.0],
+                         src="typowa etykieta zakwasu na żurek", kg=6.0, est=True, pkg=500, kw=["zakwas", "zur", "zurek"]),
+    "kaszanka": dict(name="Kaszanka", icon="sausage", cat="wędliny", usda=None, n=[260, 10.0, 18.0, 15.0, 1.0, 1.5],
+                     src="typowa etykieta kaszanki", kg=12.0, est=True, pkg=500, flags=["meat", "pork"], kw=["kaszanka", "kaszank"]),
+    "truskawki": dict(name="Truskawki", icon="apple", cat="owoce", usda="Strawberries, raw", n=[32, 0.7, 0.3, 7.7, 2.0, 0.0],
+                      kg=15.0, est=True, pkg=500, kw=["truskawki"]),
+    "sliwki": dict(name="Śliwki", icon="apple", cat="owoce", usda="Plums, raw", n=[46, 0.7, 0.3, 11.4, 1.4, 0.0],
+                   kg=8.0, est=True, kw=["sliwki"]),
+})

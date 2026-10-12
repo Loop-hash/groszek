@@ -11,7 +11,7 @@ RECIPES = [
          "Kapustę posiekaj i duś 20 minut, dodaj połowę cebuli zeszklonej na maśle. Ostudź.",
          "Wykrawaj kółka, nakładaj farsz i dokładnie sklejaj.",
          "Gotuj 3 minuty od wypłynięcia. Podawaj z resztą cebulki na maśle."]),
-    D("ua-po-kijowsku", "Kotlet po kijowsku", ("cutlet", "butter"), 2, 50, P, OBIAD, [
+    D("ua-po-kijowsku", "Kotlet po kijowsku", ("cutlet", "butter"), 3, 50, P, OBIAD, [
         ("kurczak", 400), ("maslo", 50), ("koperek", 10), ("czosnek", 5), ("maka", 30), ("jajka", 100), ("bulka_tarta", 80),
         ("olej", 40, "do smażenia"), ("ziemniaki", 500), ("sol", 4)],
         ["Masło wymieszaj z koperkiem i czosnkiem, uformuj 2 wałeczki i zamroź na 20 minut.",
@@ -249,7 +249,7 @@ RECIPES = [
          "Dodaj koncentrat i czosnek.",
          "Wsyp kaszę, zalej 550 ml wody, dodaj liść i sól.",
          "Gotuj pod przykryciem 20 minut na małym ogniu."]),
-    D("ua-czebureki", "Czebureki z mięsem", ("pierogi", "onion"), 3, 60, P, OK, [
+    D("ua-czebureki", "Czebureki z mięsem", ("pierogi", "onion"), 4, 60, P, OK, [
         ("maka", 350), ("olej", 60, "do smażenia"), ("mielone_wieprzowe", 400), ("cebula", 220), ("koperek", 10), ("pieprz", 1), ("sol", 5)],
         ["Zagnieć ciasto z mąki, łyżki oleju, soli i 180 ml gorącej wody. Odstaw na 20 minut.",
          "Mięso wymieszaj z dużą ilością startej cebuli, koperkiem, pieprzem i 4 łyżkami wody.",
