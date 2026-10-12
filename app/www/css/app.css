@@ -275,3 +275,8 @@ details.more > summary { gap: 10px; }
 .cal .day { font-size: 14px; }
 .sheet-body > * { flex: none; }
 .peek, .bubble { pointer-events: none; }
+
+/* iPhone przybliża stronę, gdy pole ma czcionkę mniejszą niż 16 px */
+@supports (-webkit-touch-callout: none) {
+  .field.small { font-size: 16px; }
+}

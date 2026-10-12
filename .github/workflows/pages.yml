@@ -1,0 +1,59 @@
+name: Strona (iPhone)
+
+# Groszek jako strona do zainstalowania na iPhonie (Safari → Udostępnij → Do ekranu początkowego):
+# https://loop-hash.github.io/groszek/
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/www/**'
+      - 'data/**'
+      - 'tools/pwa.py'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Strona
+        run: |
+          mkdir -p site
+          cp -r app/www/. site/
+          rm -rf site/data && mkdir -p site/data
+          for f in promos recipes ingredients; do
+            if [ -f data/$f.json ]; then cp data/$f.json site/data/; fi
+          done
+          printf '{"build": %s, "sha": "%s", "date": "%s", "web": true}\n' "$GITHUB_RUN_NUMBER" "${GITHUB_SHA::7}" "$(date -u +%Y-%m-%dT%H:%MZ)" > site/build.json
+          python3 tools/pwa.py site "$GITHUB_RUN_NUMBER"
+          touch site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

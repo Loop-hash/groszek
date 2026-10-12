@@ -254,6 +254,18 @@ export async function installUpdate() {
 }
 app.installUpdate = installUpdate;
 
+// ---------- wersja w przeglądarce (iPhone) ----------
+
+// Service worker trzyma apkę w telefonie, więc działa bez internetu i sama się aktualizuje.
+function registerWebApp() {
+  const local = location.hostname === 'localhost';
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || local)) {
+    navigator.serviceWorker.register('sw.js').catch((e) => console.error('sw: ' + (e && e.message)));
+  }
+  // dane w przeglądarce mają nie znikać przy porządkach w pamięci
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+}
+
 // ---------- linki zewnętrzne ----------
 
 function native() {
@@ -343,6 +355,7 @@ export async function refreshData(force = false) {
 }
 
 async function checkForUpdate() {
+  if (!native()) return; // wersja z przeglądarki (iPhone) aktualizuje się sama
   const last = Number(await store.kvGet('groszek-update-check')) || 0;
   if (Date.now() - last < 6 * 3600000 && app.update) return;
   const u = await dataApi.checkUpdate(app.build.build);
@@ -352,7 +365,9 @@ async function checkForUpdate() {
     if (u.newer) render();
   }
 }
+app.native = native;
 app.checkForUpdate = async () => {
+  if (!native()) return null;
   const u = await dataApi.checkUpdate(app.build.build);
   if (u) app.update = u;
   return u;
@@ -415,6 +430,8 @@ async function boot() {
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     if (mq.addEventListener) mq.addEventListener('change', applyTheme);
   }
+
+  if (!native()) registerWebApp();
 
   // po aktualizacji pobrany plik nie jest już potrzebny
   const upd = store.plugin('Updater');
