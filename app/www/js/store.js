@@ -62,6 +62,7 @@ export function defaults() {
       strictCats: { 'słodycze': true, 'chipsy i przekąski': true, 'słodkie napoje': true, 'energetyki': true, 'alkohol': true, 'fast food': false, 'gotowe dania': false },
       stores: { kaufland: true, lidl: true, aldi: true, biedronka: true },
       theme: 'system',
+      autoBackup: true, // kopia co tydzień w Dokumenty/Do Pierwszego (Android)
     },
     expenses: [],
     list: [],
@@ -80,6 +81,7 @@ export function defaults() {
     facts: { order: [], pos: 0 }, // kolejka zwykłych ciekawostek
     chars: { order: [], pos: 0 }, // kolejka postaci z przebraniem
     factChar: false, // czy ostatnia ciekawostka była o postaci
+    backup: {}, // daty ostatnich kopii: auto, manual; snooze przypomnienia
   };
 }
 

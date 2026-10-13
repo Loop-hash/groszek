@@ -333,6 +333,52 @@ await t('kopia: eksport i import, stare i uszkodzone pola', async () => {
   assert.throws(() => S.importJson('{"foo": 1}'));
 });
 
+await t('kopia automatyczna: raz w tygodniu, kilka ostatnich plików, przypomnienie', async () => {
+  const files = {};
+  const fsMock = {
+    async writeFile({ path, data, directory }) { if (directory === 'DOCUMENTS' && fsMock.fail) throw new Error('brak dostępu'); files[path] = data; return { uri: 'file://' + path }; },
+    async readdir({ path }) { return { files: Object.keys(files).filter((k) => k.startsWith(path + '/')).map((k) => ({ name: k.slice(path.length + 1) })) }; },
+    async deleteFile({ path }) { delete files[path]; },
+  };
+  const hadWindow = 'window' in globalThis;
+  globalThis.window = { Capacitor: { isNativePlatform: () => true, Plugins: { Filesystem: fsMock } } };
+  try {
+    const K = await import('../www/js/backup.js');
+    const S = await import('../www/js/store.js');
+    const { today, addDays } = await import('../www/js/budget.js');
+    const st = S.defaults();
+    assert.equal(await K.autoBackup(st), null); // pusta apka: nie ma czego chronić
+    assert.equal(K.needsReminder(st), false);
+    st.expenses = [1, 2, 3].map((i) => ({ id: 'e' + i, amount: i, date: today() }));
+    const name = await K.autoBackup(st);
+    assert.equal(name, K.fileName());
+    assert.ok(files[`${K.DIR}/${name}`].includes('"e3"'));
+    assert.equal(st.backup.auto, today());
+    assert.equal(await K.autoBackup(st), null); // drugi raz w tym samym tygodniu: nic
+    // stare kopie: zostają 4 najnowsze
+    for (const d of [30, 21, 14, 7, 3]) files[`${K.DIR}/${K.fileName(addDays(today(), -d))}`] = '{}';
+    files[`${K.DIR}/inny-plik.txt`] = 'x';
+    st.backup.auto = addDays(today(), -8);
+    await K.autoBackup(st);
+    const left = Object.keys(files).filter((k) => k.includes('kopia')).sort();
+    assert.equal(left.length, 4); assert.ok(left[3].endsWith(K.fileName()));
+    assert.ok(files[`${K.DIR}/inny-plik.txt`]);
+    // błąd zapisu: zapamiętany, a po dwóch tygodniach bez kopii przypomnienie
+    fsMock.fail = true;
+    st.backup = { auto: addDays(today(), -15) };
+    await assert.rejects(K.autoBackup(st));
+    assert.equal(st.backup.error, 'brak dostępu');
+    assert.equal(K.needsReminder(st), true);
+    K.snooze(st); assert.equal(K.needsReminder(st), false);
+    st.backup.snooze = null; K.markManual(st); assert.equal(K.needsReminder(st), false);
+    st.settings.autoBackup = false; fsMock.fail = false;
+    st.backup = {};
+    assert.equal(await K.autoBackup(st), null); // wyłączona
+  } finally {
+    if (!hadWindow) delete globalThis.window;
+  }
+});
+
 await t('kod: każda funkcja z innego pliku jest zaimportowana', async () => {
   // łapie błędy typu „sprite is not defined”, które wychodzą dopiero po kliknięciu w apce
   const fs = await import('node:fs');

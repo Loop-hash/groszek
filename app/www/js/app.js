@@ -5,6 +5,7 @@ import { esc } from './ui.js';
 import { sprite } from './pixels.js';
 import { today, period, previousPeriod } from './budget.js';
 import { screens } from './screens/index.js';
+import { autoBackup } from './backup.js';
 
 const app = {
   state: null,
@@ -451,6 +452,7 @@ function onResume() {
   if (d !== app.day) { app.day = d; render(); maybeSummary(); } else if (top() && top().name === 'home') render();
   refreshData(false);
   checkForUpdate().catch(() => {});
+  runAutoBackup();
 }
 
 // ---------- start ----------
@@ -513,6 +515,17 @@ async function boot() {
   maybeSummary();
   refreshData(false).catch(() => {});
   checkForUpdate().catch(() => {});
+  runAutoBackup();
+}
+
+// Kopia co tydzień w Dokumenty/Do Pierwszego (Android); sprawdzana przy starcie i powrocie do apki
+async function runAutoBackup() {
+  try {
+    if (await autoBackup(app.state)) save();
+  } catch (e) {
+    console.error('kopia: ' + ((e && e.message) || e));
+    save();
+  }
 }
 
 boot().catch((e) => {

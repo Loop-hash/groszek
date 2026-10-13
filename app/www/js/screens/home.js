@@ -8,6 +8,7 @@ import { esc, plural } from '../ui.js';
 import { listMatches } from '../offers.js';
 import { todayMeals } from '../plan.js';
 import { recipeIcon } from '../pixels.js';
+import { needsReminder, snooze, shareBackup } from '../backup.js';
 
 const arrowRight = () => ui('arrow', 18, 'flip');
 
@@ -94,7 +95,11 @@ export default {
     const notchOut = s.fracPlan > s.fracRemaining;
     const upd = c.app.update && c.app.update.newer
       ? `<div class="card dashed row between"><div class="stack" style="gap:2px"><b>Nowa wersja apki</b><span class="small muted">Jeden przycisk, twoje dane zostają.</span></div>` +
-        '<button class="btn small dark" data-act="update">Aktualizuj</button></div>' : '';
+        '<button class="btn small dark" data-act="update">Aktualizuj</button></div>'
+      : needsReminder(st)
+        ? `<div class="card dashed col" style="gap:8px"><div class="stack" style="gap:2px"><b>Dawno nie było kopii danych</b><span class="small muted">Wszystko jest tylko w tym telefonie. Zapisz kopię na wszelki wypadek.</span></div>` +
+          '<div class="row"><button class="btn small grow" data-act="backupLater">Później</button><button class="btn small dark grow" data-act="backupNow">Zapisz kopię</button></div></div>'
+        : '';
 
     const meals = todayMeals(c);
     let planned = false;
@@ -147,6 +152,8 @@ export default {
 
   actions: {
     recipe: (c, id) => c.go('recipe', { id }),
+    backupLater(c) { snooze(c.state); c.save(); c.render(); },
+    async backupNow(c) { await shareBackup(c); c.render(); },
     factHide(c) {
       const ph = factPhase(c.app);
       if (ph.phase !== 'side') return;

@@ -175,6 +175,27 @@ def web_update_test():
         ws.close()
 
 
+def backup_test():
+    """Kopia automatyczna: plik w Dokumenty/Do Pierwszego, bez żadnego okienka Androida."""
+    ws, ev = connect()
+    if ws is None:
+        log("kopia: brak połączenia")
+        FAILED.append("kopia automatyczna")
+        return
+    r = val(ev("(async () => { const m = await import('./js/backup.js');"
+               " try { return await m.autoBackup(window.groszek.state, true); } catch (e) { return 'błąd ' + e.message; } })()"))
+    listing = sh("adb shell \"ls '/sdcard/Documents/Do Pierwszego/'\"")
+    ok = isinstance(r, str) and r.endswith(".json") and r in listing
+    shot("16b-po-kopii")
+    log("kopia automatyczna:", "OK" if ok else "ŹLE", r, "| folder:", listing.strip()[:200])
+    if not ok:
+        FAILED.append("kopia automatyczna")
+    try:
+        ws.close()
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def apk_update_test():
     """Aktualizacja APK z apki: ma się zainstalować bez okienek i otworzyć sama."""
     ws, ev = connect()
@@ -461,6 +482,7 @@ def main():
     sh("adb shell cmd uimode night no")
     open(os.path.join(OUT, "logcat.txt"), "w").write(sh("adb logcat -d -v brief", timeout=60))
 
+    backup_test()
     web_update_test()
     apk_update_test()
     open(os.path.join(OUT, "logcat-aktualizacja.txt"), "w").write(sh("adb logcat -d -v brief", timeout=60))

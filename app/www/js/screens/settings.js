@@ -1,8 +1,9 @@
 // Ustawienia: budżet, kalorie, kuchnia, sklepy, Groszosław i wygląd, tryb ostry, kopia danych.
-import { fmt, today } from '../budget.js';
+import { fmt, shortDate } from '../budget.js';
 import { ui, sprite } from '../pixels.js';
 import { esc, topbar, toggle, chip, settingRow, plural } from '../ui.js';
-import { GEAR, AVOID, DEFAULT_CUISINES, exportJson, importJson, plugin, defaults } from '../store.js';
+import { GEAR, AVOID, DEFAULT_CUISINES, importJson, defaults } from '../store.js';
+import { DIR, canAuto, autoBackup, shareBackup, lastBackup } from '../backup.js';
 import { TREAT_CATS, CAT_LABEL, norm } from '../dict.js';
 import { STORES } from '../offers.js';
 
@@ -98,36 +99,23 @@ function learnedSheet(c) {
   });
 }
 
-async function exportBackup(c) {
-  const json = exportJson(c.state);
-  const name = `do-pierwszego-kopia-${today()}.json`;
-  const fs = plugin('Filesystem');
-  const share = plugin('Share');
-  if (fs && share) {
-    try {
-      const r = await fs.writeFile({ path: name, data: json, directory: 'CACHE', encoding: 'utf8' });
-      await share.share({ title: 'Kopia danych Do Pierwszego', files: [r.uri], dialogTitle: 'Zapisz albo wyślij kopię' });
-    } catch (e) {
-      if (!/cancel/i.test(String(e && e.message))) c.toast('Nie udało się: ' + (e && e.message));
-    }
-    return;
-  }
-  // iPhone: arkusz udostępniania (zapis w Plikach, wysłanie sobie)
+function backupStatus(st) {
+  const b = st.backup || {};
+  if (st.settings.autoBackup === false) return 'wyłączona';
+  if (b.error) return `nie udało się zapisać (${esc(b.error)})`;
+  const last = lastBackup(st);
+  return last ? `ostatnia kopia ${shortDate(last)}` : 'pierwsza zapisze się, gdy będą w apce wydatki';
+}
+
+async function backupNow(c) {
   try {
-    const file = new File([json], name, { type: 'application/json' });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: 'Kopia danych Do Pierwszego' });
-      return;
-    }
+    const name = await autoBackup(c.state, true);
+    if (name) c.toast(`Zapisano kopię w Dokumenty/${DIR}`);
   } catch (e) {
-    if (e && e.name === 'AbortError') return;
+    c.toast('Nie udało się zapisać kopii: ' + ((e && e.message) || e));
   }
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  c.save();
+  c.render();
 }
 
 function importBackup(c) {
@@ -223,8 +211,13 @@ export default {
 
       <span class="label">Kopia danych</span>
       <div class="rows">
-        <div class="item col"><span class="sub">Wszystko jest tylko w tym telefonie. Zrób kopię, zanim zmienisz telefon albo odinstalujesz apkę.</span>
-          <div class="row"><button class="btn small grow" data-act="export">${ui('share', 14)} Zapisz kopię</button><button class="btn small grow" data-act="import">Wczytaj kopię</button></div></div>
+        ${canAuto()
+          ? settingRow('Automatyczna kopia', backupStatus(c.state), toggle('autoBackup', s.autoBackup !== false, 'Automatyczna kopia'))
+          : ''}
+        <div class="item col"><span class="sub">${canAuto()
+          ? `Co tydzień apka sama zapisuje kopię w folderze Dokumenty/${esc(DIR)}. Zostaje tam nawet po odinstalowaniu apki. Przy zmianie telefonu przenieś ją albo wyślij sobie.`
+          : 'Wszystko jest tylko w tym telefonie. Zrób kopię, zanim zmienisz telefon. Apka przypomni o niej co dwa tygodnie.'}</span>
+          <div class="row"><button class="btn small grow" data-act="export">${ui('share', 14)} Wyślij kopię</button><button class="btn small grow" data-act="import">Wczytaj kopię</button></div></div>
       </div>
 
       <span class="label">O apce</span>
@@ -294,7 +287,14 @@ export default {
     },
     strictCat(c, k) { const s = c.state.settings; s.strictCats[k] = !s.strictCats[k]; c.save(); c.render(); },
     learnedSheet(c) { learnedSheet(c); },
-    export(c) { exportBackup(c); },
+    export(c) { shareBackup(c); },
+    autoBackup(c) {
+      c.state.settings.autoBackup = c.state.settings.autoBackup === false;
+      c.save();
+      c.render();
+      if (c.state.settings.autoBackup) backupNow(c);
+    },
+    backupNow(c) { backupNow(c); },
     import(c) { importBackup(c); },
     async checkUpd(c) {
       c.toast('Sprawdzam…');
