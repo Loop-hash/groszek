@@ -822,7 +822,16 @@ export function parseReceipt(input) {
 
   const store = storeOf(U);
   const joined = U.join(' ');
-  const check = checkItems(parsed.items, total, parsed.discTotal);
+  let check = checkItems(parsed.items, total, parsed.discTotal);
+  // Kaucja za butelki i puszki: osobna pozycja, żeby produkty zgadzały się z zapłaconą kwotą
+  if (parsed.items.length && total != null && !parsed.items.some((x) => /KAUC/.test(up(x.name)))) {
+    const dep = depositOf(U, F, votes, total, check.sum, check.ok);
+    if (dep) {
+      if (dep.total != null) total = dep.total;
+      parsed.items.push({ name: dep.v > 0 ? 'Kaucja' : 'Zwrot kaucji', qty: 1, unit: 'szt', price: dep.v, total: dep.v, dep: true });
+      check = checkItems(parsed.items, total, parsed.discTotal);
+    }
+  }
 
   let date = '';
   const dm = /(20\d\d)[-.](\d\d)[-.](\d\d)/.exec(joined) || /(\d\d)[-.](\d\d)[-.](20\d\d)/.exec(joined);
@@ -831,6 +840,38 @@ export function parseReceipt(input) {
     if (Number(m) >= 1 && Number(m) <= 12 && Number(d) >= 1 && Number(d) <= 31) date = `${y}-${m}-${d}`;
   }
   return { total, how, candidates, store, date, items: parsed.items, itemsOk: check.ok, itemsSum: check.sum };
+}
+
+// System kaucyjny (od 10.2025): kaucja jest pod sumą, w części niefiskalnej. SUMA to same produkty,
+// a do zapłaty jest więcej o kaucję (po 0,50 zł za puszkę i plastik, 1 zł za szklaną butelkę zwrotną).
+// Zwrot kaucji za oddane opakowania zmniejsza kwotę. Zwraca { v: kaucja, total?: poprawiona kwota } albo null.
+const DEP_RE = /KAUC|OPAK\w*\s*(ZWROT|KAUC)|ZWROTN\w*\s*OPAK/;
+const DEP_BACK_RE = /ZWROT\w*\s*(KAUC|OPAK)|ODDAN|SKUP|BUTELKOMAT|RECYKLOMAT/;
+function depositOf(U, F, votes, total, net, ok) {
+  let lines = 0;
+  let seen = false;
+  for (let i = 0; i < U.length; i++) {
+    if (!DEP_RE.test(U[i]) || /SUMA|RAZEM|ZAPLAT/.test(U[i])) continue;
+    const a = amountsOf(F[i]);
+    const x = a.length ? a[a.length - 1] : null;
+    if (!x || x.v <= 0 || x.v > 20) continue;
+    seen = true;
+    lines += x.neg || DEP_BACK_RE.test(U[i]) ? -x.v : x.v;
+  }
+  lines = r2(lines);
+  const halves = (d) => Math.abs(d * 2 - Math.round(d * 2)) < 0.02 && Math.abs(d) >= 0.5 && Math.abs(d) <= 20;
+  if (ok) {
+    // pozycje zgadzają się z SUMĄ bez kaucji, a zapłacono więcej: kartą albo „do zapłaty” z kaucją
+    if (seen && lines && votes.some((x) => x.src !== 'pozycje' && near(x.v, r2(net + lines)))) return { v: lines, total: r2(net + lines) };
+    const card = votes.filter((x) => x.src === 'karta' && halves(r2(x.v - net)));
+    if (card.length) return { v: r2(card[0].v - net), total: card[0].v };
+    return null;
+  }
+  const diff = r2(total - net);
+  if (seen && lines && near(lines, diff)) return { v: diff };
+  // słowo nieczytelne: różnica to pełne 50 groszy, a SUMA wydrukowana na paragonie równa się produktom
+  if (halves(diff) && votes.some((x) => (x.src === 'suma' || x.src === 'sprzedaż') && near(x.v, net))) return { v: diff };
+  return null;
 }
 
 // podgląd tego, co dostaje czytnik (do testów)

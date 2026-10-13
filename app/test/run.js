@@ -121,6 +121,31 @@ await t('pozycje z paragonu: opusty, waga, zawinięte nazwy', async () => {
   assert.equal(cleanName('KamisCzosnekGranu|owany16g  t'), 'Kamis Czosnek Granulowany 16g');
 });
 
+await t('paragon: kaucja za opakowania jako osobna pozycja', async () => {
+  const { parseReceipt } = await import('../www/js/receipt.js');
+  const P = await import('../www/js/prices.js');
+  const base = ['PARAGON FISKALNY', 'TORTILLA CHIPS.MIX 300G 1 x7,99 7,99 B', 'K.PIWO ZYWIEC 0% 0,5 1 x4,79 4,79 A', 'SUMA PLN 12,78'];
+  const row = (r) => [r.total, r.itemsOk, r.items.map((x) => `${x.name} ${x.total}`).join(' | ')];
+  // kaucja pod sumą, do zapłaty więcej
+  let r = parseReceipt([...base, 'Kaucja za opakowania 0,50', 'Do zaplaty 13,28', 'Karta platnicza 13,28'].join('\n'));
+  assert.deepEqual(row(r).slice(0, 2), [13.28, true]); assert.equal(r.items[2].name, 'Kaucja'); assert.equal(r.items[2].total, 0.5);
+  // słowo nieczytelne, ale różnica to 50 gr, a SUMA = produkty
+  r = parseReceipt([...base, 'Kxxxx yy 0,50', 'Do zaplaty 13,28', 'Karta platnicza 13,28'].join('\n'));
+  assert.deepEqual(row(r).slice(0, 2), [13.28, true]);
+  // zwrot kaucji za oddane butelki zmniejsza kwotę
+  r = parseReceipt(['PARAGON FISKALNY', 'CHLEB 1 x4,99 4,99 C', 'MASLO 1 x7,99 7,99 C', 'SUMA PLN 12,98', 'ZWROT KAUCJI -1,50', 'DO ZAPLATY 11,48', 'KARTA 11,48'].join('\n'));
+  assert.deepEqual(row(r), [11.48, true, 'Chleb 4.99 | Maslo 7.99 | Zwrot kaucji -1.5']);
+  // źle odczytana cyfra to nie kaucja
+  r = parseReceipt(['PARAGON FISKALNY', 'CHLEB 1 x4,99 4,99 C', 'MASLO 1 x6,99 6,99 C', 'SUMA PLN 12,98', 'KARTA 12,98'].join('\n'));
+  assert.deepEqual(row(r), [12.98, false, 'Chleb 4.99 | Maslo 6.99']);
+  // kaucja nie trafia do bazy cen, chipsy tortilla to chipsy
+  const st = { prices: {}, learned: {}, settings: {} };
+  assert.equal(P.recordPrices(st, 'Aldi', '2026-10-13', [{ name: 'Kaucja', qty: 1, unit: 'szt', price: 0.5, total: 0.5 }, { name: 'Chleb', qty: 1, unit: 'szt', price: 4.99, total: 4.99 }]), 1);
+  assert.equal(P.generalName('TORTILLA CHIPS.MIX 300G'), 'Tortilla chips 300 g');
+  assert.equal(P.describe({ name: 'Tortilla chips 300 g' }, st).cat, 'chipsy i przekąski');
+  assert.equal(P.describe({ name: 'Kaucja' }, st).treat, false);
+});
+
 await t('baza cen z paragonów i kary w trybie ostrym', async () => {
   const P = await import('../www/js/prices.js');
   assert.equal(P.canonOf('Lubella świderki 400g'), 'świderki');

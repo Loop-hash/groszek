@@ -14,6 +14,8 @@ const ENTRIES = [
   { k: ['napoj owsian', 'napoj sojow', 'napoj migdal', 'napoj kokos', 'napoj roslin', 'mleko roslin'], ico: 'milk', cat: 'nabiał' },
   { k: ['ciasto francusk', 'ciasto na pizz', 'ciasto filo', 'ciasto kruche'], ico: 'flour', cat: 'do pieczenia' },
   { k: ['papryka slodk', 'papryka wedzon', 'papryka ostr', 'papryka mielon', 'prymat', 'kamis', 'kotanyi', 'granulowan'], ico: 'jar', cat: 'przyprawy' },
+  { k: ['kaucj'], ico: 'bottle', cat: 'kaucja' },
+  { k: ['tortilla chips', 'chipsy tortill', 'tortilla chip'], ico: 'chips', cat: 'chipsy i przekąski' },
   { k: ['pierogi', 'pyzy', 'nalesnik'], ico: 'bag', cat: 'mrożonki i gotowce' },
   { k: ['makaron jaj', 'makaron', 'spaghetti', 'tagliatell'], ico: 'pasta', cat: 'makarony i kasze' },
   { k: ['maslo orzech'], ico: 'jar', cat: 'śniadania' },

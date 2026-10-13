@@ -68,6 +68,9 @@ export function generalName(raw) {
 
 export const productKey = (name) => nameKey(name) || norm(name);
 
+// Kaucja za opakowania to nie produkt: bez ceny w bazie, bez promocji, bez kary
+export const isDeposit = (x) => !!x && (x.dep || /^(zwrot )?kaucj/.test(norm(x.name || '')));
+
 // Pozycja jest pewna, gdy ilość razy cena daje jej wartość
 export const sure = (x) => x && x.qty > 0 && x.price > 0 && x.total > 0 && near(r2(x.qty * x.price), x.total);
 export const paidOf = (x) => r2((Number(x.total) || 0) - (Number(x.disc) || 0));
@@ -104,7 +107,7 @@ export function recordPrices(state, store, date, items) {
   const shop = db[store] || (db[store] = {});
   let n = 0;
   for (const x of items || []) {
-    if (!sure(x)) continue;
+    if (!sure(x) || isDeposit(x)) continue;
     const key = productKey(x.raw || x.name);
     if (!key) continue;
     const paid = r2(paidOf(x) / x.qty);

@@ -49,7 +49,7 @@ export const CANON = [
   // słodycze i przekąski
   'czekolada', 'czekolada gorzka', 'baton', 'batony', 'cukierki', 'żelki', 'draże', 'lizaki', 'gumy do żucia', 'ciastka',
   'herbatniki', 'wafelki', 'pierniki', 'lody', 'pączki', 'drożdżówki', 'rogaliki', 'croissanty', 'muffinki', 'ciasto', 'sernik',
-  'chipsy', 'paluszki', 'chrupki', 'popcorn', 'krakersy', 'precle', 'nachosy', 'prażynki', 'orzeszki solone',
+  'chipsy', 'tortilla chips', 'paluszki', 'chrupki', 'popcorn', 'krakersy', 'precle', 'nachosy', 'prażynki', 'orzeszki solone',
   // gotowce i fast food
   'pizza', 'pizza mrożona', 'zapiekanka', 'kebab', 'burger', 'hot dog', 'kanapka', 'wrap', 'panini', 'burrito', 'sałatka', 'zupka chińska', 'pierogi', 'pyzy', 'kopytka',
   'danie gotowe', 'sushi', 'gołąbki w słoiku', 'fasolka po bretońsku',
