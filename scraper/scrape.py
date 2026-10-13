@@ -353,6 +353,26 @@ LIDL_PAGES = [
 ]
 
 
+# To samo w całości, bez ograniczenia do pierwszych kafelków: wyszukiwarka sklepu z filtrem kategorii.
+LIDL_API = "https://www.lidl.pl/q/api/search?offset=0&fetchsize=500&locale=pl_PL&assortment=PL&version=2.1.0&category.id={}"
+LIDL_API_CATS = [
+    ("lidl_api_zywnosc", "10068374", False),  # Żywność i napoje
+    ("lidl_api_okazje", "10009219", False),  # Najlepsze okazje
+    ("lidl_api_promocje", "10076831", False),  # Promocje (też niespożywcze, filtr po kategorii)
+    ("lidl_api_bez_promocji", "10089501", True),  # Nowe niższe ceny regularne
+]
+
+
+def lidl_api_items(text):
+    data = json.loads(text)
+    out = []
+    for it in data.get("items") or []:
+        d = ((it or {}).get("gridbox") or {}).get("data")
+        if isinstance(d, dict):
+            out.append(d)
+    return out
+
+
 def lidl_grid_items(html):
     out = []
     for raw in re.findall(r'data-grid-data="([^"]+)"', html or ""):
@@ -388,7 +408,8 @@ def parse_lidl_item(d, today, regular=False):
     if not title:
         return None
     brand, name = lidl_brand_name(title)
-    if is_nonfood(name, brand):
+    # kategoria Lidla jest pewna, więc bez listy słów (inaczej „Zestaw salami” wypada jako nie-jedzenie)
+    if brand.lower().strip() in NONFOOD_BRANDS:
         return None
     pr = d.get("price") or {}
     lp = (d.get("lidlPlus") or [None])[0] or {}
@@ -638,13 +659,24 @@ def main():
             keys.add(key)
             res.append(o)
 
-        for name, url, regular in LIDL_PAGES:
+        for name, cat, regular in LIDL_API_CATS:
             try:
-                for o in parse_lidl_grid(fetcher.get(name, url), today, regular):
-                    add(o)
+                for d in lidl_api_items(fetcher.get(name, LIDL_API.format(cat))):
+                    o = parse_lidl_item(d, today, regular)
+                    if o:
+                        add(o)
             except Exception as e:  # noqa: BLE001
                 errors.append(f"{name}: {e!r}"[:160])
-        print("lidl: z siatki produktów", len(res), "| błędy stron:", errors or "brak")
+        print("lidl: z wyszukiwarki", len(res), "| błędy:", errors or "brak")
+        # zapas: pierwsze kafelki z siatki na stronach, gdy wyszukiwarka nie odpowie
+        if len(res) < 10:
+            for name, url, regular in LIDL_PAGES:
+                try:
+                    for o in parse_lidl_grid(fetcher.get(name, url), today, regular):
+                        add(o)
+                except Exception as e:  # noqa: BLE001
+                    errors.append(f"{name}: {e!r}"[:160])
+            print("lidl: z siatki produktów na stronach, razem", len(res))
         # stary sposób: opisy z kafelków reklamowych, gdy siatka produktów nic nie dała
         if len(res) < 10:
             for name, url in [("lidl_home", "https://www.lidl.pl/"),
