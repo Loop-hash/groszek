@@ -40,7 +40,7 @@ Do Pierwszego pojawi się z własną ikonką i będzie otwierał się na pełnym
 
 **Lista zakupów i promocje**
 - Wpisujesz jak zwykle: „3 masło”, „masło3”, „fasola x 3”, „2 kg ziemniaków”, „dwie kostki masła”, a nawet kilka rzeczy naraz („masło, 2 mleka i chleb”). Groszosław rozumie ilości, poprawia odmiany i literówki, a ta sama rzecz wpisana drugi raz zwiększa licznik zamiast dublować się na liście.
-- Promocje z Kauflandu, Lidla i Aldi pobierają się same dwa razy w tygodniu.
+- Promocje z Kauflandu, Lidla i Aldi pobierają się same dwa razy w tygodniu. Biedronka publikuje gazetkę tylko jako obrazki, więc jej promocji w apce nie ma.
 - Przy rzeczach z Twojej listy Groszosław pokazuje, gdzie są taniej i ile oszczędzisz.
 - Tryb ostry nie pozwala dopisać do listy zachcianek, takich jak słodycze czy chipsy. Zachcianka znaleziona na paragonie kosztuje exp: 1 zł to 1 exp mniej.
 
@@ -57,9 +57,15 @@ Do Pierwszego pojawi się z własną ikonką i będzie otwierał się na pełnym
 - Plan od razu zamienia się w listę zakupów, z uwzględnieniem tego, co jest w promocji.
 - Obiad można ugotować raz na dwa dni albo zrobić **food prep**: jedno gotowanie na 2–5 dni, tylko z dań, które dobrze znoszą lodówkę i odgrzewanie (gulasze, curry, zupy, zapiekanki, kasze z mięsem, pierogi). Takie dania mają też własny filtr w przepisach.
 
+**Na ekranie telefonu (Android)**
+- Trzy widżety: mały z kwotą na dziś, szeroki z Groszosławem i przyciskiem dodawania wydatku oraz kwadrat z paskiem budżetu. Dodasz je, przytrzymując palec na pustym miejscu ekranu i wybierając Widżety.
+- Wieczorne przypomnienie o paragonach (domyślnie o 20:30), tylko w dni, w których nie dodasz żadnego wydatku. Godzinę zmienisz w ustawieniach.
+
 **Twoje dane**
 - Wszystko jest zapisane tylko w telefonie.
-- Kopię zrobisz w **Ustawieniach → Zapisz kopię**. Warto ją zrobić przed zmianą telefonu.
+- Na Androidzie apka raz w tygodniu sama zapisuje kopię w folderze **Dokumenty/Do Pierwszego**. Zostaje tam nawet po odinstalowaniu apki. Na iPhonie apka przypomina o kopii co dwa tygodnie.
+- Kopię wyślesz sobie albo wczytasz w **Ustawieniach → Kopia danych**. Warto ją zabrać przy zmianie telefonu.
+- Coś nie działa? **Ustawienia → Zgłoś problem** wyśle opis razem z numerem wersji i ostatnimi błędami apki (bez wydatków i paragonów).
 
 ## Jak to jest zrobione
 
@@ -73,6 +79,7 @@ Dla ciekawych:
 | `tools/recipes/` | Przepisy pogrupowane według kuchni. `tools/build_data.py` składa z nich `data/recipes.json` i liczy ceny oraz wartości odżywcze. |
 | `tools/ingredients_src.py` | Składniki z cenami i wartościami odżywczymi z bazy USDA. |
 | `tools/costumes.py` | Przebrania Groszosława rysowane pikselami w ASCII; zapisuje `app/www/js/costumes-data.js` (z argumentem: także podgląd PNG). |
+| `tools/android_res.py` | Groszosław dla widżetów i powiadomień: wektory Androida generowane z pikseli z `pixels.js`. |
 | `tools/audit.py` | Sprawdza przepisy: czy każdy składnik z nazwy i kroków jest na liście (z ceną), czy każda przyprawa z listy jest nazwana w kroku i czy wytrawne danie ma czym je doprawić. Powinno pokazywać same zera. |
 | `scraper/` | Pobieranie promocji ze stron sklepów. |
 
