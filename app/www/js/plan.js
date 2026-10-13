@@ -358,8 +358,9 @@ export function evaluate(c, plan, dates, opts) {
       const have = stock[id] || 0;
       let need = gNeed - have;
       if (need <= 0) { stock[id] = have - gNeed; continue; }
-      const p = priceOf(c, id);
-      const promoOk = p.offer && isActive(p.offer, tr.date);
+      // cena z dnia zakupów: promocja, która zacznie się do tego dnia, też się liczy
+      const p = priceOf(c, id, tr.date);
+      const promoOk = !!(p.offer && isActive(p.offer, tr.date));
       const perKg = promoOk ? p.perKg : p.base;
       let buyG;
       let packs = 0;

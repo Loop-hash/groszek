@@ -84,22 +84,24 @@ function offerFitsIngredient(o, ingr) {
 }
 
 let priceMemo = { key: '', map: new Map() };
-// Najtańsza cena za kg: zwykła albo z aktualnej promocji (tylko gdy da się policzyć cenę za kg i jest taniej).
-export function priceOf(c, id) {
+// Najtańsza cena za kg w danym dniu (domyślnie dziś): zwykła albo z promocji ważnej tego dnia,
+// także takiej, która dopiero się zacznie (tylko gdy da się policzyć cenę za kg i jest taniej).
+export function priceOf(c, id, d = today()) {
   const key = ((c.data.promos && c.data.promos.updated) || '') + today() + JSON.stringify(c.state.settings.stores);
   if (priceMemo.key !== key) priceMemo = { key, map: new Map() };
-  if (priceMemo.map.has(id)) return priceMemo.map.get(id);
+  const mk = id + '|' + d;
+  if (priceMemo.map.has(mk)) return priceMemo.map.get(mk);
   const ingr = ing(c, id);
   let res = { perKg: ingr ? ingr.kg : 0, offer: null, base: ingr ? ingr.kg : 0 };
   if (ingr && !ingr.pantry) {
-    for (const o of offersFor(c.data, c.state.settings)) {
-      if (!isActive(o) || !offerFitsIngredient(o, ingr)) continue;
+    for (const o of offersFor(c.data, c.state.settings, d)) {
+      if (!isActive(o, d) || !offerFitsIngredient(o, ingr)) continue;
       const pk = offerPerKg(o, ingr);
       if (!pk || pk > ingr.kg * 1.5 || pk < ingr.kg * 0.2) continue; // odrzuca dziwne odczyty
       if (pk < res.perKg) res = { perKg: pk, offer: o, base: ingr.kg };
     }
   }
-  priceMemo.map.set(id, res);
+  priceMemo.map.set(mk, res);
   return res;
 }
 

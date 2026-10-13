@@ -427,6 +427,22 @@ await t('widżety: teksty na 7 dni i przypomnienie tylko w dni bez wydatku', asy
   assert.equal(W.available(), false); // bez Androida: nic nie wysyła
 });
 
+await t('ceny: promocja liczy się w dniu, w którym obowiązuje, także przyszła', async () => {
+  const fs = await import('node:fs');
+  const R = await import('../www/js/recipes.js');
+  const S = await import('../www/js/store.js');
+  const { today, addDays } = await import('../www/js/budget.js');
+  const ingredients = JSON.parse(fs.readFileSync(new URL('../../data/ingredients.json', import.meta.url)));
+  const base = ingredients.ingredients.ziemniaki.kg;
+  const from = addDays(today(), 2);
+  const offer = { id: 'z1', store: 'kaufland', name: 'Ziemniaki', brand: '', detail: 'luzem, 1 kg', unitPrice: '', price: Math.round(base * 50) / 100, oldPrice: base, oldLabel: '', discount: '-50%', cond: '', from, to: addDays(from, 2), category: 'Warzywa' };
+  const c = { state: S.defaults(), data: { ingredients, recipes: { recipes: [] }, promos: { updated: 'test', offers: [offer] } } };
+  assert.equal(R.priceOf(c, 'ziemniaki').offer, null); // dziś jeszcze nie
+  const later = R.priceOf(c, 'ziemniaki', from);
+  assert.ok(later.offer && later.offer.id === 'z1'); assert.ok(later.perKg < base);
+  assert.equal(R.priceOf(c, 'ziemniaki', addDays(from, 3)).offer, null); // po końcu promocji
+});
+
 await t('kod: każda funkcja z innego pliku jest zaimportowana', async () => {
   // łapie błędy typu „sprite is not defined”, które wychodzą dopiero po kliknięciu w apce
   const fs = await import('node:fs');
