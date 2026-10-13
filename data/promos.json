@@ -1,6 +1,6 @@
 {
  "version": 1,
- "updated": "2026-10-13T09:48+02:00",
+ "updated": "2026-10-13T13:46+02:00",
  "stores": {
   "kaufland": {
    "ok": true,
@@ -14,7 +14,7 @@
   },
   "aldi": {
    "ok": true,
-   "count": 57,
+   "count": 42,
    "error": null
   },
   "biedronka": {
@@ -4428,7 +4428,7 @@
    "week": "current"
   },
   {
-   "id": "fb0daf61f494",
+   "id": "541e9a8a1168",
    "store": "aldi",
    "name": "Oliwa z oliwek virgin",
    "brand": "BELLASAN",
@@ -4439,13 +4439,13 @@
    "oldLabel": "",
    "discount": "",
    "cond": "1+1 gratis",
-   "from": "2026-10-11",
+   "from": "2026-10-15",
    "to": "2026-10-17",
    "category": "Tłuszcze i octy",
    "week": "current"
   },
   {
-   "id": "fc71a2c044a2",
+   "id": "41f0c3e84db1",
    "store": "aldi",
    "name": "Mleko 2% UHT",
    "brand": "ŁACIATE",
@@ -4456,7 +4456,7 @@
    "oldLabel": "cena regularna",
    "discount": "",
    "cond": "-40% przy zakupie 6 szt.",
-   "from": "2026-10-11",
+   "from": "2026-10-15",
    "to": "2026-10-17",
    "category": "Nabiał i jaja",
    "week": "current"
@@ -4615,7 +4615,7 @@
    "week": "current"
   },
   {
-   "id": "7c01b8b50a06",
+   "id": "33e7d213a607",
    "store": "aldi",
    "name": "Mięso mielone wołowe",
    "brand": "MIĘSNE SPECJAŁY",
@@ -4626,13 +4626,13 @@
    "oldLabel": "cena regularna",
    "discount": "",
    "cond": "-23% przy zakupie 2 szt.",
-   "from": "2026-10-11",
+   "from": "2026-10-15",
    "to": "2026-10-17",
    "category": "Wędliny i mięso",
    "week": "current"
   },
   {
-   "id": "75588bf68534",
+   "id": "c83f9f09c963",
    "store": "aldi",
    "name": "Filety z piersi kurczaka",
    "brand": "MIĘSNE SPECJAŁY",
@@ -4643,7 +4643,7 @@
    "oldLabel": "cena regularna",
    "discount": "-27%",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-17",
    "to": "2026-10-17",
    "category": "Wędliny i mięso",
    "week": "current"
@@ -4683,7 +4683,7 @@
    "week": "current"
   },
   {
-   "id": "f573f32ccd73",
+   "id": "36ddd34faff6",
    "store": "aldi",
    "name": "Kaczka tuszka",
    "brand": "MIĘSNE SPECJAŁY",
@@ -4694,7 +4694,7 @@
    "oldLabel": "cena regularna",
    "discount": "-29%",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-15",
    "to": "2026-10-17",
    "category": "Wędliny i mięso",
    "week": "current"
@@ -4734,7 +4734,7 @@
    "week": "current"
   },
   {
-   "id": "98ee6f17bec0",
+   "id": "2f305db23287",
    "store": "aldi",
    "name": "Awokado Hass",
    "brand": "",
@@ -4745,13 +4745,13 @@
    "oldLabel": "cena regularna",
    "discount": "-42%",
    "cond": "",
-   "from": "2026-10-11",
+   "from": "2026-10-15",
    "to": "2026-10-17",
    "category": "Owoce i warzywa",
    "week": "current"
   },
   {
-   "id": "a0b5a5dc13d6",
+   "id": "7a34f839dcd2",
    "store": "aldi",
    "name": "Filety z tuńczyka w oleju słonecznikowym",
    "brand": "GOLDEN SEAFOOD",
@@ -4762,13 +4762,13 @@
    "oldLabel": "",
    "discount": "",
    "cond": "2+2 gratis",
-   "from": "2026-10-11",
+   "from": "2026-10-15",
    "to": "2026-10-17",
    "category": "",
    "week": "current"
   },
   {
-   "id": "1820e3725d4d",
+   "id": "f465316ea852",
    "store": "aldi",
    "name": "Kawa ziarnista",
    "brand": "DALLMAYR",
@@ -4779,7 +4779,7 @@
    "oldLabel": "",
    "discount": "",
    "cond": "1+1 gratis",
-   "from": "2026-10-11",
+   "from": "2026-10-15",
    "to": "2026-10-17",
    "category": "Kawa",
    "week": "current"
@@ -4853,7 +4853,7 @@
    "week": "current"
   },
   {
-   "id": "8c4a374b7cdf",
+   "id": "29005954c2f6",
    "store": "aldi",
    "name": "Kawa mielona Family",
    "brand": "EDUSCHO",
@@ -4864,7 +4864,7 @@
    "oldLabel": "",
    "discount": "",
    "cond": "1+1 gratis",
-   "from": "2026-10-11",
+   "from": "2026-10-17",
    "to": "2026-10-17",
    "category": "Kawa",
    "week": "current"
@@ -4904,7 +4904,7 @@
    "week": "current"
   },
   {
-   "id": "311b2ce69d78",
+   "id": "235d51721122",
    "store": "aldi",
    "name": "Kawa ziarnista Gustoso",
    "brand": "BARISSIMO",
@@ -4915,7 +4915,7 @@
    "oldLabel": "cena regularna",
    "discount": "",
    "cond": "-63% co druga szt.",
-   "from": "2026-10-11",
+   "from": "2026-10-14",
    "to": "2026-10-14",
    "category": "Kawa",
    "week": "current"
@@ -4972,7 +4972,7 @@
    "week": "current"
   },
   {
-   "id": "2346f81dfcde",
+   "id": "ece23f98cecb",
    "store": "aldi",
    "name": "Koncentrat napoju do saturatora",
    "brand": "SODASTREAM",
@@ -4983,7 +4983,7 @@
    "oldLabel": "",
    "discount": "",
    "cond": "1+1 gratis",
-   "from": "2026-10-11",
+   "from": "2026-10-17",
    "to": "2026-10-17",
    "category": "Napoje i soki",
    "week": "current"
@@ -5006,7 +5006,7 @@
    "week": "current"
   },
   {
-   "id": "e9aec5e708d9",
+   "id": "12088e52042c",
    "store": "aldi",
    "name": "Koncentrat napoju do saturatora Lipton",
    "brand": "SODASTREAM",
@@ -5017,7 +5017,7 @@
    "oldLabel": "",
    "discount": "",
    "cond": "1+1 gratis",
-   "from": "2026-10-11",
+   "from": "2026-10-17",
    "to": "2026-10-17",
    "category": "",
    "week": "current"
@@ -5057,7 +5057,7 @@
    "week": "current"
   },
   {
-   "id": "b7729beed4f6",
+   "id": "d59c4d04ecad",
    "store": "aldi",
    "name": "Szynka konserwowa premium",
    "brand": "SOKOŁÓW",
@@ -5068,13 +5068,13 @@
    "oldLabel": "",
    "discount": "",
    "cond": "1+1 gratis",
-   "from": "2026-10-11",
+   "from": "2026-10-14",
    "to": "2026-10-14",
    "category": "Wędliny i mięso",
    "week": "current"
   },
   {
-   "id": "a41d3ff093da",
+   "id": "ba4ef084ac81",
    "store": "aldi",
    "name": "Masło klarowane",
    "brand": "ŁACIATE",
@@ -5085,7 +5085,7 @@
    "oldLabel": "cena regularna",
    "discount": "",
    "cond": "1+1 gratis",
-   "from": "2026-10-11",
+   "from": "2026-10-14",
    "to": "2026-10-14",
    "category": "",
    "week": "current"
