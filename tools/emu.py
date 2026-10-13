@@ -209,8 +209,10 @@ def home_test():
     time.sleep(2)
     shot("19-przypomnienie")
     sh("adb shell cmd statusbar collapse")
-    alarms = sh("adb shell dumpsys alarm | grep -i -B1 -A2 'pl.groszek.app' | head -20")
-    log("budziki:", "TAK" if "REMIND" in alarms or "pl.groszek.app" in alarms else "nie", alarms.strip()[:300])
+    alarms = sh("adb shell dumpsys alarm | grep -E 'pl.groszek.app.(REMIND|MIDNIGHT)' | head -6")
+    log("budziki:", "TAK" if "pl.groszek.app.REMIND" in alarms else "ŹLE", alarms.strip()[:300])
+    if "pl.groszek.app.REMIND" not in alarms:
+        FAILED.append("budzik przypomnienia")
     # „+” z widżetu: adres dopierwszego://add otwiera dodawanie wydatku
     sh("adb shell am start -a android.intent.action.VIEW -d dopierwszego://add -n pl.groszek.app/.MainActivity")
     time.sleep(3)
