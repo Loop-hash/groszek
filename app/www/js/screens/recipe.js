@@ -1,7 +1,7 @@
 // Jeden przepis: koszt porcji, wartości odżywcze, składniki z dopisywaniem do listy, kroki, ocena i plan.
-import { fmt, today, addDays, dowShort, dayLabel } from '../budget.js';
+import { fmt, today, addDays, dowShort, dayLabel, people, isFamily, MAX_PEOPLE } from '../budget.js';
 import { ui, food, recipeIcon, sprite } from '../pixels.js';
-import { esc, topbar, check, plural } from '../ui.js';
+import { esc, topbar, check, plural, stepper } from '../ui.js';
 import { findRecipe, recipeCost, nutrition, ing, qty, priceOf, searchUrl, blockReason, MEALS } from '../recipes.js';
 import { STORES } from '../offers.js';
 import { addToList } from '../listlogic.js';
@@ -36,7 +36,7 @@ function missingSheet(c, r) {
   c.sheet(cfg);
 }
 
-function planSheet(c, r) {
+function planSheet(c, r, n = 1) {
   const meals = (r.meal && r.meal.length ? r.meal : ['obiad']);
   const st = { day: today(), slot: meals[0], twice: (r.portions || 1) >= 2 && meals.includes('obiad') };
   c.sheet({
@@ -58,7 +58,7 @@ function planSheet(c, r) {
       twice(cc) { st.twice = !st.twice; cc.renderSheet(); },
       ok(cc) {
         const plan = cc.state.plan;
-        const add = (d) => { (plan[d] = plan[d] || []).push({ id: r.id, slot: st.slot }); };
+        const add = (d) => { (plan[d] = plan[d] || []).push(n > 1 ? { id: r.id, slot: st.slot, n } : { id: r.id, slot: st.slot }); };
         add(st.day);
         if (st.twice) add(addDays(st.day, 1));
         cc.save();
@@ -77,30 +77,41 @@ export default {
     const n = nutrition(r);
     const rating = c.state.ratings[r.id] || 0;
     const why = blockReason(r, c.state.settings, {});
+    // tryb rodzinny: przepis przeliczony na tyle osób, ile w Ustawieniach (albo tyle, ile ktoś wybrał na tym ekranie)
+    const fam = isFamily(c.state);
+    const np = fam ? Math.max(1, Math.min(MAX_PEOPLE, Number(c.params.n) || people(c.state))) : 1;
+    const f = fam && !r.custom ? np / (r.portions || 1) : 1;
 
     const ingRows = r.custom
       ? (r.ingsText || []).map((t) => `<div class="ing"><span class="grow">${esc(t)}</span></div>`).join('')
       : (r.ings || []).map((x) => {
         const i = ing(c, x.i);
         const p = priceOf(c, x.i);
-        return `<div class="ing">${food(i ? i.icon : 'bag', 26)}<span class="grow stack" style="gap:1px"><span class="bold">${esc(i ? i.name : x.i)}</span><span class="tiny muted">${esc(qty(c, x))}${i && i.pantry ? ' · zwykle w szafce' : ''}</span></span>` +
+        return `<div class="ing">${food(i ? i.icon : 'bag', 26)}<span class="grow stack" style="gap:1px"><span class="bold">${esc(i ? i.name : x.i)}</span><span class="tiny muted">${esc(qty(c, x, f))}${i && i.pantry ? ' · zwykle w szafce' : ''}</span></span>` +
           `${p.offer ? `<span class="pill dark">${ui('tag', 10)} ${esc(STORES[p.offer.store])}</span>` : ''}</div>`;
       }).join('');
 
     const promoNote = cost.promo.length
-      ? `<span class="small">${cost.promo.length} ${plural(cost.promo.length, 'składnik', 'składniki', 'składników')} w promocji${cost.saved > 0 ? `, oszczędzasz ${fmt(cost.saved)} zł na porcji` : ''}.</span>` : '';
+      ? `<span class="small">${cost.promo.length} ${plural(cost.promo.length, 'składnik', 'składniki', 'składników')} w promocji${cost.saved > 0 ? (fam ? `, oszczędzasz ${fmt(cost.saved * np)} zł` : `, oszczędzasz ${fmt(cost.saved)} zł na porcji`) : ''}.</span>` : '';
+    const mealName = { sniadanie: 'Śniadanie', obiad: 'Obiad', kolacja: 'Kolacja' }[(r.meal || [])[0]] || 'Danie';
+    const costCard = fam
+      ? `<div class="card stack" style="gap:8px"><div class="row between"><span class="bold">Gotujesz dla</span>${stepper('people', np, 1, MAX_PEOPLE, 'osób')}</div>` +
+        (cost.perPortion ? `<div class="row between"><span>${mealName} dla ${np} ${plural(np, 'osoby', 'osób', 'osób')}, około</span><span class="big" style="font-size:26px">${fmt(cost.perPortion * np)} zł</span></div>` +
+          `<span class="small">${fmt(cost.perPortion)} zł na osobę.</span>${promoNote}` : '') +
+        `<span class="tiny muted">${r.custom ? 'Składniki są takie, jak w twoim przepisie.' : `Składniki niżej są przeliczone na ${np} ${plural(np, 'osobę', 'osoby', 'osób')} (przepis jest na ${r.portions || 1}).`}</span></div>`
+      : cost.perPortion ? `<div class="card stack" style="gap:4px"><div class="row between"><span>Porcja kosztuje około</span><span class="big" style="font-size:26px">${fmt(cost.perPortion)} zł</span></div>${promoNote}<span class="tiny muted">Liczone za zużyte gramy. Pierwsze zakupy wyjdą drożej, bo kupujesz całe opakowania.</span></div>` : '';
 
     return `
-      ${topbar(r.custom ? 'Mój przepis' : r.country, [r.time ? `${r.time} min` : '', r.portions ? `${r.portions} ${plural(r.portions, 'porcja', 'porcje', 'porcji')}` : ''].filter(Boolean).join(' · '),
+      ${topbar(r.custom ? 'Mój przepis' : r.country, [r.time ? `${r.time} min` : '', r.portions ? `${fam ? 'przepis na ' : ''}${r.portions} ${plural(r.portions, 'porcja', 'porcje', 'porcji')}` : ''].filter(Boolean).join(' · '),
         r.custom ? { right: `<button class="sq" data-act="edit" aria-label="Edytuj">${ui('edit', 20)}</button>` } : {})}
       <div class="hero" style="height:130px">${recipeIcon(r.icon, 120)}</div>
       <h1 class="hello" style="font-size:26px">${esc(r.name)}</h1>
       <div class="wrap" style="justify-content:center">${(r.meal || []).map((m) => `<span class="pill">${MEALS[m] || m}</span>`).join('')}${r.veg ? '<span class="pill">bez mięsa</span>' : ''}${r.prep ? '<span class="pill">food prep</span>' : ''}${rating === 1 ? `<span class="pill dark">${ui('thumbUp', 11)} smakuje ci</span>` : ''}${rating === -1 ? '<span class="pill dashed">nie smakowało</span>' : ''}</div>
       ${why ? `<div class="card dashed small">Ten przepis jest ukryty w podpowiedziach: ${esc(why)}.</div>` : ''}
-      ${cost.perPortion ? `<div class="card stack" style="gap:4px"><div class="row between"><span>Porcja kosztuje około</span><span class="big" style="font-size:26px">${fmt(cost.perPortion)} zł</span></div>${promoNote}<span class="tiny muted">Liczone za zużyte gramy. Pierwsze zakupy wyjdą drożej, bo kupujesz całe opakowania.</span></div>` : ''}
+      ${costCard}
       ${n.kcal ? `<div class="macros"><div><b>${Math.round(n.kcal)}</b><span>kcal</span></div><div><b>${Math.round(n.protein)}</b><span>białko g</span></div><div><b>${Math.round(n.fat)}</b><span>tłuszcz g</span></div><div><b>${Math.round(n.carbs)}</b><span>węgl. g</span></div><div><b>${Math.round(n.fiber)}</b><span>błonnik g</span></div></div>
       <div class="tiny muted center">na porcję · sól ${String(n.salt).replace('.', ',')} g</div>` : ''}
-      <div class="row between"><span class="label">Składniki</span><button class="btn small" data-act="missing">${ui('basket', 16)} Dopisz brakujące</button></div>
+      <div class="row between"><span class="label">${f !== 1 ? `Składniki na ${np} ${plural(np, 'osobę', 'osoby', 'osób')}` : 'Składniki'}</span><button class="btn small" data-act="missing">${ui('basket', 16)} Dopisz brakujące</button></div>
       <div class="card" style="padding:4px 14px">${ingRows || '<div class="ing muted">Brak składników.</div>'}</div>
       <span class="label">Jak zrobić</span>
       <ol class="steps">${(r.steps || []).map((s) => `<li><span>${esc(s)}</span></li>`).join('')}</ol>
@@ -117,7 +128,15 @@ export default {
   },
   actions: {
     missing(c) { const r = findRecipe(c, c.params.id); if (r) missingSheet(c, r); },
-    plan(c) { const r = findRecipe(c, c.params.id); if (r) planSheet(c, r); },
+    plan(c) {
+      const r = findRecipe(c, c.params.id);
+      if (r) planSheet(c, r, isFamily(c.state) ? Math.max(1, Math.min(MAX_PEOPLE, Number(c.params.n) || people(c.state))) : 1);
+    },
+    people(c, v) {
+      const cur = Number(c.params.n) || people(c.state);
+      c.params.n = Math.max(1, Math.min(MAX_PEOPLE, cur + Number(v)));
+      c.render();
+    },
     rate(c, v) {
       const id = c.params.id;
       const val = Number(v);

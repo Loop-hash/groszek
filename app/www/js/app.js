@@ -8,6 +8,7 @@ import { screens } from './screens/index.js';
 import { autoBackup } from './backup.js';
 import { install as installErrorLog } from './errlog.js';
 import { syncHome, available as homeAvailable, askNotifications } from './widget.js';
+import { engine as houseEngine } from './house.js';
 
 const app = {
   state: null,
@@ -23,6 +24,26 @@ const app = {
   day: today(),
 };
 window.groszek = app; // pomocne przy szukaniu błędów
+
+// Wspólny dom: zmiany z innych telefonów trafiają prosto do stanu apki
+app.house = houseEngine({
+  state: () => app.state,
+  persist: () => { store.save(app.state); syncHome(app.state); },
+  changed: () => refreshFromHouse(),
+});
+
+function typing() {
+  const a = document.activeElement;
+  return !!(a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.type !== 'file' && $('app').contains(a));
+}
+
+// Coś przyszło z innego telefonu: odśwież ekran, ale nie w trakcie pisania ani przy otwartym okienku
+function refreshFromHouse() {
+  if (!top()) return;
+  if (app.sheetCfg || typing()) { app.houseDirty = true; return; }
+  app.houseDirty = false;
+  render();
+}
 installErrorLog(() => (top() || {}).name || '');
 
 const $ = (id) => document.getElementById(id);
@@ -44,6 +65,7 @@ function ctx(entry = top()) {
 export function save() {
   store.save(app.state);
   syncHome(app.state); // widżety i przypomnienie widzą nowe wydatki
+  app.house.changed(); // wspólny dom: wyśle zmiany innym telefonom
 }
 
 // ---------- nawigacja ----------
@@ -161,6 +183,7 @@ export function closeSheet(silent = false) {
   app.sheetCfg = null;
   $('sheet-root').innerHTML = '';
   if (cfg && cfg.onClose && !silent) cfg.onClose(ctx());
+  if (app.houseDirty) setTimeout(() => { if (app.houseDirty && !app.sheetCfg) refreshFromHouse(); }, 0);
 }
 
 // ---------- dymek i toast ----------
@@ -365,7 +388,10 @@ function onClick(ev) {
   const fn = (own.actions && own.actions[act]) || global[act];
   if (!fn) return;
   ev.preventDefault();
-  try { fn(ctx(), t.dataset.arg, t, ev); } catch (e) { console.error(e); toast('Ups: ' + e.message); }
+  try {
+    const r = fn(ctx(), t.dataset.arg, t, ev);
+    if (r && typeof r.catch === 'function') r.catch((e) => { console.error(e); toast('Ups: ' + e.message); });
+  } catch (e) { console.error(e); toast('Ups: ' + e.message); }
 }
 
 function onInput(ev) {
@@ -460,6 +486,7 @@ function onResume() {
   checkForUpdate().catch(() => {});
   runAutoBackup();
   syncHome(app.state, true);
+  app.house.resume();
 }
 
 // ---------- start ----------
@@ -514,12 +541,23 @@ async function boot() {
     // przycisk „+” w widżecie i „Dodaj wydatek” w przypomnieniu otwierają apkę z adresem dopierwszego://add
     App.addListener('appUrlOpen', (e) => openFromOutside(e && e.url));
     App.getLaunchUrl().then((r) => openFromOutside(r && r.url)).catch(() => {});
-    App.addListener('pause', () => { app.hiddenAt = app.hiddenAt || Date.now(); store.flush(); });
+    App.addListener('pause', () => { app.hiddenAt = app.hiddenAt || Date.now(); store.flush(); app.house.flush().catch(() => {}); });
   } else {
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape') back(); });
   }
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) { app.hiddenAt = app.hiddenAt || Date.now(); store.flush(); } else onResume();
+    if (document.hidden) { app.hiddenAt = app.hiddenAt || Date.now(); store.flush(); app.house.flush().catch(() => {}); } else onResume();
+  });
+  // po wyjściu z pola tekstowego dociągnij zmiany, które przyszły w trakcie pisania
+  document.addEventListener('focusout', () => setTimeout(() => { if (app.houseDirty && !app.sheetCfg && !typing()) refreshFromHouse(); }, 250));
+  window.addEventListener('online', () => app.house.resume());
+  if (app.state.house) app.house.start().catch((e) => console.error(e));
+  app.house.onStatus(() => {
+    // Ustawienia pokazują stan połączenia: odśwież tylko, gdy zmienił się napis
+    const t = top();
+    if (!t || t.name !== 'settings' || app.sheetCfg || typing()) return;
+    const line = JSON.stringify([app.house.status.connected, app.house.status.devices, !!app.house.status.error, app.house.pendingCount()]);
+    if (line !== app.houseLine) { app.houseLine = line; render(); }
   });
 
   maybeSummary();
@@ -546,7 +584,7 @@ function offerReminder() {
   sheet({
     mascot: 'happy',
     render: () => '<h2>Przypominać o paragonach?</h2>' +
-      '<p>Wieczorem o 20:30 zapytam, czy dodałeś dzisiejsze zakupy. Tylko w dni, w których nie dodasz żadnego wydatku. Godzinę zmienisz w ustawieniach.</p>' +
+      '<p>Wieczorem o 20:30 zapytam o dzisiejsze zakupy. Tylko w dni, w których nie dodasz żadnego wydatku. Godzinę zmienisz w ustawieniach.</p>' +
       '<div class="row"><button class="btn grow" data-act="no">Nie, dzięki</button><button class="btn dark grow" data-act="yes">Tak, przypominaj</button></div>' +
       '<p class="tiny muted center">Na ekran telefonu możesz też dodać widżet: przytrzymaj palec na pustym miejscu i wybierz Widżety.</p>',
     actions: {

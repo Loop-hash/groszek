@@ -2,7 +2,7 @@
 
 Do Pierwszego to apka dla studentów, która pomaga przeżyć miesiąc za niewiele pieniędzy: pilnuje budżetu na jedzenie. Mówi, ile możesz dziś wydać, znajduje promocje z Twojej listy zakupów, podsuwa tanie przepisy i układa plan posiłków na cały miesiąc za podaną kwotę.
 
-Jest darmowa, nie ma reklam ani kont. Wszystkie dane zostają w telefonie. Po apce oprowadza Groszosław, pikselowy groszek, który przy otwarciu opowiada jedną ciekawostkę o jedzeniu, a czasem przebiera się za postać, o której opowiada (21 postaci z kuchni świata).
+Jest darmowa, nie ma reklam ani kont. Dane zostają w telefonie, chyba że rodzina włączy wspólny dom (wtedy lecą zaszyfrowane). Jest też tryb rodzinny: przepisy, plan i zakupy dla kilku osób. Po apce oprowadza Groszosław, pikselowy groszek, który przy otwarciu opowiada jedną ciekawostkę o jedzeniu, a czasem przebiera się za postać, o której opowiada (21 postaci z kuchni świata).
 
 <p>
   <img src="docs/start.png" width="180" alt="Ekran startowy: ile możesz dziś wydać">
@@ -57,12 +57,26 @@ Do Pierwszego pojawi się z własną ikonką i będzie otwierał się na pełnym
 - Plan od razu zamienia się w listę zakupów, z uwzględnieniem tego, co jest w promocji.
 - Obiad można ugotować raz na dwa dni albo zrobić **food prep**: jedno gotowanie na 2–5 dni, tylko z dań, które dobrze znoszą lodówkę i odgrzewanie (gulasze, curry, zupy, zapiekanki, kasze z mięsem, pierogi). Takie dania mają też własny filtr w przepisach.
 
+**Tryb rodzinny**
+- W **Ustawieniach → Dom** wybierasz, dla ilu osób gotujesz (1–8). Więcej niż 1 włącza tryb rodzinny.
+- Przepisy przeliczają się na całą rodzinę: koszt dla wszystkich i na osobę, a składniki w gramach i sztukach („2 puszki” na 3 porcje to „2½ puszki” na 4 osoby).
+- Plan i zakupy z planu liczą porcje dla wszystkich. Przy układaniu planu można zmienić liczbę osób, np. gdy ktoś wyjeżdża.
+- W trybie rodzinnym nie ma kalorii, exp, poziomów ani trybu ostrego. Zamiast poziomu są statystyki miesiąca.
+- **Lista → Wyślij** wysyła listę jako zwykłą wiadomość (SMS, Messenger, mail).
+
+**Wspólny dom**
+- Ta sama lista, wydatki, budżet, plan i ceny z paragonów na telefonach całej rodziny. Ktoś dopisze mleko, a w sklepie od razu je widać. Ktoś doda paragon, a u wszystkich zmienia się kwota na dziś.
+- **Ustawienia → Dom → Wspólny dom → Załóż dom** daje 16-znakowy kod. Na drugim telefonie: **Mam kod** (albo na powitaniu nowej apki **Mam kod wspólnego domu**).
+- Każdy telefon ma swój wygląd, ciekawostki i przypomnienie. Bez internetu zmiany czekają i wysyłają się same, gdy sieć wróci. Przy dwóch zmianach tej samej rzeczy wygrywa nowsza.
+- Dane szyfrują się w telefonie kodem domu (AES-256), zanim polecą do bazy. W bazie leży tylko szyfr, więc bez kodu nikt ich nie znajdzie ani nie odczyta, także właściciel bazy.
+- „Wyczyść wszystkie dane” i „Wczytaj kopię” najpierw odłączają telefon od domu, więc nie skasują nic u innych.
+
 **Na ekranie telefonu (Android)**
 - Trzy widżety: mały z kwotą na dziś, szeroki z Groszosławem i przyciskiem dodawania wydatku oraz kwadrat z paskiem budżetu. Dodasz je, przytrzymując palec na pustym miejscu ekranu i wybierając Widżety.
 - Wieczorne przypomnienie o paragonach (domyślnie o 20:30), tylko w dni, w których nie dodasz żadnego wydatku. Godzinę zmienisz w ustawieniach.
 
 **Twoje dane**
-- Wszystko jest zapisane tylko w telefonie.
+- Wszystko jest zapisane tylko w telefonie (poza zaszyfrowanym wspólnym domem, jeśli go włączysz).
 - Na Androidzie apka raz w tygodniu sama zapisuje kopię w folderze **Dokumenty/Do Pierwszego**. Zostaje tam nawet po odinstalowaniu apki. Na iPhonie apka przypomina o kopii co dwa tygodnie.
 - Kopię wyślesz sobie albo wczytasz w **Ustawieniach → Kopia danych**. Warto ją zabrać przy zmianie telefonu.
 - Coś nie działa? **Ustawienia → Zgłoś problem** wyśle opis razem z numerem wersji i ostatnimi błędami apki (bez wydatków i paragonów).
@@ -82,6 +96,7 @@ Dla ciekawych:
 | `tools/android_res.py` | Groszosław dla widżetów i powiadomień: wektory Androida generowane z pikseli z `pixels.js`. |
 | `tools/audit.py` | Sprawdza przepisy: czy każdy składnik z nazwy i kroków jest na liście (z ceną), czy każda przyprawa z listy jest nazwana w kroku i czy wytrawne danie ma czym je doprawić. Powinno pokazywać same zera. |
 | `scraper/` | Pobieranie promocji ze stron sklepów. |
+| `app/www/js/house.js` | Wspólny dom: szyfrowanie (Web Crypto: HKDF, AES-GCM, HMAC) i synchronizacja z [Firebase Realtime Database](https://firebase.google.com/docs/database) przez REST i strumień zdarzeń, bez biblioteki Firebase. Każda rzecz to osobny rekord z czasem zmiany. |
 
 Resztę robią automaty na GitHub Actions:
 - budowanie APK i wydanie „najnowsza”,

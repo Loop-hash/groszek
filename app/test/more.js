@@ -72,6 +72,42 @@ export default async function (t, assert) {
     assert.ok(res.total > 40);
     assert.match(res.warnings[0], /się nie da/);
   });
+  await tt('tryb rodzinny: plan dla 4 osób, zwykłe porcje, zakupy razy 4', () => {
+    const c = mk({ people: 4 });
+    assert.equal(B.people(c.state), 4); assert.ok(B.isFamily(c.state));
+    c.state.settings.strict = true;
+    assert.equal(B.strictOn(c.state), false); // w rodzinie bez kar exp
+    const from = B.addDays(B.today(), 1);
+    const one = P.compose(mk(), { amount: 300, from, days: 7, meals: ['sniadanie', 'obiad', 'kolacja'], cook2: true, seed: 2 });
+    const fam = P.compose(c, { amount: 1200, from, days: 7, meals: ['sniadanie', 'obiad', 'kolacja'], cook2: true, seed: 2, people: 4 });
+    for (const d of fam.dates) for (const m of fam.plan[d]) { assert.equal(m.n, 4); assert.ok(!m.mult || m.mult === 1, 'w rodzinie bez powiększania porcji'); }
+    assert.ok(!fam.warnings.some((w) => /kcal/.test(w)), 'bez ostrzeżeń o kaloriach');
+    assert.ok(fam.total <= 1200.5 || fam.warnings.length);
+    assert.ok(one.total > 0);
+    // ten sam plan liczony dla 1 i dla 4 osób: zakupy w gramach rosną 4 razy
+    const plan1 = {};
+    for (const d of fam.dates) plan1[d] = fam.plan[d].map((m) => ({ ...m, n: 1 }));
+    const e1 = P.evaluate(c, plan1, fam.dates, {});
+    const e4 = P.evaluate(c, fam.plan, fam.dates, {});
+    const g = (e) => e.trips.reduce((a, tr) => a + tr.items.reduce((b, it) => b + it.g, 0), 0);
+    assert.ok(g(e4) > g(e1) * 1.8, `${g(e4)} vs ${g(e1)}`); // mniej niż 4 razy: jedna osoba i tak kupuje całe opakowania
+    // koszt dnia w planerze razy liczba osób
+    c.state.plan = { [from]: [{ id: fam.plan[from][0].id, slot: 'obiad', n: 4 }] };
+    const r = R.findRecipe(c, fam.plan[from][0].id);
+    assert.equal(P.dayTotals(c, from).cost, Math.round(R.recipeCost(c, r).perPortion * 4 * 100) / 100);
+  });
+  await tt('przepis przeliczony na inną liczbę porcji', () => {
+    assert.equal(R.scaleQ('2 puszki', 4 / 3), '2½ puszki');
+    assert.equal(R.scaleQ('1 łyżeczka', 4), '4 łyżeczki');
+    assert.equal(R.scaleQ('6 placków', 4 / 3), '8 placków');
+    assert.equal(R.scaleQ('4 duże', 4 / 3), '5 dużych');
+    assert.equal(R.scaleQ('pół bagietki', 4), '2 bagietki');
+    assert.equal(R.scaleQ('do smażenia', 2), 'do smażenia');
+    assert.equal(R.scaleQ('3 żółtka i 1 całe', 2), null);
+    const c = mk({ people: 4 });
+    assert.equal(R.qty(c, { i: 'fasola_biala', g: 480, q: '2 puszki' }, 4 / 3), '2½ puszki (640 g)');
+    assert.equal(R.qty(c, { i: 'kielbasa', g: 200 }, 4 / 3), '270 g');
+  });
   await tt('normy dzienne', () => {
     const tg = P.targets({ kcal: 2000, profile: { weight: 80 } });
     assert.equal(P.nutStatus(1950, tg.kcal), 'ok');

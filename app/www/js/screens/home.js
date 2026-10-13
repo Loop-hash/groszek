@@ -1,5 +1,5 @@
 // Start: ile możesz dziś wydać, pasek budżetu i skróty do reszty apki.
-import { status, fmt, totalExp, levelFor, addDays, today } from '../budget.js';
+import { status, fmt, totalExp, levelFor, addDays, today, isFamily } from '../budget.js';
 import { sprite, spark, ui, dish } from '../pixels.js';
 import { FACTS, pickOpening } from '../facts.js';
 import { costumeByKey, costumeSvg, randomRecipe } from '../costumes.js';
@@ -116,7 +116,9 @@ export default {
       <header class="topbar">
         <button class="sq" data-act="go" data-arg="settings" aria-label="Ustawienia">${ui('sliders', 22)}</button>
         <div class="title"><b>Do pierwszego</b><span>${esc(p.label)} · dzień ${p.dayIndex + 1}/${p.days}</span></div>
-        <button class="lvl" data-act="go" data-arg="level" aria-label="Twój poziom: ${lvl.level}"><small>LVL</small><strong>${lvl.level}</strong></button>
+        ${isFamily(st)
+          ? `<button class="sq" data-act="go" data-arg="level" aria-label="Statystyki">${ui('cal', 22)}</button>`
+          : `<button class="lvl" data-act="go" data-arg="level" aria-label="Twój poziom: ${lvl.level}"><small>LVL</small><strong>${lvl.level}</strong></button>`}
       </header>
       ${upd}
       ${hero(c, s, !!upd)}

@@ -183,7 +183,7 @@ final class Home {
         String body = (d != null ? d.optString("remind", "") + " " : "") + "Dopisz zakupy, żebym dobrze liczył.";
         NotificationCompat.Builder b = new NotificationCompat.Builder(ctx, CHANNEL)
             .setSmallIcon(R.drawable.ic_stat_groszek)
-            .setContentTitle("Dodałeś dziś paragony?")
+            .setContentTitle("Są dziś jakieś paragony?")
             .setContentText(body.trim())
             .setStyle(new NotificationCompat.BigTextStyle().bigText(body.trim()))
             .setContentIntent(openApp(ctx, null, 30))

@@ -54,6 +54,12 @@ export function section(label, right = '') {
   return `<div class="row between"><span class="label">${esc(label)}</span>${right}</div>`;
 }
 
+// Licznik [−] n [+]: data-act z argumentem -1 albo 1
+export function stepper(act, n, min, max, label = '') {
+  return `<span class="stepper"><button class="sq" data-act="${act}" data-arg="-1" aria-label="Mniej${label ? ' ' + esc(label) : ''}" ${n <= min ? 'aria-disabled="true" disabled' : ''}>${ui('minus', 18)}</button>` +
+    `<b class="pixel">${n}</b><button class="sq" data-act="${act}" data-arg="1" aria-label="Więcej${label ? ' ' + esc(label) : ''}" ${n >= max ? 'aria-disabled="true" disabled' : ''}>${ui('plus', 18)}</button></span>`;
+}
+
 export function settingRow(title, sub, control) {
   return `<div class="item"><div class="grow stack" style="gap:2px"><span class="name">${title}</span>${sub ? `<span class="sub">${sub}</span>` : ''}</div>${control}</div>`;
 }

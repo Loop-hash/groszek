@@ -451,6 +451,23 @@ await t('ceny: promocja liczy się w dniu, w którym obowiązuje, także przysz�
   assert.equal(R.priceOf(c, 'ziemniaki', addDays(from, 3)).offer, null); // po końcu promocji
 });
 
+await t('kod: każdy plik apki da się wczytać (składnia)', async () => {
+  const fs = await import('node:fs');
+  const os = await import('node:os');
+  const path = await import('node:path');
+  const { execFileSync } = await import('node:child_process');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'skladnia-'));
+  const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? (e.name === 'vendor' ? [] : walk(path.join(d, e.name))) : e.name.endsWith('.js') ? [path.join(d, e.name)] : []));
+  const bad = [];
+  for (const f of walk(new URL('../www/js', import.meta.url).pathname)) {
+    const tmp = path.join(dir, path.basename(f).replace(/\.js$/, '.mjs'));
+    fs.copyFileSync(f, tmp);
+    try { execFileSync(process.execPath, ['--check', tmp], { stdio: 'pipe' }); } catch (e) { bad.push(path.basename(f) + ': ' + String(e.stderr).split('\n').find((l) => /Error/.test(l))); }
+  }
+  fs.rmSync(dir, { recursive: true, force: true });
+  assert.deepEqual(bad, []);
+});
+
 await t('kod: każda funkcja z innego pliku jest zaimportowana', async () => {
   // łapie błędy typu „sprite is not defined”, które wychodzą dopiero po kliknięciu w apce
   const fs = await import('node:fs');
@@ -502,5 +519,7 @@ await t('aktualizacja: sama strona albo APK', async () => {
 
 const extra = await import('./more.js').catch((e) => (e.code === 'ERR_MODULE_NOT_FOUND' ? null : Promise.reject(e)));
 if (extra) await extra.default(t, assert);
+const house = await import('./house.js');
+await house.default(t, assert);
 
 console.log(process.exitCode ? 'Są błędy.' : `OK: ${n} testów`);

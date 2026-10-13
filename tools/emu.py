@@ -204,7 +204,7 @@ def home_test():
         FAILED.append("widżety")
     time.sleep(2)
     notif = sh("adb shell dumpsys notification --noredact | grep -A3 'pl.groszek.app' | head -20")
-    log("przypomnienie w systemie:", "TAK" if "Dodałeś dziś paragony" in notif or "pl.groszek.app" in notif else "nie", notif.strip()[:300])
+    log("przypomnienie w systemie:", "TAK" if "Są dziś jakieś paragony" in notif or "pl.groszek.app" in notif else "nie", notif.strip()[:300])
     sh("adb shell cmd statusbar expand-notifications")
     time.sleep(2)
     shot("19-przypomnienie")
@@ -221,6 +221,60 @@ def home_test():
     log("„+” z widżetu otwiera:", top, "OK" if top == "add" else "ŹLE")
     if top != "add":
         FAILED.append("przycisk z widżetu")
+    try:
+        ws.close()
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def house_test():
+    """Wspólny dom na prawdziwej bazie: ten telefon zakłada dom, drugi „telefon” (osobny stan w tym samym WebView)
+    dołącza kodem i dostaje listę na żywo przez strumień zdarzeń. Na koniec dom znika z bazy."""
+    src = open("app/www/js/house.js", encoding="utf-8").read()
+    m = re.search(r"export const DB_URL = '([^']*)'", src)
+    db = m.group(1) if m else ""
+    if not db:
+        log("wspólny dom: brak adresu bazy, pomijam")
+        return
+    ws, ev = connect()
+    if ws is None:
+        log("wspólny dom: brak połączenia")
+        FAILED.append("wspólny dom")
+        return
+    r = val(ev("""(async () => {
+      const H = await import('./js/house.js'); const S = await import('./js/store.js');
+      const g = window.groszek;
+      g.state.list.push({ id: 'emu-' + Date.now(), name: 'mleko z emulatora', ico: 'milk' });
+      const code = await g.house.create();
+      await new Promise((r) => setTimeout(r, 4000));
+      const fid = (await H.keysFor(code)).fid;
+      // drugi telefon: osobny stan, ta sama baza
+      const two = { st: S.defaults(), got: [] };
+      const e2 = H.engine({ state: () => two.st, persist: () => {}, changed: (k) => two.got.push(...k) });
+      await e2.join(code, true, S.defaults());
+      const joined = two.st.list.some((i) => i.name === 'mleko z emulatora');
+      g.state.list.push({ id: 'emu2-' + Date.now(), name: 'jajka na żywo', ico: 'egg' });
+      await g.house.flush();
+      await new Promise((r) => setTimeout(r, 5000));
+      const live = two.st.list.some((i) => i.name === 'jajka na żywo');
+      const st = g.house.status;
+      await e2.leave(); await g.house.leave();
+      return JSON.stringify({ fid, joined, live, connected: st.connected, devices: st.devices, error: st.error, pending: g.house.pendingCount() });
+    })()"""))
+    ok = False
+    try:
+        d = json.loads(r)
+        raw = urllib.request.urlopen(f"{db.rstrip('/')}/rodziny/{d['fid']}/d.json?shallow=true", timeout=30).read().decode()
+        n = len(json.loads(raw) or {})
+        ok = d["joined"] and d["live"] and n > 0 and "mleko" not in raw
+        log("wspólny dom:", "OK" if ok else "ŹLE", d, "| rekordów w bazie:", n)
+        req = urllib.request.Request(f"{db.rstrip('/')}/rodziny/{d['fid']}.json", method="DELETE")
+        urllib.request.urlopen(req, timeout=30).read()
+    except Exception as e:  # noqa: BLE001
+        log("wspólny dom: ŹLE", str(r)[:300], e)
+    if not ok:
+        FAILED.append("wspólny dom")
+    shot("21-wspolny-dom")
     try:
         ws.close()
     except Exception:  # noqa: BLE001
@@ -536,6 +590,7 @@ def main():
 
     backup_test()
     home_test()
+    house_test()
     web_update_test()
     apk_update_test()
     open(os.path.join(OUT, "logcat-aktualizacja.txt"), "w").write(sh("adb logcat -d -v brief", timeout=60))

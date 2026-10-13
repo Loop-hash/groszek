@@ -26,6 +26,16 @@ export function diffDays(a, b) {
 
 export const today = () => ymd(new Date());
 
+// Tryb rodzinny: dla ilu osób się gotuje (1 = zwykła apka dla jednej osoby)
+export const MAX_PEOPLE = 8;
+export function people(state) {
+  const n = Math.round(Number(state && state.settings && state.settings.people) || 1);
+  return Math.max(1, Math.min(MAX_PEOPLE, n));
+}
+export const isFamily = (state) => people(state) > 1;
+// Tryb ostry z karami exp działa tylko dla jednej osoby: w rodzinie nie ma exp ani poziomów
+export const strictOn = (state) => !!(state && state.settings && state.settings.strict) && !isFamily(state);
+
 const MONTHS = ['styczeń', 'luty', 'marzec', 'kwiecień', 'maj', 'czerwiec', 'lipiec', 'sierpień', 'wrzesień', 'październik', 'listopad', 'grudzień'];
 const MONTHS_GEN = ['stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca', 'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia'];
 const DOW = ['niedziela', 'poniedziałek', 'wtorek', 'środa', 'czwartek', 'piątek', 'sobota'];

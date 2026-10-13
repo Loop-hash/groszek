@@ -42,7 +42,7 @@ export default {
       ${topbar('Twoje ceny', all.length ? `${all.length} produktów z paragonów` : '')}
       <div class="small muted">Ceny z Twoich paragonów, po rabatach. Każdy nowy paragon je aktualizuje, a lista zakupów liczy z nich koszt.</div>
       ${all.length > 6 ? search('price-q', c.params.q || '', 'Szukaj, np. mleko', 'q') : ''}
-      ${shown.length ? `<div class="stack" style="gap:10px">${shown.map(card).join('')}</div>` : empty(all.length ? 'Nic takiego jeszcze nie kupowałeś.' : 'Zrób zdjęcie paragonu przy dodawaniu wydatku, a ceny pojawią się tutaj.')}
+      ${shown.length ? `<div class="stack" style="gap:10px">${shown.map(card).join('')}</div>` : empty(all.length ? 'Takiego produktu nie ma jeszcze w paragonach.' : 'Zrób zdjęcie paragonu przy dodawaniu wydatku, a ceny pojawią się tutaj.')}
       ${all.length ? `<button class="btn small" data-act="clear">${ui('trash', 14)} Wyczyść ceny</button>` : ''}
     `;
   },

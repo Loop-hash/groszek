@@ -1,8 +1,8 @@
 // Planer: kalendarz okresu, posiłki dnia, licznik kalorii i składników, zakupy z ułożonego planu.
-import { period, previousPeriod, today, addDays, parseYmd, dayLabel, dowName, fmt, r2 } from '../budget.js';
+import { period, previousPeriod, today, addDays, parseYmd, dayLabel, dowName, fmt, r2, people, isFamily } from '../budget.js';
 import { ui, recipeIcon, food } from '../pixels.js';
 import { esc, topbar, search, plural } from '../ui.js';
-import { dayMeals, dayTotals, targets, nutStatus, STATUS_LABEL, buyLabel, SLOT_ORDER } from '../plan.js';
+import { dayMeals, dayTotals, targets, nutStatus, STATUS_LABEL, buyLabel, SLOT_ORDER, eaters } from '../plan.js';
 import { available, recipeCost, nutrition, NUT, NUT_LABEL, NUT_UNIT, MEALS } from '../recipes.js';
 import { norm } from '../dict.js';
 import { addToList } from '../listlogic.js';
@@ -44,7 +44,8 @@ function addMealSheet(c, date) {
     actions: {
       slot(cc, k) { st.slot = k; cc.renderSheet(); },
       pick(cc, id) {
-        (cc.state.plan[date] = cc.state.plan[date] || []).push({ id, slot: st.slot });
+        const n = people(cc.state);
+        (cc.state.plan[date] = cc.state.plan[date] || []).push(n > 1 ? { id, slot: st.slot, n } : { id, slot: st.slot });
         cc.save();
         cc.closeSheet(true);
         cc.render();
@@ -64,6 +65,7 @@ export default {
     c.params.sel = sel;
     const tg = targets(st.settings);
     const t = today();
+    const fam = isFamily(st);
 
     // kalendarz od poniedziałku
     const first = parseYmd(p.start);
@@ -83,7 +85,7 @@ export default {
         costSum += tot.cost;
         const s = nutStatus(tot.kcal, tg.kcal);
         if (s === 'ok') okDays++;
-        dot = `<span class="dot ${s === 'ok' ? 'ok' : s === 'high' ? 'high' : ''}"></span>`;
+        dot = fam ? '<span class="dot ok"></span>' : `<span class="dot ${s === 'ok' ? 'ok' : s === 'high' ? 'high' : ''}"></span>`;
         const main = meals.find((m) => m.slot === 'obiad') || meals[0];
         ico = recipeIcon(main.recipe.icon, 20, '');
       }
@@ -92,9 +94,14 @@ export default {
 
     const meals = dayMeals(c, sel);
     const tot = dayTotals(c, sel);
-    const mealRows = meals.map((m) => `<div class="item"><button class="item-main" data-act="recipe" data-arg="${esc(m.recipe.id)}">${recipeIcon(m.recipe.icon, 36)}<span class="grow stack"><span class="sub" style="text-transform:uppercase;font-weight:800;letter-spacing:.08em">${esc(MEALS[m.slot] || m.slot)}${m.cook === false ? (m.prep ? ' · z food prepa' : ' · z poprzedniego dnia') : (m.batch > 1 ? ` · ${m.prep ? 'food prep' : 'gotujesz'} na ${m.batch} ${plural(m.batch, 'dzień', 'dni', 'dni')}` : '')}</span>${m.cook !== false && m.slot === 'obiad' ? `<span class="sub">ugotuj ${String((m.batch || 1) * (m.mult || 1)).replace('.', ',')} ${plural((m.batch || 1) * (m.mult || 1), 'porcję', 'porcje', 'porcji')} (przepis jest na ${m.recipe.portions})</span>` : ''}<span class="name" style="font-size:15px">${esc(m.recipe.name)}</span><span class="sub">${Math.round((nutrition(m.recipe).kcal || 0) * (m.mult || 1))} kcal · ${fmt(recipeCost(c, m.recipe).perPortion * (m.mult || 1))} zł</span></span></button>` +
-      `<button class="pill ${m.mult && m.mult !== 1 ? 'dark' : ''}" data-act="mult" data-arg="${m.idx}" aria-label="Wielkość porcji" style="background:${m.mult && m.mult !== 1 ? 'var(--ink)' : 'var(--paper)'};color:${m.mult && m.mult !== 1 ? 'var(--paper)' : 'var(--ink)'}">×${String(m.mult || 1).replace('.', ',')}</button>` +
-      `<button class="sq" style="width:38px;height:38px;border:0" data-act="rm" data-arg="${m.idx}" aria-label="Usuń z planu">${ui('trash', 16)}</button></div>`).join('');
+    const mealRows = meals.map((m) => {
+      const n = eaters(m);
+      const cookN = (m.batch || 1) * (m.mult || 1) * n;
+      const showCook = m.cook !== false && (m.slot === 'obiad' || n > 1);
+      return `<div class="item"><button class="item-main" data-act="recipe" data-arg="${esc(m.recipe.id)}">${recipeIcon(m.recipe.icon, 36)}<span class="grow stack"><span class="sub" style="text-transform:uppercase;font-weight:800;letter-spacing:.08em">${esc(MEALS[m.slot] || m.slot)}${m.cook === false ? (m.prep ? ' · z food prepa' : ' · z poprzedniego dnia') : (m.batch > 1 ? ` · ${m.prep ? 'food prep' : 'gotujesz'} na ${m.batch} ${plural(m.batch, 'dzień', 'dni', 'dni')}` : '')}</span>${showCook ? `<span class="sub">ugotuj ${String(cookN).replace('.', ',')} ${plural(cookN, 'porcję', 'porcje', 'porcji')} (przepis jest na ${m.recipe.portions})</span>` : ''}<span class="name" style="font-size:15px">${esc(m.recipe.name)}</span><span class="sub">${n > 1 ? `dla ${n} osób` : `${Math.round((nutrition(m.recipe).kcal || 0) * (m.mult || 1))} kcal`} · ${fmt(recipeCost(c, m.recipe).perPortion * (m.mult || 1) * n)} zł</span></span></button>` +
+        (fam ? '' : `<button class="pill ${m.mult && m.mult !== 1 ? 'dark' : ''}" data-act="mult" data-arg="${m.idx}" aria-label="Wielkość porcji" style="background:${m.mult && m.mult !== 1 ? 'var(--ink)' : 'var(--paper)'};color:${m.mult && m.mult !== 1 ? 'var(--paper)' : 'var(--ink)'}">×${String(m.mult || 1).replace('.', ',')}</button>`) +
+        `<button class="sq" style="width:38px;height:38px;border:0" data-act="rm" data-arg="${m.idx}" aria-label="Usuń z planu">${ui('trash', 16)}</button></div>`;
+    }).join('');
 
     const trips = (st.trips || []).filter((tr) => tr.date >= t).slice(0, 6);
     const tripRows = trips.map((tr, i) => `<details class="more"><summary><span>${esc(tr.label || dayLabel(tr.date))} · ${esc(tr.storeName || 'dowolny dyskont')}</span><span class="pixel">${fmt(tr.cost)} zł</span></summary><div class="stack">` +
@@ -109,12 +116,12 @@ export default {
         <button class="btn small" data-act="month" data-arg="1">Dalej ${ui('arrow', 14, 'flip')}</button>
       </div>
       <div class="cal">${cells.join('')}</div>
-      <div class="tiny muted">Kropka pełna: kalorie w normie · pusta: za mało · kwadrat: za dużo.</div>
+      <div class="tiny muted">${fam ? 'Kropka: dzień z planem.' : 'Kropka pełna: kalorie w normie · pusta: za mało · kwadrat: za dużo.'}</div>
       <button class="cta" data-act="composer">${ui('grid', 18)}<span>Ułóż plan za kwotę</span>${ui('arrow', 18, 'flip')}</button>
-      ${planned ? `<div class="stats3"><div class="card stack" style="gap:2px;padding:10px"><span class="tiny muted">Zaplanowane</span><b class="pixel" style="font-size:20px">${planned} dni</b></div><div class="card stack" style="gap:2px;padding:10px"><span class="tiny muted">Kalorie w normie</span><b class="pixel" style="font-size:20px">${okDays}/${planned}</b></div><div class="card stack" style="gap:2px;padding:10px"><span class="tiny muted">Porcje razem</span><b class="pixel" style="font-size:20px">${fmt(costSum, 0)} zł</b></div></div>` : ''}
+      ${planned ? `<div class="stats3"><div class="card stack" style="gap:2px;padding:10px"><span class="tiny muted">Zaplanowane</span><b class="pixel" style="font-size:20px">${planned} dni</b></div>${fam ? `<div class="card stack" style="gap:2px;padding:10px"><span class="tiny muted">Gotujesz dla</span><b class="pixel" style="font-size:20px">${people(st)} os.</b></div>` : `<div class="card stack" style="gap:2px;padding:10px"><span class="tiny muted">Kalorie w normie</span><b class="pixel" style="font-size:20px">${okDays}/${planned}</b></div>`}<div class="card stack" style="gap:2px;padding:10px"><span class="tiny muted">${fam ? 'Jedzenie razem' : 'Porcje razem'}</span><b class="pixel" style="font-size:20px">${fmt(costSum, 0)} zł</b></div></div>` : ''}
       <div class="row between"><span class="label">${esc(dowName(sel))}, ${esc(dayLabel(sel))}</span><button class="btn small" data-act="add">${ui('plus', 12)} Dodaj</button></div>
       ${meals.length ? `<div class="rows">${mealRows}</div>` : '<div class="empty-state small">Nic tu jeszcze nie ma. Dodaj posiłek albo ułóż cały plan za kwotę.</div>'}
-      ${meals.length ? `<div class="card stack" style="gap:10px"><div class="row between"><b>Ten dzień</b><span class="small muted">cel ${fmt(st.settings.kcal, 0)} kcal</span></div>${NUT.map((k) => meter(k, tot[k], tg[k])).join('')}</div>` : ''}
+      ${meals.length && !fam ? `<div class="card stack" style="gap:10px"><div class="row between"><b>Ten dzień</b><span class="small muted">cel ${fmt(st.settings.kcal, 0)} kcal</span></div>${NUT.map((k) => meter(k, tot[k], tg[k])).join('')}</div>` : ''}
       ${trips.length ? `<span class="label">Zakupy z planu</span><div class="stack">${tripRows}</div>` : ''}
     `;
   },

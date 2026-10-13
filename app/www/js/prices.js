@@ -2,7 +2,7 @@
 // Baza aktualizuje się przy każdym zapisanym paragonie i zostaje w telefonie.
 import { norm, nameKey, stemPL, classify, lookup, offerScore } from './dict.js';
 import { CANON } from './canon.js';
-import { r2 } from './budget.js';
+import { r2, strictOn } from './budget.js';
 import { blocked } from './listlogic.js';
 
 const near = (a, b) => Math.abs(a - b) <= 0.011;
@@ -75,7 +75,7 @@ export const paidOf = (x) => r2((Number(x.total) || 0) - (Number(x.disc) || 0));
 // Ikonka, kategoria i czy to zachcianka (w trybie ostrym według włączonych kategorii)
 export function describe(x, state) {
   const cls = classify(x.name, state.learned || {});
-  const treat = state.settings && state.settings.strict ? blocked(cls, state.settings) : !!cls.treat;
+  const treat = strictOn(state) ? blocked(cls, state.settings) : !!cls.treat;
   return { ico: cls.ico, cat: cls.cat, treat };
 }
 
@@ -137,7 +137,7 @@ export function pricesFor(state, name) {
 
 // Kara w trybie ostrym: 1 zł wydany na zachciankę = 1 exp mniej. Tylko gdy pozycje zgadzają się z sumą.
 export function penaltyFor(items, state, ok) {
-  if (!ok || !state.settings || !state.settings.strict) return { exp: 0, items: [] };
+  if (!ok || !strictOn(state)) return { exp: 0, items: [] };
   const bad = (items || []).filter((x) => x.treat);
   const sum = bad.reduce((a, x) => a + paidOf(x), 0);
   return { exp: Math.ceil(sum - 0.001), items: bad.map((x) => x.name), sum: r2(sum) };

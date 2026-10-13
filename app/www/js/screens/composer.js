@@ -1,7 +1,7 @@
 // Składanie miesiąca: podajesz kwotę, Groszosław układa dania na każdy dzień i rozpisuje zakupy.
-import { status, today, addDays, fmt, dayLabel, dowShort, diffDays } from '../budget.js';
+import { status, today, addDays, fmt, dayLabel, dowShort, diffDays, people, isFamily, MAX_PEOPLE } from '../budget.js';
 import { ui, recipeIcon, food, sprite } from '../pixels.js';
-import { esc, topbar, toggle, plural } from '../ui.js';
+import { esc, topbar, toggle, plural, stepper } from '../ui.js';
 import { compose, nutStatus, STATUS_LABEL, buyLabel, multLabel } from '../plan.js';
 import { findRecipe, NUT, NUT_LABEL, NUT_UNIT, MEALS } from '../recipes.js';
 import { STORES } from '../offers.js';
@@ -24,6 +24,7 @@ function defaults(c) {
   p.cook2 = true;
   p.prep = 0;
   p.seed = 1;
+  p.people = people(c.state);
   return p;
 }
 
@@ -43,6 +44,8 @@ export default {
   render(c) {
     const p = defaults(c);
     const res = c.app.composed;
+    const fam = isFamily(c.state);
+    const n = fam ? p.people : 1;
     const fromOpts = [0, 1].map((i) => addDays(today(), i));
     if (!fromOpts.includes(p.from)) fromOpts.push(p.from);
     let out = '';
@@ -52,7 +55,7 @@ export default {
         const row = (res.plan[d] || []).slice().sort((a, b) => ['sniadanie', 'obiad', 'kolacja'].indexOf(a.slot) - ['sniadanie', 'obiad', 'kolacja'].indexOf(b.slot));
         const trip = res.trips.find((t) => t.date === d);
         return `<div class="item col" style="gap:6px"><div class="row between"><b>${dowShort(d)} · ${esc(dayLabel(d))}</b>${trip ? `<span class="pill dark">${ui('basket', 12)} zakupy</span>` : ''}</div>` +
-          row.map((m) => { const r = findRecipe(c, m.id); return r ? `<div class="row">${recipeIcon(r.icon, 26)}<span class="small grow"><span class="muted">${MEALS[m.slot]}:</span> ${esc(r.name)}${m.mult && m.mult !== 1 ? ` <b>· ${multLabel(m.mult)}</b>` : ''}${m.slot === 'obiad' ? (m.cook ? (m.batch > 1 ? ` <b>(${m.prep ? 'food prep' : 'gotujesz'} na ${m.batch} ${plural(m.batch, 'dzień', 'dni', 'dni')})</b>` : '') : ` <span class="muted">(${m.prep ? 'z food prepa' : 'z wczoraj'})</span>`) : ''}</span></div>` : ''; }).join('') + '</div>';
+          row.map((m) => { const r = findRecipe(c, m.id); return r ? `<div class="row">${recipeIcon(r.icon, 26)}<span class="small grow"><span class="muted">${MEALS[m.slot]}:</span> ${esc(r.name)}${!fam && m.mult && m.mult !== 1 ? ` <b>· ${multLabel(m.mult)}</b>` : ''}${m.slot === 'obiad' ? (m.cook ? (m.batch > 1 ? ` <b>(${m.prep ? 'food prep' : 'gotujesz'} na ${m.batch} ${plural(m.batch, 'dzień', 'dni', 'dni')})</b>` : '') : ` <span class="muted">(${m.prep ? 'z food prepa' : 'z wczoraj'})</span>`) : ''}</span></div>` : ''; }).join('') + '</div>';
       }).join('');
       const trips = res.trips.map((tr) => `<details class="more"><summary><span>${esc(dowShort(tr.date))} ${esc(dayLabel(tr.date))} · ${esc(tr.storeName)}</span><span class="pixel">${fmt(tr.cost)} zł</span></summary><div class="stack">` +
         tr.items.map((it) => `<div class="row">${food(it.icon, 22)}<span class="grow small">${esc(it.name)} <span class="muted">· ${esc(buyLabel(it))}</span></span>${it.promo ? `<span class="pill dark">${esc(STORES[it.promo.store])}</span>` : ''}<span class="pixel small">${fmt(it.price)}</span></div>`).join('') + '</div></details>').join('');
@@ -64,10 +67,10 @@ export default {
       out = `
         <div class="card ${ok ? 'dark' : ''} row" style="align-items:center">${sprite(ok ? 'happy' : 'worried', 56)}<div class="grow stack" style="gap:2px">
           <b style="font-size:18px">${ok ? 'Mieści się!' : 'Nie mieści się'}</b>
-          <span class="small">Zakupy: około <b>${fmt(res.total)} zł</b> z ${fmt(p.amount, 0)} zł${ok && p.amount - res.total > 1 ? `, zostaje ${fmt(p.amount - res.total)} zł` : ''}.</span></div></div>
+          <span class="small">Zakupy${n > 1 ? ` dla ${n} osób` : ''}: około <b>${fmt(res.total)} zł</b> z ${fmt(p.amount, 0)} zł${ok && p.amount - res.total > 1 ? `, zostaje ${fmt(p.amount - res.total)} zł` : ''}.</span></div></div>
         ${res.warnings.map((w) => `<div class="card dashed small">${esc(w)}</div>`).join('')}
-        <span class="label">Średnio dziennie</span>
-        <div class="card stack" style="gap:6px">${nutRows}</div>
+        ${fam ? '' : `<span class="label">Średnio dziennie</span>
+        <div class="card stack" style="gap:6px">${nutRows}</div>`}
         <span class="label">Zakupy · ${res.trips.length} ${plural(res.trips.length, 'wyjście', 'wyjścia', 'wyjść')}</span>
         <div class="stack">${trips}</div>
         ${res.pantry.length ? `<div class="small muted">Sprawdź w szafce: ${esc(res.pantry.join(', '))}.</div>` : ''}
@@ -83,6 +86,7 @@ export default {
       <div class="card stack" style="gap:12px">
         <label class="row between"><span class="bold">Kwota</span><span class="numrow"><input id="cp-amount" class="field small num" type="number" inputmode="decimal" value="${esc(p.amount)}" data-ch="amount" style="width:120px"><span>zł</span></span></label>
         <label class="row between"><span class="bold">Na ile dni</span><span class="numrow"><input id="cp-days" class="field small num" type="number" inputmode="numeric" min="1" max="62" value="${esc(p.days)}" data-ch="days" style="width:120px"><span style="width:18px"></span></span></label>
+        ${fam ? `<div class="row between"><span class="stack" style="gap:1px"><span class="bold">Dla ilu osób</span><span class="tiny muted">domyślnie z Ustawień</span></span>${stepper('people', n, 1, MAX_PEOPLE, 'osób')}</div>` : ''}
         <div class="stack" style="gap:6px"><span class="bold">Od kiedy</span><div class="seg">${fromOpts.map((d, i) => `<button class="${p.from === d ? 'on' : ''}" data-act="from" data-arg="${d}">${i === 0 ? 'Dziś' : i === 1 ? 'Jutro' : dowShort(d) + ' ' + Number(d.slice(8))}</button>`).join('')}` +
           `<label class="segbtn">Inny dzień<input id="cp-from" type="date" min="${today()}" max="${addDays(today(), 90)}" value="${esc(p.from)}" data-ch="fromDate" aria-label="Wybierz dzień startu planu"></label></div></div>
         <div class="stack" style="gap:6px"><span class="bold">Posiłki</span><div class="wrap">${Object.entries(MEALS).map(([k, v]) => `<button class="chip ${p.meals[k] ? 'on' : ''}" data-act="meal" data-arg="${k}">${v}</button>`).join('')}</div></div>
@@ -91,7 +95,9 @@ export default {
           ? `<div class="stack" style="gap:6px"><span class="bold">Jedno gotowanie na</span><div class="seg">${[2, 3, 4, 5].map((n) => `<button class="${p.prep === n ? 'on' : ''}" data-act="prepDays" data-arg="${n}">${n} dni</button>`).join('')}</div>` +
             `<span class="small muted">${p.prep > 4 ? 'W lodówce do 4 dni, porcję na 5. dzień zamroź od razu.' : 'Porcje do pudełek i do lodówki, wytrzymają do 4 dni.'}</span></div>`
           : `<div class="row between"><span><b>Gotuję na 2 dni</b><br><span class="small muted">jeden obiad starcza na dwa dni</span></span>${toggle('cook2', p.cook2, 'Gotuję na 2 dni')}</div>`}
-        <div class="small muted">${p.days ? `To ${fmt(p.amount / Math.max(1, p.days))} zł dziennie. ` : ''}Cel: ${fmt(c.state.settings.kcal, 0)} kcal dziennie (zmienisz w Ustawieniach).</div>
+        <div class="small muted">${fam
+          ? (p.days ? `To ${fmt(p.amount / Math.max(1, p.days))} zł dziennie, czyli ${fmt(p.amount / Math.max(1, p.days) / n)} zł na osobę. Porcje są takie, jak w przepisach.` : '')
+          : `${p.days ? `To ${fmt(p.amount / Math.max(1, p.days))} zł dziennie. ` : ''}Cel: ${fmt(c.state.settings.kcal, 0)} kcal dziennie (zmienisz w Ustawieniach).`}</div>
       </div>
       <button class="cta" data-act="run">${sprite('pea', 28)}<span>${res ? 'Ułóż od nowa' : 'Ułóż plan'}</span>${ui('arrow', 18, 'flip')}</button>
       ${out}
@@ -115,6 +121,7 @@ export default {
     cook2(c) { c.params.cook2 = !c.params.cook2; c.app.composed = null; c.render(); },
     prep(c) { c.params.prep = c.params.prep > 0 ? 0 : 3; c.app.composed = null; c.render(); },
     prepDays(c, n) { c.params.prep = Number(n) || 3; c.app.composed = null; c.render(); },
+    people(c, v) { c.params.people = Math.max(1, Math.min(MAX_PEOPLE, (c.params.people || 1) + Number(v))); c.app.composed = null; c.render(); },
     run(c) {
       const p = c.params;
       const inp = document.getElementById('cp-amount');
@@ -122,7 +129,7 @@ export default {
       const dInp = document.getElementById('cp-days');
       if (dInp) p.days = Math.max(1, Math.min(62, Math.round(Number(dInp.value) || 1)));
       if (p.amount <= 0) { c.toast('Wpisz kwotę'); return; }
-      c.app.composed = compose(c, { amount: p.amount, from: p.from, days: p.days, meals: Object.keys(p.meals).filter((k) => p.meals[k]), cook2: p.cook2, prep: p.prep, seed: p.seed });
+      c.app.composed = compose(c, opts(c));
       c.render();
       const res = c.app.composed;
       c.peek(res.total <= p.amount + 0.5 ? 'Gotowe! Zerknij na plan i zapisz.' : 'Ciasno z kasą. Zobacz, co proponuję.', res.total <= p.amount + 0.5 ? 'happy' : 'worried');
@@ -146,8 +153,13 @@ export default {
   onLeave(c) { c.app.composed = null; },
 };
 
-function this_run(c) {
+function opts(c) {
   const p = c.params;
-  c.app.composed = compose(c, { amount: p.amount, from: p.from, days: p.days, meals: Object.keys(p.meals).filter((k) => p.meals[k]), cook2: p.cook2, prep: p.prep, seed: p.seed });
+  return { amount: p.amount, from: p.from, days: p.days, meals: Object.keys(p.meals).filter((k) => p.meals[k]), cook2: p.cook2, prep: p.prep, seed: p.seed,
+    people: isFamily(c.state) ? p.people || people(c.state) : 1 };
+}
+
+function this_run(c) {
+  c.app.composed = compose(c, opts(c));
   c.render();
 }

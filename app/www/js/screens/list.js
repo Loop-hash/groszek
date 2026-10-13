@@ -1,5 +1,5 @@
 // Lista zakupów: ikonki, promocje do każdej rzeczy, odhaczanie, tryb ostry i oszczędności (exp).
-import { fmt, today, r2, shortDate } from '../budget.js';
+import { fmt, today, r2, shortDate, strictOn, isFamily } from '../budget.js';
 import { ui, food, sprite, FOOD } from '../pixels.js';
 import { esc, topbar, check, empty, plural } from '../ui.js';
 import { listMatches, offerForItem, STORES, whenLabel, saving, isActive, tidy } from '../offers.js';
@@ -7,6 +7,7 @@ import { addEntries } from '../listlogic.js';
 import { norm, qtyText, gramsOf, setQty, stepLabel } from '../dict.js';
 import { uid } from '../store.js';
 import { pricesFor } from '../prices.js';
+import { shareText } from '../share.js';
 
 const CAT_NAME = {
   'nabiał': 'nabiał', 'pieczywo': 'pieczywo', 'mięso': 'mięso', 'wędliny': 'wędliny', 'warzywa': 'warzywa', 'owoce': 'owoce',
@@ -201,14 +202,22 @@ export default {
         <input id="list-new" class="field" type="text" placeholder="Dopisz, np. 3 jogurty" enterkeyhint="done" autocapitalize="sentences">
         <button class="sq" type="submit" aria-label="Dopisz">${ui('plus', 20)}</button>
       </form>
-      ${st.settings.strict ? `<div class="card dark row" style="padding:10px 14px">${sprite('angry', 34)}<span class="small grow">Tryb ostry: zachcianek nie dopiszę.</span></div>` : ''}
-      ${pending.length ? `<div class="row between small"><span class="bold">${withPromo.length} z ${pending.length} w promocji${potential > 0 ? ` · oszczędzisz ${fmt(potential)} zł` : ''}</span></div>
+      ${strictOn(st) ? `<div class="card dark row" style="padding:10px 14px">${sprite('angry', 34)}<span class="small grow">Tryb ostry: zachcianek nie dopiszę.</span></div>` : ''}
+      ${pending.length ? `<div class="row between small" style="gap:10px"><span class="bold">${withPromo.length} z ${pending.length} w promocji${potential > 0 ? ` · oszczędzisz ${fmt(potential)} zł` : ''}</span><button class="btn small" data-act="send">${ui('share', 14)} Wyślij</button></div>
       <div class="seg" role="tablist"><button class="${mode === 'all' ? 'on' : ''}" data-act="mode" data-arg="all">Wszystko</button><button class="${mode === 'store' ? 'on' : ''}" data-act="mode" data-arg="store">Według sklepu</button></div>` : ''}
       <div class="stack" style="gap:0">${body}</div>
     `;
   },
 
   actions: {
+    async send(c) {
+      const items = c.state.list.filter((i) => !i.done);
+      if (!items.length) return;
+      const lines = items.map((i) => `• ${i.name}${qtyText(i) ? ' ' + qtyText(i) : ''}`);
+      const how = await shareText(`Lista zakupów (${items.length}):\n${lines.join('\n')}`, 'Lista zakupów', 'Wyślij listę');
+      if (how === 'copied') c.toast('Skopiowano listę, wklej ją w wiadomości');
+      else if (how === null) c.toast('Nie udało się wysłać listy');
+    },
     add(c) {
       const inp = document.getElementById('list-new');
       const v = inp ? inp.value : '';
@@ -234,7 +243,7 @@ export default {
           const before = Math.floor(st.savings.reduce((a, x) => a + x.amount, 0));
           st.savings.push({ id: uid(), itemId: i.id, amount: s, date: today(), name: i.name, store: o.store });
           const after = Math.floor(st.savings.reduce((a, x) => a + x.amount, 0));
-          c.toast(`Zaoszczędzone ${fmt(s)} zł${after > before ? ` · +${after - before} exp` : ''}`);
+          c.toast(`Zaoszczędzone ${fmt(s)} zł${after > before && !isFamily(st) ? ` · +${after - before} exp` : ''}`);
         }
       } else {
         delete i.doneAt;

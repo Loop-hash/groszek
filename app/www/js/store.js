@@ -50,6 +50,7 @@ export function defaults() {
     settings: {
       budget: 400,
       monthStart: 1,
+      people: 1, // tryb rodzinny, gdy więcej niż 1
       kcal: 2200,
       profile: null,
       gear: { '1 palnik': true, '2 palniki': false, 'Piekarnik': false, 'Opiekacz': true, 'Toster': true, 'Air fryer': false, 'Mikrofala': false, 'Blender': false },
@@ -128,8 +129,10 @@ export async function flush() {
   await kvSet(KEY, JSON.stringify(s));
 }
 
+// Kopia bez kodu wspólnego domu: plik może trafić w obce ręce, a po wczytaniu i tak dołącza się od nowa
 export function exportJson(state) {
-  return JSON.stringify({ app: 'groszek', exported: new Date().toISOString(), state }, null, 1);
+  const { house, ...rest } = state; // eslint-disable-line no-unused-vars
+  return JSON.stringify({ app: 'groszek', exported: new Date().toISOString(), state: rest }, null, 1);
 }
 
 export function importJson(text) {

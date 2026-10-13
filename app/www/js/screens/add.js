@@ -1,5 +1,5 @@
 // Nowy wydatek: klawiatura, sklep, dzień. Ten sam ekran poprawia i usuwa stary wydatek.
-import { status, fmt, today, addDays, r2, dayLabel } from '../budget.js';
+import { status, fmt, today, addDays, r2, dayLabel, strictOn } from '../budget.js';
 import { qtyText } from '../dict.js';
 import { ui, food, sprite } from '../pixels.js';
 import { esc, topbar, chip, plural, toggle, settingRow } from '../ui.js';
@@ -99,7 +99,7 @@ function itemSheet(c, idx) {
         (x.raw ? `<div class="small muted">Na paragonie: ${esc(x.raw)}</div>` : '') +
         `<label class="stack" style="gap:6px"><span class="label">Nazwa</span><input class="field small" id="itm-name" value="${esc(x.name)}" data-in="nm" autocomplete="off" enterkeyhint="done"></label>` +
         (x.total != null ? `<div class="row between"><span class="bold">Zapłacone</span><b class="pixel" style="font-size:20px">${fmt(paidOf(x))} zł</b></div>` : '') +
-        (cc.state.settings.strict ? `<div class="rows">${settingRow('Zachcianka', 'W trybie ostrym Groszosław odejmie za nią exp', toggle('treat', !!x.treat, 'Zachcianka'))}</div>` : '') +
+        (strictOn(cc.state) ? `<div class="rows">${settingRow('Zachcianka', 'W trybie ostrym Groszosław odejmie za nią exp', toggle('treat', !!x.treat, 'Zachcianka'))}</div>` : '') +
         '<div class="row"><button class="btn grow" data-act="rm">Usuń produkt</button><button class="btn dark grow" data-act="sheet-close">Gotowe</button></div>';
     },
     inputs: {

@@ -1,13 +1,13 @@
 // Dopisywanie do listy zakupów z pilnowaniem trybu ostrego.
 import { classify, norm, CAT_LABEL, nameKey, parseEntry, canonical, splitEntries, mergeQty, qtyText } from './dict.js';
 import { uid } from './store.js';
-import { today } from './budget.js';
+import { today, strictOn } from './budget.js';
 import { esc } from './ui.js';
 
 const NO = ['Nie ma mowy!', 'Odłóż to!', 'Nie dziś!', 'Ani mi się waż!', 'Nic z tego!'];
 
 export function blocked(cls, settings) {
-  if (!settings.strict || !cls.treat) return false;
+  if (!settings.strict || (Number(settings.people) || 1) > 1 || !cls.treat) return false;
   if (cls.learned) return true;
   return settings.strictCats[cls.cat] !== false && !!settings.strictCats[cls.cat];
 }
@@ -99,7 +99,7 @@ export function addToList(c, rawName, extra = {}, opts = {}) {
     return true;
   }
   const cls = classify(name, st.learned);
-  if (st.settings.strict) {
+  if (strictOn(st)) {
     if (!cls.known) { askOnce(c, name, ex, opts.done, qty); return false; }
     if (blocked(cls, st.settings)) { angry(c, name, cls, opts.done); return false; }
   }

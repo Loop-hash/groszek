@@ -1,10 +1,12 @@
 // Ustawienia: budżet, kalorie, kuchnia, sklepy, Groszosław i wygląd, tryb ostry, kopia danych.
-import { fmt, shortDate } from '../budget.js';
+import { fmt, shortDate, people, isFamily, MAX_PEOPLE } from '../budget.js';
 import { ui, sprite } from '../pixels.js';
-import { esc, topbar, toggle, chip, settingRow, plural } from '../ui.js';
+import { esc, topbar, toggle, chip, settingRow, plural, stepper } from '../ui.js';
 import { GEAR, AVOID, DEFAULT_CUISINES, importJson, defaults, plugin } from '../store.js';
 import { DIR, canAuto, autoBackup, shareBackup, lastBackup } from '../backup.js';
 import { errors, report } from '../errlog.js';
+import { shareText } from '../share.js';
+import { houseRow, houseSheet } from './houseui.js';
 import { available as homeAvailable, reminderOf, timeText, askNotifications, syncHome } from '../widget.js';
 import { TREAT_CATS, CAT_LABEL, norm } from '../dict.js';
 import { STORES } from '../offers.js';
@@ -138,7 +140,7 @@ function bugSheet(c) {
   c.sheet({
     mascot: 'worried',
     render: () => '<h2>Zgłoś problem</h2>' +
-      `<p class="small">Napisz krótko, co robiłeś i co poszło nie tak. Apka dołączy numer wersji${n ? ` i ${n} ${plural(n, 'ostatni błąd', 'ostatnie błędy', 'ostatnich błędów')}` : ''}. Twoich wydatków ani paragonów w zgłoszeniu nie ma.</p>` +
+      `<p class="small">Napisz krótko, co się działo i co poszło nie tak. Apka dołączy numer wersji${n ? ` i ${n} ${plural(n, 'ostatni błąd', 'ostatnie błędy', 'ostatnich błędów')}` : ''}. Twoich wydatków ani paragonów w zgłoszeniu nie ma.</p>` +
       '<textarea id="bug-note" class="field" rows="4" placeholder="np. przy usuwaniu wydatku wyskoczył błąd"></textarea>' +
       '<div class="row"><button class="btn grow" data-act="sheet-close">Anuluj</button><button class="btn dark grow" data-act="send">Wyślij</button></div>' +
       '<p class="tiny muted center">Wyślij to osobie, od której masz apkę, np. na Messengerze albo mailem.</p>',
@@ -147,35 +149,12 @@ function bugSheet(c) {
         const el = document.getElementById('bug-note');
         const platform = cc.app.native && cc.app.native() ? 'Android' : /iPhone|iPad/.test(navigator.userAgent) ? 'iPhone' : 'przeglądarka';
         const text = report({ build: cc.app.build || {}, platform, note: el ? el.value : '' });
-        const how = await shareText(text);
+        const how = await shareText(text, 'Zgłoszenie z Do Pierwszego', 'Wyślij zgłoszenie');
         if (how) { cc.closeSheet(true); cc.toast(how === 'copied' ? 'Skopiowano zgłoszenie, wklej je w wiadomości' : 'Dzięki! To bardzo pomaga'); }
         else if (how === null) cc.toast('Nie udało się wysłać ani skopiować zgłoszenia');
       },
     },
   });
-}
-
-// 'shared' albo 'copied'; false, gdy użytkownik zrezygnował; null, gdy nic nie zadziałało
-async function shareText(text) {
-  const share = plugin('Share');
-  try {
-    if (share) {
-      await share.share({ title: 'Zgłoszenie z Do Pierwszego', text, dialogTitle: 'Wyślij zgłoszenie' });
-      return 'shared';
-    }
-    if (navigator.share) {
-      await navigator.share({ title: 'Zgłoszenie z Do Pierwszego', text });
-      return 'shared';
-    }
-  } catch (e) {
-    if ((e && e.name === 'AbortError') || /cancel/i.test(String(e && e.message))) return false;
-  }
-  try {
-    await navigator.clipboard.writeText(text);
-    return 'copied';
-  } catch (e) {
-    return null;
-  }
 }
 
 function importBackup(c) {
@@ -193,11 +172,14 @@ function importBackup(c) {
     }
     c.sheet({
       mascot: 'worried',
-      render: () => `<h2>Wczytać kopię?</h2><p>Obecne dane w apce zostaną zastąpione danymi z pliku (${next.expenses.length} ${plural(next.expenses.length, 'wydatek', 'wydatki', 'wydatków')}, ${next.list.length} na liście).</p>` +
+      render: (cc) => `<h2>Wczytać kopię?</h2><p>Obecne dane w apce zostaną zastąpione danymi z pliku (${next.expenses.length} ${plural(next.expenses.length, 'wydatek', 'wydatki', 'wydatków')}, ${next.list.length} na liście).${cc.state.house ? ' Ten telefon odłączy się od wspólnego domu (u innych nic nie zniknie). Potem możesz dołączyć znowu.' : ''}</p>` +
         '<div class="row"><button class="btn grow" data-act="sheet-close">Anuluj</button><button class="btn dark grow" data-act="yes">Wczytaj</button></div>',
       actions: {
-        yes(cc) {
+        async yes(cc) {
           next.onboarded = true;
+          // kopia nie nadpisuje wspólnego domu: telefon najpierw się odłącza, a dane z pliku są tylko jego
+          if (cc.state.house) await cc.app.house.leave();
+          delete next.house;
           cc.app.state = next;
           cc.app.applyTheme();
           cc.closeSheet(true);
@@ -220,13 +202,22 @@ export default {
     const build = c.app.build || {};
     const upd = c.app.update;
     const opt = (n) => `<option value="${n}" ${Number(s.monthStart) === n ? 'selected' : ''}>${n}. dzień miesiąca</option>`;
+    const n = people(st);
+    const fam = n > 1;
 
     return `
       ${topbar('Ustawienia')}
 
+      <span class="label">Dom</span>
+      <div class="rows">
+        ${settingRow('Dla ilu osób gotujesz', fam ? 'tryb rodzinny: przepisy, plan i lista liczą porcje dla wszystkich' : 'więcej niż 1 włącza tryb rodzinny',
+          stepper('people', n, 1, MAX_PEOPLE, 'osób'))}
+        ${houseRow(c)}
+      </div>
+
       <span class="label">Budżet</span>
       <div class="rows">
-        ${settingRow('Na jedzenie miesięcznie', 'tyle możesz wydać w jednym okresie',
+        ${settingRow('Na jedzenie miesięcznie', fam ? 'na cały dom, w jednym okresie' : 'tyle możesz wydać w jednym okresie',
           `<span class="numrow"><input id="set-budget" class="field small num" type="number" inputmode="decimal" min="0" value="${esc(s.budget)}" data-ch="budget" style="width:110px"><span class="small">zł</span></span>`)}
         ${settingRow('Początek miesiąca', 'np. dzień wypłaty albo stypendium',
           `<select id="set-start" class="field small" data-ch="monthStart" style="width:170px">${Array.from({ length: 28 }, (_, i) => opt(i + 1)).join('')}</select>`)}
@@ -234,9 +225,9 @@ export default {
 
       <span class="label">Jedzenie</span>
       <div class="rows">
-        ${settingRow('Kalorie dziennie', s.profile ? 'policzone z profilu' : 'wpisz albo policz z profilu',
+        ${fam ? '' : settingRow('Kalorie dziennie', s.profile ? 'policzone z profilu' : 'wpisz albo policz z profilu',
           `<span class="numrow"><input id="set-kcal" class="field small num" type="number" inputmode="numeric" min="800" max="6000" value="${esc(s.kcal)}" data-ch="kcal" style="width:100px"><span class="small">kcal</span></span>`)}
-        <div class="item"><button class="btn small block" data-act="profile">Policz z profilu (wiek, waga, ruch)</button></div>
+        ${fam ? '' : '<div class="item"><button class="btn small block" data-act="profile">Policz z profilu (wiek, waga, ruch)</button></div>'}
         <div class="item col"><div class="stack" style="gap:2px"><span class="name">Sprzęt w kuchni</span><span class="sub">przepisy dopasuję do tego, co masz</span></div>
           <div class="wrap">${GEAR.map((g) => chip('gear', g, !!s.gear[g], g)).join('')}</div></div>
         <div class="item col"><div class="stack" style="gap:2px"><span class="name">Nie jem</span><span class="sub">takich przepisów nie podsunę</span></div>
@@ -261,13 +252,13 @@ export default {
           <div class="seg">${[['system', 'Jak telefon'], ['light', 'Jasny'], ['dark', 'Ciemny']].map(([v, l]) => `<button class="${s.theme === v ? 'on' : ''}" data-act="theme" data-arg="${v}">${l}</button>`).join('')}</div></div>
       </div>
 
-      <span class="label">Tryb ostry</span>
+      ${fam ? '' : `<span class="label">Tryb ostry</span>
       <div class="rows">
         ${settingRow(`<span class="row" style="gap:8px">${sprite('angry', 26)} Tryb ostry</span>`, 'Groszosław nie pozwoli dopisać zachcianek do listy', toggle('strict', !!s.strict, 'Tryb ostry'))}
         ${TREAT_CATS.map((k) => settingRow(esc(CAT_LABEL[k]), '', toggle('strictCat', !!s.strictCats[k], CAT_LABEL[k], k))).join('')}
         ${settingRow('Zapamiętane produkty', learned.length ? `${learned.length} ${plural(learned.length, 'produkt', 'produkty', 'produktów')} · podstawy i zachcianki` : 'jeszcze nic. Groszosław zapyta o nieznane rzeczy, gdy włączysz tryb ostry',
           learned.length ? '<button class="btn small" data-act="learnedSheet">Pokaż</button>' : '')}
-      </div>
+      </div>`}
 
       ${homeAvailable() ? reminderSection(c) : ''}
 
@@ -323,6 +314,14 @@ export default {
 
   actions: {
     profile(c) { profileSheet(c); },
+    house(c) { houseSheet(c); },
+    people(c, v) {
+      const before = isFamily(c.state);
+      c.state.settings.people = Math.max(1, Math.min(MAX_PEOPLE, people(c.state) + Number(v)));
+      c.save();
+      c.render();
+      if (isFamily(c.state) && !before) c.peek('Tryb rodzinny! Przepisy i plan policzę dla całego domu.', 'happy');
+    },
     gear(c, g) { c.state.settings.gear[g] = !c.state.settings.gear[g]; c.save(); c.render(); },
     avoid(c, g) { c.state.settings.avoid[g] = !c.state.settings.avoid[g]; c.save(); c.render(); },
     cuis(c, k) { const s = c.state.settings; s.cuisines[k] = s.cuisines[k] === false; c.save(); c.render(); },
@@ -399,10 +398,11 @@ export default {
     reset(c) {
       c.sheet({
         mascot: 'worried',
-        render: () => '<h2>Na pewno wyczyścić wszystko?</h2><p>Znikną wydatki, lista, plan i poziom. Tego nie da się cofnąć, chyba że masz kopię.</p>' +
+        render: (cc) => `<h2>Na pewno wyczyścić wszystko?</h2><p>Znikną wydatki, lista, plan i poziom. Tego nie da się cofnąć, chyba że masz kopię.${cc.state.house ? ' Ten telefon odłączy się od wspólnego domu. U innych domowników nic nie zniknie.' : ''}</p>` +
           '<div class="row"><button class="btn grow" data-act="sheet-close">Zostaw</button><button class="btn dark grow" data-act="yes">Wyczyść</button></div>',
         actions: {
-          yes(cc) {
+          async yes(cc) {
+            if (cc.state.house) await cc.app.house.leave(); // czyszczenie tego telefonu nie może wyczyścić domu
             cc.app.state = defaults();
             cc.app.applyTheme();
             cc.closeSheet(true);

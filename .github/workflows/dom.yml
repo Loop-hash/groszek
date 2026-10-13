@@ -1,0 +1,27 @@
+name: Wspólny dom
+
+# Sprawdza wspólny dom na prawdziwej bazie Firebase: reguły, szyfr i synchronizację dwóch telefonów.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/www/js/house.js'
+      - 'app/www/js/store.js'
+      - 'tools/dom_check.mjs'
+      - '.github/workflows/dom.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dom:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Dwa telefony na prawdziwej bazie
+        run: node --experimental-eventsource tools/dom_check.mjs

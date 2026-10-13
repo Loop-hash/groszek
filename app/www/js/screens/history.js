@@ -1,5 +1,5 @@
 // Historia: co kupione, podzielone na zakupy, w okresie rozliczeniowym. Ołówek w rogu poprawia kwotę.
-import { period, previousPeriod, today, fmt, r2, dayLabel, dowName, spentIn } from '../budget.js';
+import { period, previousPeriod, today, fmt, r2, dayLabel, dowName, spentIn, isFamily } from '../budget.js';
 import { ui, sprite } from '../pixels.js';
 import { esc, topbar, empty, iconBtn, plural } from '../ui.js';
 import { buyRows, asItem } from '../buyitems.js';
@@ -13,7 +13,7 @@ function periodAt(c, offset) {
 
 function purchase(st, e) {
   const items = (e.items || []).map(asItem);
-  const pen = (st.penalties || []).filter((x) => x.expenseId === e.id).reduce((a, x) => a + x.exp, 0);
+  const pen = isFamily(st) ? 0 : (st.penalties || []).filter((x) => x.expenseId === e.id).reduce((a, x) => a + x.exp, 0);
   const saved = r2((st.savings || []).filter((x) => x.expenseId === e.id).reduce((a, x) => a + x.amount, 0));
   const notes = [];
   if (saved > 0) notes.push(`na promocjach ${fmt(saved)} zł`);

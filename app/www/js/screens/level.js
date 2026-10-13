@@ -1,5 +1,5 @@
-// Poziom i statystyki: exp z promocji, dni w limicie, poprzednie miesiące, podsumowanie po końcu miesiąca.
-import { period, previousPeriod, today, fmt, levelFor, LEVELS, totalExp, totalSaved, summary, daysInLimit, addDays, spentIn, dowShort, r2, dayLabel, planStart } from '../budget.js';
+// Poziom i statystyki (w trybie rodzinnym same statystyki): exp z promocji, dni w limicie, poprzednie miesiące, podsumowanie po końcu miesiąca.
+import { period, previousPeriod, today, fmt, levelFor, LEVELS, totalExp, totalSaved, summary, daysInLimit, addDays, spentIn, dowShort, r2, dayLabel, planStart, isFamily } from '../budget.js';
 import { sprite, spark } from '../pixels.js';
 import { esc, topbar, plural } from '../ui.js';
 
@@ -26,7 +26,7 @@ export function summarySheet(c, prev, seenKey) {
       `<div class="card stack" style="gap:2px"><span class="small muted">Wydane</span><b class="pixel" style="font-size:22px">${fmt(sm.spent)} zł</b><span class="tiny muted">z ${fmt(sm.budget, 0)} zł</span></div>` +
       `<div class="card stack" style="gap:2px"><span class="small muted">${good ? 'Zostało' : 'Ponad budżet'}</span><b class="pixel" style="font-size:22px">${fmt(Math.abs(sm.left))} zł</b></div>` +
       `<div class="card stack" style="gap:2px"><span class="small muted">Dni w limicie</span><b class="pixel" style="font-size:22px">${sm.inLimit}/${sm.total}</b></div>` +
-      `<div class="card stack" style="gap:2px"><span class="small muted">Na promocjach</span><b class="pixel" style="font-size:22px">${fmt(sm.saved)} zł</b><span class="tiny muted">${sm.exp >= 0 ? '+' : '−'}${Math.abs(sm.exp)} exp${sm.penalty ? ` (kary −${sm.penalty})` : ''}</span></div>` +
+      `<div class="card stack" style="gap:2px"><span class="small muted">Na promocjach</span><b class="pixel" style="font-size:22px">${fmt(sm.saved)} zł</b>${isFamily(c.state) ? '' : `<span class="tiny muted">${sm.exp >= 0 ? '+' : '−'}${Math.abs(sm.exp)} exp${sm.penalty ? ` (kary −${sm.penalty})` : ''}</span>`}</div>` +
       `</div>` +
       `<button class="btn dark block" data-act="ok">${good ? 'Lecimy dalej' : 'Nowy miesiąc, nowy start'}</button>`,
     actions: {
@@ -60,10 +60,11 @@ export default {
     }
 
     const past = pastPeriods(st);
+    const fam = isFamily(st);
     return `
-      ${topbar('Twój poziom')}
+      ${topbar(fam ? 'Statystyki' : 'Twój poziom')}
       <div class="hero" style="height:150px">${spark(18, 'left:16%;top:10%')}${spark(12, 'right:20%;top:20%')}${spark(10, 'left:24%;bottom:12%')}${sprite('happy', 132)}</div>
-      <div class="stack center" style="gap:4px;align-items:center">
+      ${fam ? '' : `<div class="stack center" style="gap:4px;align-items:center">
         <div class="lvl" style="width:64px;height:64px"><small>LVL</small><strong style="font-size:26px">${lvl.level}</strong></div>
         <h1 class="hello" style="font-size:26px">${esc(lvl.name)}</h1>
         <div class="small muted">${exp} exp · 1 zł zaoszczędzony na promocji = 1 exp${st.settings.strict ? ' · 1 zł na zachciankę = −1 exp' : ''}</div>
@@ -71,7 +72,7 @@ export default {
       <div class="stack" style="gap:6px">
         <div class="bar"><div class="fill" style="width:${(lvl.progress * 100).toFixed(1)}%"></div></div>
         <div class="row between small"><span class="pixel">${lvl.from}</span><span class="bold">${next ? `${next.at - exp} exp do: ${esc(next.name)}` : 'Najwyższy poziom!'}</span><span class="pixel">${next ? next.at : ''}</span></div>
-      </div>
+      </div>`}
       <span class="label">Ten miesiąc · ${esc(p.label)}</span>
       <div class="stats">
         <div class="card stack" style="gap:2px"><span class="small muted">Dni w limicie</span><b class="pixel" style="font-size:24px">${lim.inLimit}/${lim.total}</b></div>
@@ -79,13 +80,13 @@ export default {
         <div class="card stack" style="gap:2px"><span class="small muted">Na promocjach</span><b class="pixel" style="font-size:24px">${fmt(savedMonth)} zł</b></div>
         <div class="card stack" style="gap:2px"><span class="small muted">Wydane</span><b class="pixel" style="font-size:24px">${fmt(spent)} zł</b><span class="tiny muted">z ${fmt(budget, 0)} zł</span></div>
       </div>
-      ${penMonth.length ? `<div class="card dark row" style="padding:10px 14px">${sprite('angry', 34)}<span class="small grow">Zachcianki z paragonów w tym miesiącu: −${penMonth.reduce((a, x) => a + x.exp, 0)} exp</span></div>` : ''}
+      ${penMonth.length && !fam ? `<div class="card dark row" style="padding:10px 14px">${sprite('angry', 34)}<span class="small grow">Zachcianki z paragonów w tym miesiącu: −${penMonth.reduce((a, x) => a + x.exp, 0)} exp</span></div>` : ''}
       <span class="label">Ostatnie 7 dni</span>
       <div class="week">${week.join('')}</div>
       <div class="tiny muted">Pełna kropka: dzień w limicie. Kwadrat: ponad plan.</div>
       ${past.length ? `<span class="label">Poprzednie miesiące</span><div class="rows">${past.map((s) => `<div class="item"><span class="grow stack"><span class="name">${esc(s.period.label)}</span><span class="sub">${esc(dayLabel(s.period.start))} – ${esc(dayLabel(s.period.end))} · w limicie ${s.inLimit}/${s.total} dni</span></span><span class="offer-price"><span class="price">${fmt(s.spent)} zł</span><span class="tiny bold">${s.ok ? 'w budżecie' : 'ponad budżet'}</span></span></div>`).join('')}</div>` : ''}
-      <span class="label">Wszystkie poziomy</span>
-      <div class="rows">${LEVELS.map((l, i) => `<div class="item"><span class="lvl" style="width:36px;height:36px;${i + 1 > lvl.level ? 'background:var(--paper);color:var(--ink);border:2px solid var(--ink)' : ''}"><strong style="font-size:14px">${i + 1}</strong></span><span class="grow name">${esc(l.name)}</span><span class="pixel small">${l.at} exp</span></div>`).join('')}</div>
+      ${fam ? '' : `<span class="label">Wszystkie poziomy</span>
+      <div class="rows">${LEVELS.map((l, i) => `<div class="item"><span class="lvl" style="width:36px;height:36px;${i + 1 > lvl.level ? 'background:var(--paper);color:var(--ink);border:2px solid var(--ink)' : ''}"><strong style="font-size:14px">${i + 1}</strong></span><span class="grow name">${esc(l.name)}</span><span class="pixel small">${l.at} exp</span></div>`).join('')}</div>`}
       <div class="small muted center">Zaoszczędzone łącznie: ${fmt(totalSaved(st))} zł</div>
     `;
   },

@@ -125,13 +125,90 @@ export function nutrition(r) {
   return Object.fromEntries(NUT.map((k) => [k, Number(r[k]) || 0]));
 }
 
-// Opis ilości: "2 jajka (100 g)" albo "300 g".
-export function qty(c, x) {
+// ---------- przeliczanie ilości na inną liczbę porcji ----------
+// Rzeczowniki z przepisów: [1, 2–4, 5 i więcej, ułamek (1½ puszki)], rodzaj do przymiotników
+const NOUNS = [
+  ['szt.', 'szt.', 'szt.', 'szt.', 'f'], ['kromka', 'kromki', 'kromek', 'kromki', 'f'], ['puszka', 'puszki', 'puszek', 'puszki', 'f'],
+  ['placek', 'placki', 'placków', 'placka', 'm'], ['łyżka', 'łyżki', 'łyżek', 'łyżki', 'f'], ['łyżeczka', 'łyżeczki', 'łyżeczek', 'łyżeczki', 'f'],
+  ['opakowanie', 'opakowania', 'opakowań', 'opakowania', 'n'], ['kostka', 'kostki', 'kostek', 'kostki', 'f'], ['kubek', 'kubki', 'kubków', 'kubka', 'm'],
+  ['kulka', 'kulki', 'kulek', 'kulki', 'f'], ['ząbek', 'ząbki', 'ząbków', 'ząbka', 'm'], ['bułka', 'bułki', 'bułek', 'bułki', 'f'],
+  ['pęczek', 'pęczki', 'pęczków', 'pęczka', 'm'], ['główka', 'główki', 'główek', 'główki', 'f'], ['bagietka', 'bagietki', 'bagietek', 'bagietki', 'f'],
+  ['szklanka', 'szklanki', 'szklanek', 'szklanki', 'f'], ['arkusz', 'arkusze', 'arkuszy', 'arkusza', 'm'], ['plaster', 'plastry', 'plastrów', 'plastra', 'm'],
+  ['żółtko', 'żółtka', 'żółtek', 'żółtka', 'n'], ['doniczka', 'doniczki', 'doniczek', 'doniczki', 'f'],
+];
+// Przymiotniki: [m, ż, n, dopełniacz m/n, dopełniacz ż, 2–4, 5 i więcej]
+const ADJS = [
+  ['duży', 'duża', 'duże', 'dużego', 'dużej', 'duże', 'dużych'], ['mały', 'mała', 'małe', 'małego', 'małej', 'małe', 'małych'],
+  ['długi', 'długa', 'długie', 'długiego', 'długiej', 'długie', 'długich'], ['czerstwy', 'czerstwa', 'czerstwe', 'czerstwego', 'czerstwej', 'czerstwe', 'czerstwych'],
+  ['dojrzały', 'dojrzała', 'dojrzałe', 'dojrzałego', 'dojrzałej', 'dojrzałe', 'dojrzałych'],
+];
+const NOUN_OF = new Map(NOUNS.flatMap((f) => f.slice(0, 4).map((w) => [w, f])));
+const ADJ_OF = new Map(ADJS.flatMap((f) => f.map((w) => [w, f])));
+
+function countForm(n) {
+  if (n !== Math.floor(n)) return 3; // ułamek
+  if (n === 1) return 0;
+  const d = n % 10;
+  const t = n % 100;
+  return d >= 2 && d <= 4 && (t < 12 || t > 14) ? 1 : 2;
+}
+
+// Liczba z połówką: 2,5 -> "2½", 0,5 -> "½"
+function halves(n) {
+  const w = Math.floor(n);
+  return (w ? String(w) : '') + (n - w ? '½' : '');
+}
+
+function leadNumber(q) {
+  const m = /^(pół|½|\d+\s?\/\s?\d+|\d+(?:[,.]\d+)?½?)\s+(.*)$/.exec(q);
+  if (!m) return null;
+  const t = m[1].replace(/\s/g, '');
+  let n;
+  if (t === 'pół' || t === '½') n = 0.5;
+  else if (t.includes('/')) { const [a, b] = t.split('/').map(Number); n = b ? a / b : NaN; } else n = parseFloat(t.replace('½', '').replace(',', '.')) + (t.endsWith('½') ? 0.5 : 0);
+  return Number.isFinite(n) && n > 0 ? { n, rest: m[2] } : null;
+}
+
+// "2 puszki" razy 4/3 -> "2½ puszki". Null, gdy nie da się tego ładnie przeliczyć (wtedy zostają gramy).
+export function scaleQ(q, f) {
+  if (f === 1) return q;
+  const lead = leadNumber(String(q || '').trim());
+  if (!lead) return /\d/.test(q || '') ? null : q; // "do smażenia", "szczypta" zostają
+  const words = lead.rest.split(' ');
+  if (words.length === 1 && words[0] === 'kg') return `${String(Math.round(lead.n * f * 10) / 10).replace('.', ',')} kg`;
+  const nounF = NOUN_OF.get(words[words.length - 1]);
+  const adjs = words.slice(0, nounF ? -1 : words.length).map((w) => ADJ_OF.get(w));
+  if (adjs.some((a) => !a) || (!nounF && !adjs.length)) return null;
+  const raw = lead.n * f;
+  let n = raw >= 10 ? Math.round(raw) : Math.max(0.5, Math.round(raw * 2) / 2);
+  const form = countForm(n);
+  // sam przymiotnik ("4 duże") bez rzeczownika: rodzaju nie znamy, więc tylko liczby całe od 2 w górę
+  if (!nounF && (form === 0 || form === 3)) {
+    n = Math.max(2, Math.round(raw));
+    return `${n} ${adjs.map((a) => a[countForm(n) === 1 ? 5 : 6]).join(' ')}`;
+  }
+  const g = nounF ? nounF[4] : 'm';
+  const adjForm = (a) => (form === 1 ? a[5] : form === 2 ? a[6] : form === 0 ? a[g === 'm' ? 0 : g === 'f' ? 1 : 2] : a[g === 'f' ? 4 : 3]);
+  return [halves(n), ...adjs.map(adjForm), ...(nounF ? [nounF[form]] : [])].join(' ');
+}
+
+// Gramy po przeliczeniu: okrągłe, ale bez przesady przy małych ilościach
+export function niceGrams(g) {
+  if (g < 10) return Math.round(g * 10) / 10;
+  if (g < 50) return Math.round(g);
+  if (g < 250) return Math.round(g / 5) * 5;
+  return Math.round(g / 10) * 10;
+}
+
+// Opis ilości: "2 jajka (100 g)" albo "300 g". f: ile razy więcej niż w przepisie (inna liczba porcji).
+export function qty(c, x, f = 1) {
   const i = ing(c, x.i);
-  const g = x.g >= 10 ? Math.round(x.g) : x.g;
-  if (x.q) return /\d/.test(x.q) || g < 5 ? `${x.q}${g >= 5 ? ` (${g} g)` : ''}` : `${g} g, ${x.q}`;
-  if (i && i.piece && x.g >= i.piece * 0.75) {
-    const n = Math.round((x.g / i.piece) * 2) / 2;
+  const g0 = x.g * f;
+  const g = f === 1 ? (x.g >= 10 ? Math.round(x.g) : x.g) : niceGrams(g0);
+  const q = x.q ? scaleQ(x.q, f) : null;
+  if (x.q && q != null) return /\d/.test(q) || g < 5 ? `${q}${g >= 5 ? ` (${g} g)` : ''}` : `${g} g, ${q}`;
+  if (i && i.piece && g0 >= i.piece * 0.75) {
+    const n = Math.round((g0 / i.piece) * 2) / 2;
     return `${String(n).replace('.', ',')} szt. (${g} g)`;
   }
   return `${g} g`;
