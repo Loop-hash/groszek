@@ -26,6 +26,8 @@ PAGES = {
     "biedronka_promocja_nf": "https://www.biedronka.pl/pl/promocja-nf",
     "biedronka_press": "https://www.biedronka.pl/pl/press,id,1wll0t29t,title,codziennie-niskie-ceny-p-oferta-od-12-10",
     "biedronka_gazetki": "https://www.biedronka.pl/pl/gazetki",
+    # widżet gazetki: z niego wiadomo, skąd bierze strony i ewentualnie produkty z cenami
+    "biedronka_widget": "https://cdn.biedronka.cloud/leaflet-widget/index.js",
     # Lidl: strony z siatką produktów pokazują tylko pierwsze kafelki; szukamy API z dalszymi stronami
     "lidl_api_a": "https://www.lidl.pl/q/api/search?offset=0&fetchsize=100&locale=pl_PL&assortment=PL&version=2.1.0&category.id=10068374",
     "lidl_api_b": "https://www.lidl.pl/q/api/search?assortment=PL&locale=pl_PL&version=v2.0.0&category.id=10068374&offset=0&fetchsize=100",
@@ -47,6 +49,9 @@ def summarize(html):
         "script_srcs": [s.get("src") for s in scripts if s.get("src")][:40],
         "script_ids": [s.get("id") for s in scripts if s.get("id")][:40],
         "api_like": sorted(set(re.findall(r"https?://[^\"' ]*(?:api|json|graphql)[^\"' ]*", html)))[:60],
+        "biedronka_urls": sorted(set(re.findall(r"https?://[a-z0-9.-]*biedronka[a-z0-9./_-]*", html)))[:60],
+        "paths": sorted(set(re.findall(r"[\"'`](/[A-Za-z0-9_/${}.-]*(?:leaflet|api|page|product|area)[A-Za-z0-9_/${}.?=&-]*)[\"'`]", html)))[:80],
+        "leaflet_ids": sorted(set(re.findall(r"galleryLeaflet\.init\(\"([0-9a-f-]{36})\"", html)))[:20],
         "data_attrs": sorted(set(re.findall(r"data-[a-z0-9-]+", html)))[:120],
         "classes_with_price": sorted(set(c for el in soup.find_all(class_=re.compile("price|offer|product|tile", re.I))
                                          for c in el.get("class", [])))[:120],
