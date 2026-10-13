@@ -513,7 +513,9 @@ def parse_aldi(html):
             continue
         prices = []
         cur = p.get("currentPrice")
-        if cur:
+        # Daty promocji są w promotionPrices. currentPrice ma tę samą cenę, ale datę publikacji strony
+        # (niedziela), więc np. „Tania środa” wyglądała na ważną od niedzieli.
+        if cur and not p.get("promotionPrices"):
             prices.append((cur, aldi_date(cur.get("validFrom")), aldi_date((cur.get("validUntil") or 0))))
         for pr in p.get("promotionPrices") or []:
             prices.append((pr, pr.get("validFromLocalDate") or aldi_date(pr.get("validFrom")),
