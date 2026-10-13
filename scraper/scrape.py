@@ -357,10 +357,7 @@ LIDL_PAGES = [
 LIDL_API = "https://www.lidl.pl/q/api/search?offset=0&fetchsize=500&locale=pl_PL&assortment=PL&version=2.1.0&category.id={}"
 LIDL_API_CATS = [
     ("lidl_api_zywnosc", "10068374", False),  # Żywność i napoje
-    ("lidl_api_okazje", "10009219", False),  # Najlepsze okazje
-    ("lidl_api_promocje", "10076831", False),  # Promocje (też niespożywcze, filtr po kategorii)
-    ("lidl_api_bez_promocji", "10089501", True),  # Nowe niższe ceny regularne
-]
+]  # strony „Najlepsze okazje”, „Promocje” i „Bez promocji” to nie kategorie: wyszukiwarka zwraca dla nich pustą listę
 
 
 def lidl_api_items(text):
@@ -667,16 +664,15 @@ def main():
                         add(o)
             except Exception as e:  # noqa: BLE001
                 errors.append(f"{name}: {e!r}"[:160])
-        print("lidl: z wyszukiwarki", len(res), "| błędy:", errors or "brak")
-        # zapas: pierwsze kafelki z siatki na stronach, gdy wyszukiwarka nie odpowie
-        if len(res) < 10:
-            for name, url, regular in LIDL_PAGES:
-                try:
-                    for o in parse_lidl_grid(fetcher.get(name, url), today, regular):
-                        add(o)
-                except Exception as e:  # noqa: BLE001
-                    errors.append(f"{name}: {e!r}"[:160])
-            print("lidl: z siatki produktów na stronach, razem", len(res))
+        n_api = len(res)
+        # strony z siatką: część ofert (np. „Najlepsze okazje”) nie trafia do listy żywności w wyszukiwarce
+        for name, url, regular in LIDL_PAGES:
+            try:
+                for o in parse_lidl_grid(fetcher.get(name, url), today, regular):
+                    add(o)
+            except Exception as e:  # noqa: BLE001
+                errors.append(f"{name}: {e!r}"[:160])
+        print("lidl: z wyszukiwarki", n_api, "| ze stron dodatkowo", len(res) - n_api, "| błędy:", errors or "brak")
         # stary sposób: opisy z kafelków reklamowych, gdy siatka produktów nic nie dała
         if len(res) < 10:
             for name, url in [("lidl_home", "https://www.lidl.pl/"),
