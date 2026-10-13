@@ -1,7 +1,7 @@
 // Jeden przepis: koszt porcji, wartości odżywcze, składniki z dopisywaniem do listy, kroki, ocena i plan.
 import { fmt, today, addDays, dowShort, dayLabel } from '../budget.js';
 import { ui, food, recipeIcon, sprite } from '../pixels.js';
-import { esc, topbar, check, chip, plural } from '../ui.js';
+import { esc, topbar, check, plural } from '../ui.js';
 import { findRecipe, recipeCost, nutrition, ing, qty, priceOf, searchUrl, blockReason, MEALS } from '../recipes.js';
 import { STORES } from '../offers.js';
 import { addToList } from '../listlogic.js';

@@ -8,7 +8,6 @@ import { norm, qtyText, gramsOf, setQty, stepLabel } from '../dict.js';
 import { uid } from '../store.js';
 import { pricesFor } from '../prices.js';
 
-const IN_STORE = { kaufland: 'w Kauflandzie', lidl: 'w Lidlu', aldi: 'w Aldi', biedronka: 'w Biedronce' };
 const CAT_NAME = {
   'nabiał': 'nabiał', 'pieczywo': 'pieczywo', 'mięso': 'mięso', 'wędliny': 'wędliny', 'warzywa': 'warzywa', 'owoce': 'owoce',
   'makarony i kasze': 'makarony i kasze', 'śniadania': 'na śniadanie', 'do pieczenia': 'do pieczenia', 'przyprawy': 'przyprawy',

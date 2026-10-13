@@ -140,8 +140,10 @@ export function renderSheet(first = false) {
     sb.scrollTop = v;
     return;
   }
-  const mascot = cfg.mascot
-    ? `<div class="mascot ${cfg.shake ? 'shake' : ''}">${sprite(cfg.mascot, 168)}</div>` : '';
+  let art = '';
+  // okienko ma działać nawet wtedy, gdy rysunek się nie uda (np. po błędzie w kodzie)
+  try { art = cfg.mascot ? sprite(cfg.mascot, 168) : ''; } catch (e) { console.error(e); }
+  const mascot = art ? `<div class="mascot ${cfg.shake ? 'shake' : ''}">${art}</div>` : '';
   root.innerHTML = `<div class="veil" data-act="sheet-close"></div>` +
     `<section class="sheet ${cfg.mascot ? '' : 'plain'}" role="dialog" aria-modal="true">${mascot}<div class="sheet-body">${body}</div></section>`;
   if (cfg.mounted) cfg.mounted(ctx(), root);
@@ -177,15 +179,29 @@ const mb = (b) => (b / 1048576).toFixed(b < 10485760 ? 1 : 0).replace('.', ',');
 // stronę (zwykle poniżej 1 MB) i przeładowuje się na nią: Android o nic nie pyta. Inaczej pobiera
 // APK i instaluje je w tle (Android 12+ nie pyta o zgodę). Po takiej instalacji Android zamyka apkę
 // i nie pozwala jej otworzyć się samej, więc trzeba dotknąć ikonki.
+// Aktualizacja to droga, którą przychodzą poprawki, więc nie może się zablokować: gdy w apce coś
+// pójdzie nie tak (np. błąd w kodzie okienka), plik otwiera się w przeglądarce do ręcznej instalacji.
 export async function installUpdate() {
   const u = app.update;
   if (!u) return;
+  try {
+    await updateInApp(u);
+  } catch (e) {
+    console.error(e);
+    try { if (app.sheetCfg) closeSheet(true); } catch (err) { /* okienko i tak do niczego */ }
+    if (u.url) openUrl(u.url);
+    try { toast('Aktualizacja w apce nie wyszła, pobieram plik przez przeglądarkę'); } catch (err) { /* jw. */ }
+  }
+}
+app.installUpdate = installUpdate;
+
+async function updateInApp(u) {
   const up = store.plugin('Updater');
   if (!up || !/\.apk(\?|$)/.test(u.url || '')) { openUrl(u.url); return; }
   let info = {};
   try { info = (await up.info()) || {}; } catch (e) { /* starsza wersja wtyczki */ }
   const sameNative = !!(u.web && u.native && info.native && u.native === info.native);
-  if (sameNative && Number(info.badWeb) !== Number(u.build)) { webUpdate(up, u); return; }
+  if (sameNative && Number(info.badWeb) !== Number(u.build)) { await webUpdate(up, u); return; }
   let can = true;
   try { can = (await up.canInstall()).allowed !== false; } catch (e) { /* starsza wersja wtyczki */ }
   if (!can) {
@@ -207,9 +223,8 @@ export async function installUpdate() {
     });
     return;
   }
-  apkUpdate(up, u, info);
+  await apkUpdate(up, u, info);
 }
-app.installUpdate = installUpdate;
 
 function updateSheet(title, note) {
   const cfg = {

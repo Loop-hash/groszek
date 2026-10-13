@@ -317,6 +317,22 @@ await t('piksele: rumieńce i czerwone detale', async () => {
   assert.ok(pixelSvg(['#rco'], 8).includes('px-red'));
 });
 
+await t('kopia: eksport i import, stare i uszkodzone pola', async () => {
+  const S = await import('../www/js/store.js');
+  const st = S.defaults();
+  st.expenses.push({ id: 'a', amount: 12.5, date: '2026-10-01', store: 'Lidl' });
+  const back = S.importJson(S.exportJson(st));
+  assert.deepEqual(back.expenses, st.expenses);
+  assert.equal(back.settings.budget, st.settings.budget);
+  // stara kopia bez nowych pól i z nullami tam, gdzie powinny być listy i obiekty
+  const old = S.importJson(JSON.stringify({ app: 'groszek', state: { settings: { budget: 450 }, ratings: null, list: 5, plan: [], expenses: null } }));
+  assert.equal(old.settings.budget, 450);
+  assert.deepEqual(old.ratings, {}); assert.deepEqual(old.list, []); assert.deepEqual(old.expenses, []);
+  assert.equal(typeof old.plan, 'object'); assert.ok(!Array.isArray(old.plan));
+  assert.deepEqual(old.chars, { order: [], pos: 0 }); assert.equal(old.settings.costume, true);
+  assert.throws(() => S.importJson('{"foo": 1}'));
+});
+
 await t('kod: każda funkcja z innego pliku jest zaimportowana', async () => {
   // łapie błędy typu „sprite is not defined”, które wychodzą dopiero po kliknięciu w apce
   const fs = await import('node:fs');

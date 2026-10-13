@@ -7,6 +7,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 import time
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -14,6 +15,10 @@ import xml.etree.ElementTree as ET
 OUT = "debug"
 os.makedirs(OUT, exist_ok=True)
 LOG = open(os.path.join(OUT, "steps.log"), "w")
+
+
+# Najważniejsze sprawdzenia (aktualizacje): gdy któreś się nie uda, test kończy się błędem i widać to w Actions
+FAILED = []
 
 
 def log(*a):
@@ -132,6 +137,7 @@ def web_update_test():
     ws, ev = connect(start=False)
     if ws is None:
         log("aktualizacja strony: ŹLE, brak połączenia po przeładowaniu")
+        FAILED.append("aktualizacja strony")
         return
     got = None
     for _ in range(20):
@@ -149,6 +155,8 @@ def web_update_test():
     shot("17-po-aktualizacji-strony")
     installer = "packageinstaller" in sh("adb shell uiautomator dump /sdcard/ui.xml && adb shell cat /sdcard/ui.xml", timeout=40)
     log("aktualizacja strony:", "OK" if got else "ŹLE", got, "| okienko instalatora:", "TAK" if installer else "nie")
+    if not got:
+        FAILED.append("aktualizacja strony")
     if got:
         time.sleep(3)
         b64 = base64.b64encode(open("tools/test-paragon.jpg", "rb").read()).decode()
@@ -206,6 +214,8 @@ def apk_update_test():
     shot("18-po-aktualizacji-apk")
     log("aktualizacja APK: zainstalowana", "TAK" if updated else "NIE", "| okienko instalatora:", "TAK" if installer else "nie",
         "| otworzyła się sama:", "TAK" if reopened else "nie (Android blokuje otwieranie z tła)")
+    if not updated:
+        FAILED.append("aktualizacja APK")
     log("aktualizacja APK: logcat", sh("adb logcat -d -v brief | grep -E 'GroszekUpdate|Background activity|BAL|abort.*groszek|PackageInstaller.*groszek' | tail -25", timeout=60))
 
 
@@ -454,8 +464,10 @@ def main():
     web_update_test()
     apk_update_test()
     open(os.path.join(OUT, "logcat-aktualizacja.txt"), "w").write(sh("adb logcat -d -v brief", timeout=60))
-    log("koniec")
+    log("koniec", "| nieudane:", ", ".join(FAILED) if FAILED else "nic")
 
 
 if __name__ == "__main__":
     main()
+    if FAILED:
+        sys.exit(1)

@@ -1,5 +1,5 @@
 // Składanie miesiąca: podajesz kwotę, Groszosław układa dania na każdy dzień i rozpisuje zakupy.
-import { status, today, addDays, fmt, dayLabel, dowShort, period, diffDays } from '../budget.js';
+import { status, today, addDays, fmt, dayLabel, dowShort, diffDays } from '../budget.js';
 import { ui, recipeIcon, food, sprite } from '../pixels.js';
 import { esc, topbar, toggle, plural } from '../ui.js';
 import { compose, nutStatus, STATUS_LABEL, buyLabel, multLabel } from '../plan.js';

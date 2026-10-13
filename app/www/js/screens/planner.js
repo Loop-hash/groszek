@@ -2,8 +2,8 @@
 import { period, previousPeriod, today, addDays, parseYmd, dayLabel, dowName, fmt, r2 } from '../budget.js';
 import { ui, recipeIcon, food } from '../pixels.js';
 import { esc, topbar, search, plural } from '../ui.js';
-import { dayMeals, dayTotals, targets, nutStatus, STATUS_LABEL, buyLabel, SLOT_ORDER, multLabel } from '../plan.js';
-import { available, recipeCost, nutrition, NUT, NUT_LABEL, NUT_UNIT, MEALS, findRecipe } from '../recipes.js';
+import { dayMeals, dayTotals, targets, nutStatus, STATUS_LABEL, buyLabel, SLOT_ORDER } from '../plan.js';
+import { available, recipeCost, nutrition, NUT, NUT_LABEL, NUT_UNIT, MEALS } from '../recipes.js';
 import { norm } from '../dict.js';
 import { addToList } from '../listlogic.js';
 import { STORES } from '../offers.js';

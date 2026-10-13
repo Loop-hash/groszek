@@ -1,5 +1,5 @@
 // Promocje z gazetek: filtry po sklepie i grupie, szukajka, dopisywanie do listy jednym dotknięciem.
-import { fmt, shortDate } from '../budget.js';
+import { fmt } from '../budget.js';
 import { ui, food } from '../pixels.js';
 import { esc, topbar, chip, search, empty, plural } from '../ui.js';
 import { offersFor, meta, STORES, GROUPS, whenLabel, discountLabel, isActive, isUpcoming, saving } from '../offers.js';

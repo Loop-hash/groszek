@@ -90,7 +90,12 @@ function merge(base, saved) {
   for (const k of Object.keys(saved)) {
     const b = base[k];
     const s = saved[k];
-    if (b && typeof b === 'object' && !Array.isArray(b) && s && typeof s === 'object' && !Array.isArray(s)) out[k] = merge(b, s);
+    const bObj = b && typeof b === 'object' && !Array.isArray(b);
+    const sObj = s && typeof s === 'object' && !Array.isArray(s);
+    if (bObj && sObj) out[k] = merge(b, s);
+    // lista albo obiekt z domyślnych nie może zamienić się w null czy liczbę (np. z ręcznie poprawionej kopii)
+    else if (Array.isArray(b) && !Array.isArray(s)) out[k] = b;
+    else if (bObj && !sObj) out[k] = b;
     else out[k] = s;
   }
   return out;
@@ -99,7 +104,11 @@ function merge(base, saved) {
 export async function load() {
   const raw = await kvGet(KEY);
   if (!raw) return defaults();
-  try { return merge(defaults(), JSON.parse(raw)); } catch (e) { return defaults(); }
+  try { return merge(defaults(), JSON.parse(raw)); } catch (e) {
+    // uszkodzonego zapisu nie nadpisujemy w ciemno: zostaje kopia do odzyskania
+    await kvSet(KEY + '-uszkodzony', raw);
+    return defaults();
+  }
 }
 
 let timer = null;
