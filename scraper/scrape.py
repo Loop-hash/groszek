@@ -1,6 +1,6 @@
 """Robot promocji Groszka.
 
-Pobiera promocje spożywcze z Kauflandu, Lidla i Aldi i zapisuje je do data/promos.json.
+Pobiera promocje spożywcze z Kauflandu, Lidla (z siatki produktów) i Aldi i zapisuje je do data/promos.json.
 Każdy sklep jest obsługiwany osobno: jeśli jeden się zepsuje, pozostałe dalej działają,
 a w pliku zostaje informacja, który sklep nie odpowiedział.
 
@@ -336,6 +336,127 @@ def parse_lidl(html):
     return offers
 
 
+# Produkty z siatki Lidla: każdy kafelek ma w atrybucie data-grid-data pełny opis oferty (JSON)
+# z ceną, ceną sprzed obniżki, kuponem Lidl Plus, gramaturą i datami ważności.
+LIDL_FOOD = {"food", "f+v"}
+LIDL_PAGES = [
+    ("lidl_okazje", "https://www.lidl.pl/c/najlepsze-okazje/a10009219", False),
+    ("lidl_zywnosc", "https://www.lidl.pl/c/zywnosc-i-napoje/s10068374", False),
+    ("lidl_promocje", "https://www.lidl.pl/c/promocje/s10076831", False),
+    ("lidl_owoce", "https://www.lidl.pl/h/owoce-i-warzywa/h10071012", False),
+    ("lidl_mieso", "https://www.lidl.pl/h/mieso-i-drob/h10095752", False),
+    ("lidl_nabial", "https://www.lidl.pl/h/sery-nabial-i-jaja/h10095761", False),
+    ("lidl_piekarnia", "https://www.lidl.pl/h/piekarnia/h10096086", False),
+    ("lidl_przyprawy", "https://www.lidl.pl/h/oleje-sosy-i-przyprawy/h10096110", False),
+    ("lidl_mrozonki", "https://www.lidl.pl/h/mrozonki/h10071049", False),
+    ("lidl_bez_promocji", "https://www.lidl.pl/c/bez-promocji/s10089501", True),
+]
+
+
+def lidl_grid_items(html):
+    out = []
+    for raw in re.findall(r'data-grid-data="([^"]+)"', html or ""):
+        try:
+            out.append(json.loads(htmllib.unescape(raw)))
+        except ValueError:
+            continue
+    return out
+
+
+def lidl_brand_name(title):
+    """'PILOS Masło ekstra 83%' -> ('PILOS', 'Masło ekstra 83%'); bez marki: ('', tytuł)."""
+    words = title.split()
+    brand = []
+    for w in words[:-1]:
+        letters = re.sub(r"[^A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż]", "", w)
+        if len(letters) >= 2 and letters == letters.upper() and len(brand) < 4:
+            brand.append(w)
+        else:
+            break
+    if brand:
+        return " ".join(brand), " ".join(words[len(brand):])
+    return "", title
+
+
+def parse_lidl_item(d, today, regular=False):
+    if not isinstance(d, dict):
+        return None
+    cat = str(d.get("category") or (d.get("keyfacts") or {}).get("analyticsCategory") or "").lower()
+    if cat not in LIDL_FOOD:
+        return None
+    title = clean(d.get("fullTitle") or d.get("title"))
+    if not title:
+        return None
+    brand, name = lidl_brand_name(title)
+    if is_nonfood(name, brand):
+        return None
+    pr = d.get("price") or {}
+    lp = (d.get("lidlPlus") or [None])[0] or {}
+    cond = []
+    if pr.get("price") is not None:
+        p = pr
+    elif (lp.get("price") or {}).get("price") is not None:
+        p = lp["price"]
+        cond.append("kupon Lidl Plus")
+    else:
+        return None
+    price = round(float(p["price"]), 2)
+    dd = p.get("discount") or {}
+    base = clean((p.get("basePrice") or {}).get("text"))
+    old = p.get("oldPrice") or dd.get("deletedPrice")
+    if old is None:
+        mo = re.search(r"(?:przed obniżką|poza promocją)[^0-9]{0,30}(?:1 kg = |100 g = |1 l = )?(\d+,\d\d)", base, re.I)
+        if mo:
+            old = pl_float(mo.group(1))
+    if old is not None and float(old) <= price:
+        old = None
+    disc = f"-{int(dd['percentageDiscount'])}%" if dd.get("percentageDiscount") else ""
+    hl = clean(lp.get("highlightText")) if cond else ""
+    if hl and not disc:
+        mh = re.match(r"-\s?(\d+)\s?%", hl)
+        if mh:
+            disc = f"-{mh.group(1)}%"
+    mq = re.search(r"przy zakupie (\d+)", hl or base, re.I)
+    if mq:
+        cond.append(f"przy {mq.group(1)} szt.")
+    # cena za kilogram/litr z części opisu przed ceną sprzed obniżki
+    head = re.split(r"przed obniżką|poza promocją|najniższa cena", base, flags=re.I)[0]
+    mu = re.search(r"(1 kg|100 g|1 l|100 ml)\s?=\s?(\d+,\d\d)", head)
+    unit = f"={mu.group(1)} {mu.group(2)}" if mu else ""
+    pack = clean((p.get("packaging") or {}).get("text"))
+    ml = re.search(r"Limit:?\s*(\d+\s*(?:opak|szt|kg|g|l)\.?(?:\s+na\s+(?:kupon|paragon|osobę))?)", base, re.I)
+    detail = ", ".join(x for x in [pack, ("limit " + ml.group(1).strip()) if ml else ""] if x)
+    start = aldi_date(d.get("storeStartDate"))
+    end = aldi_date(d.get("storeEndDate"))
+    group = clean(((d.get("keyfacts") or {}).get("wonCategoryPrimary") or "").split("/")[-1])
+    return {
+        "id": offer_id("lidl", d.get("productId") or title, price, start),
+        "store": "lidl",
+        "name": name,
+        "brand": brand,
+        "detail": detail,
+        "unitPrice": unit,
+        "price": price,
+        "oldPrice": round(float(old), 2) if old is not None else None,
+        "oldLabel": ("nowa cena regularna" if regular else "cena przed obniżką") if old is not None else "",
+        "discount": disc,
+        "cond": ", ".join(cond),
+        "from": start,
+        "to": end,
+        "category": "Nowe ceny regularne" if regular else (group or "Oferta tygodnia"),
+        "week": "next" if start and start > today.isoformat() else "current",
+    }
+
+
+def parse_lidl_grid(html, today, regular=False):
+    offers = []
+    for d in lidl_grid_items(html):
+        o = parse_lidl_item(d, today, regular)
+        if o:
+            offers.append(o)
+    return offers
+
+
 # ---------------------------------------------------------------- Aldi
 
 def aldi_date(epoch):
@@ -506,14 +627,35 @@ def main():
     def lidl():
         res = []
         ids = set()
-        for name, url in [("lidl_home", "https://www.lidl.pl/"),
-                          ("lidl_okazje", "https://www.lidl.pl/c/najlepsze-okazje/a10009219")]:
-            for o in parse_lidl(fetcher.get(name, url)):
-                if o["id"] not in ids:
-                    ids.add(o["id"])
-                    res.append(o)
+        keys = set()
+        errors = []
+
+        def add(o):
+            key = (o["name"].lower(), o["price"], o.get("from"))
+            if o["id"] in ids or key in keys:
+                return
+            ids.add(o["id"])
+            keys.add(key)
+            res.append(o)
+
+        for name, url, regular in LIDL_PAGES:
+            try:
+                for o in parse_lidl_grid(fetcher.get(name, url), today, regular):
+                    add(o)
+            except Exception as e:  # noqa: BLE001
+                errors.append(f"{name}: {e!r}"[:160])
+        print("lidl: z siatki produktów", len(res), "| błędy stron:", errors or "brak")
+        # stary sposób: opisy z kafelków reklamowych, gdy siatka produktów nic nie dała
+        if len(res) < 10:
+            for name, url in [("lidl_home", "https://www.lidl.pl/"),
+                              ("lidl_okazje", "https://www.lidl.pl/c/najlepsze-okazje/a10009219")]:
+                try:
+                    for o in parse_lidl(fetcher.get(name, url)):
+                        add(o)
+                except Exception as e:  # noqa: BLE001
+                    errors.append(f"{name}: {e!r}"[:160])
         if not res:
-            raise ValueError("Lidl: nie znaleziono żadnych ofert spożywczych")
+            raise ValueError("Lidl: nie znaleziono żadnych ofert spożywczych; " + "; ".join(errors))
         return res
 
     def aldi():

@@ -25,6 +25,12 @@ PAGES = {
     "biedronka_mieso": "https://www.biedronka.pl/pl/mieso-ryby",
     "biedronka_promocja_nf": "https://www.biedronka.pl/pl/promocja-nf",
     "biedronka_press": "https://www.biedronka.pl/pl/press,id,1wll0t29t,title,codziennie-niskie-ceny-p-oferta-od-12-10",
+    "biedronka_gazetki": "https://www.biedronka.pl/pl/gazetki",
+    # Lidl: strony z siatką produktów pokazują tylko pierwsze kafelki; szukamy API z dalszymi stronami
+    "lidl_api_a": "https://www.lidl.pl/q/api/search?offset=0&fetchsize=100&locale=pl_PL&assortment=PL&version=2.1.0&category.id=10068374",
+    "lidl_api_b": "https://www.lidl.pl/q/api/search?assortment=PL&locale=pl_PL&version=v2.0.0&category.id=10068374&offset=0&fetchsize=100",
+    "lidl_api_c": "https://www.lidl.pl/q/api/category/zywnosc-i-napoje/s10068374?offset=12&fetchsize=48",
+    "lidl_api_d": "https://www.lidl.pl/q/api/search?q=*&offset=0&fetchsize=48&locale=pl_PL&assortment=PL&version=2.1.0",
 }
 
 
@@ -57,7 +63,8 @@ def main():
             r = requests.get(url, headers=HEADERS, timeout=40, allow_redirects=True)
             with open(os.path.join(out, name + ".html"), "w", encoding="utf-8") as f:
                 f.write(r.text)
-            summary[name] = {"url": url, "final_url": r.url, "status": r.status_code, **summarize(r.text)}
+            summary[name] = {"url": url, "final_url": r.url, "status": r.status_code,
+                             "type": r.headers.get("content-type", ""), "head": r.text[:300], **summarize(r.text)}
             print(name, r.status_code, len(r.text))
         except Exception as e:  # noqa: BLE001
             summary[name] = {"url": url, "error": repr(e)}
