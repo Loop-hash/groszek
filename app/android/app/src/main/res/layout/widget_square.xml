@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- C: kwadrat 2×2, Groszosław, kwota, ile zostało i pasek budżetu -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/w_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <ImageView
+        android:id="@+id/w_mascot"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="Groszosław"
+        android:src="@drawable/mascot_pea" />
+
+    <TextView
+        android:id="@+id/w_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/pixelify_sans"
+        android:maxLines="1"
+        android:text="0,00 zł"
+        android:textColor="@color/widget_ink"
+        android:textSize="26sp" />
+
+    <TextView
+        android:id="@+id/w_sub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:maxLines="1"
+        android:text=""
+        android:textColor="@color/widget_muted"
+        android:textSize="11sp" />
+
+    <ProgressBar
+        android:id="@+id/w_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="14dp"
+        android:layout_marginTop="8dp"
+        android:max="1000"
+        android:progress="0"
+        android:progressDrawable="@drawable/widget_bar" />
+</LinearLayout>

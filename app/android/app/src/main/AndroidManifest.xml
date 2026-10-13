@@ -34,6 +34,51 @@
             </intent-filter>
         </receiver>
 
+        <!-- widżety na ekran telefonu: A mały, B szeroki, C kwadrat -->
+        <receiver
+            android:name=".WidgetSmall"
+            android:label="Do Pierwszego: na dziś"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_small_info" />
+        </receiver>
+        <receiver
+            android:name=".WidgetWide"
+            android:label="Do Pierwszego: z Groszosławem"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_wide_info" />
+        </receiver>
+        <receiver
+            android:name=".WidgetSquare"
+            android:label="Do Pierwszego: budżet"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_square_info" />
+        </receiver>
+
+        <!-- wieczorne przypomnienie, „dziś bez zakupów”, odświeżenie widżetów po północy i po restarcie -->
+        <receiver
+            android:name=".ReminderReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -52,4 +97,8 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!-- Android 12+: aktualizacja samej siebie bez okienka z pytaniem -->
     <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
+    <!-- wieczorne przypomnienie o paragonach (Android 13+ pyta o zgodę) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- po restarcie telefonu przypomnienie ustawia się samo -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 </manifest>

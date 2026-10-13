@@ -403,6 +403,30 @@ await t('zgłoś problem: dziennik ostatnich błędów i treść zgłoszenia', a
   }
 });
 
+await t('widżety: teksty na 7 dni i przypomnienie tylko w dni bez wydatku', async () => {
+  const W = await import('../www/js/widget.js');
+  const S = await import('../www/js/store.js');
+  const { addDays } = await import('../www/js/budget.js');
+  const st = S.defaults();
+  st.settings.budget = 310; st.settings.monthStart = 1; st.startedOn = '2026-10-01';
+  st.expenses = [{ id: 'a', amount: 30, date: '2026-10-13' }];
+  const snap = W.snapshot(st, '2026-10-13');
+  const days = Object.keys(snap.days);
+  assert.equal(days.length, 7); assert.equal(days[0], '2026-10-13'); assert.equal(days[6], addDays('2026-10-13', 6));
+  const d0 = snap.days['2026-10-13'];
+  assert.equal(d0.spent, true); assert.equal(snap.days['2026-10-14'].spent, false);
+  assert.equal(d0.label, 'PONAD PLAN'); assert.ok(d0.amount.endsWith(' zł')); assert.ok(d0.remind.startsWith('Dziś jesteś ponad plan'));
+  assert.equal(d0.mood, 'worried');
+  const d1 = snap.days['2026-10-14'];
+  assert.equal(d1.title, 'Na dziś możesz wydać'); assert.ok(/zostało \d+ zł na \d+ dni/.test(d1.sub), d1.sub);
+  assert.ok(d1.bar > 0.8 && d1.bar < 1);
+  assert.deepEqual(snap.reminder, { on: false, hour: 20, minute: 30 }); // domyślnie wyłączone, dopóki użytkownik się nie zgodzi
+  st.settings.reminder = { on: true, hour: 21, minute: 5 };
+  assert.deepEqual(W.snapshot(st).reminder, { on: true, hour: 21, minute: 5 });
+  assert.equal(W.timeText(W.reminderOf(st)), '21:05');
+  assert.equal(W.available(), false); // bez Androida: nic nie wysyła
+});
+
 await t('kod: każda funkcja z innego pliku jest zaimportowana', async () => {
   // łapie błędy typu „sprite is not defined”, które wychodzą dopiero po kliknięciu w apce
   const fs = await import('node:fs');

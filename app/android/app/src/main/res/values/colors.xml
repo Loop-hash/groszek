@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kolory widżetów i powiadomień: ten sam papier i tusz co w apce; w trybie ciemnym odwrócone (values-night) -->
+<resources>
+    <color name="widget_paper">#FAFAF7</color>
+    <color name="widget_ink">#141414</color>
+    <color name="widget_muted">#5C5C58</color>
+</resources>

@@ -175,6 +175,56 @@ def web_update_test():
         ws.close()
 
 
+def home_test():
+    """Widżety (obrazki z RemoteViews), przypomnienie, budzik i otwarcie dodawania wydatku z widżetu."""
+    sh("adb shell pm grant pl.groszek.app android.permission.POST_NOTIFICATIONS")
+    ws, ev = connect()
+    if ws is None:
+        log("widżety: brak połączenia")
+        FAILED.append("widżety")
+        return
+    r = val(ev("(async () => { const H = Capacitor.Plugins.Home; if (!H) return 'brak wtyczki Home';"
+               " const m = await import('./js/widget.js'); const st = window.groszek.state;"
+               " st.settings.reminder = { on: true, hour: 20, minute: 30 };"
+               " await H.sync(m.snapshot(st));"
+               " const p = await H.preview(); const n = await H.remindNow();"
+               " return JSON.stringify({ keys: Object.keys(p), sizes: Object.fromEntries(Object.entries(p).map(([k, v]) => [k, v.length])), shown: n.shown, p }); })()"))
+    ok = False
+    try:
+        d = json.loads(r)
+        for k, b64 in d["p"].items():
+            open(os.path.join(OUT, f"widzet-{k}.png"), "wb").write(base64.b64decode(b64))
+        ok = len(d["keys"]) == 6 and all(v > 1000 for v in d["sizes"].values())
+        log("widżety:", "OK" if ok else "ŹLE", d["sizes"], "| przypomnienie pokazane:", d["shown"])
+        if not d["shown"]:
+            FAILED.append("przypomnienie")
+    except Exception as e:  # noqa: BLE001
+        log("widżety: ŹLE", str(r)[:300], e)
+    if not ok:
+        FAILED.append("widżety")
+    time.sleep(2)
+    notif = sh("adb shell dumpsys notification --noredact | grep -A3 'pl.groszek.app' | head -20")
+    log("przypomnienie w systemie:", "TAK" if "Dodałeś dziś paragony" in notif or "pl.groszek.app" in notif else "nie", notif.strip()[:300])
+    sh("adb shell cmd statusbar expand-notifications")
+    time.sleep(2)
+    shot("19-przypomnienie")
+    sh("adb shell cmd statusbar collapse")
+    alarms = sh("adb shell dumpsys alarm | grep -i -B1 -A2 'pl.groszek.app' | head -20")
+    log("budziki:", "TAK" if "REMIND" in alarms or "pl.groszek.app" in alarms else "nie", alarms.strip()[:300])
+    # „+” z widżetu: adres dopierwszego://add otwiera dodawanie wydatku
+    sh("adb shell am start -a android.intent.action.VIEW -d dopierwszego://add -n pl.groszek.app/.MainActivity")
+    time.sleep(3)
+    top = val(ev("(() => { const s = window.groszek.stack; return s[s.length - 1].name; })()"))
+    shot("20-z-widzetu")
+    log("„+” z widżetu otwiera:", top, "OK" if top == "add" else "ŹLE")
+    if top != "add":
+        FAILED.append("przycisk z widżetu")
+    try:
+        ws.close()
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def backup_test():
     """Kopia automatyczna: plik w Dokumenty/Do Pierwszego, bez żadnego okienka Androida."""
     ws, ev = connect()
@@ -483,6 +533,7 @@ def main():
     open(os.path.join(OUT, "logcat.txt"), "w").write(sh("adb logcat -d -v brief", timeout=60))
 
     backup_test()
+    home_test()
     web_update_test()
     apk_update_test()
     open(os.path.join(OUT, "logcat-aktualizacja.txt"), "w").write(sh("adb logcat -d -v brief", timeout=60))

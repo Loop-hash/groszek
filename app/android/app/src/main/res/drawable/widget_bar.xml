@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- pasek budżetu jak w apce: obwódka i wypełnienie tuszem -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <corners android:radius="99dp" />
+            <stroke android:width="2dp" android:color="@color/widget_ink" />
+            <solid android:color="@color/widget_paper" />
+        </shape>
+    </item>
+    <item android:id="@android:id/progress" android:top="4dp" android:bottom="4dp" android:left="4dp" android:right="4dp">
+        <clip>
+            <shape android:shape="rectangle">
+                <corners android:radius="99dp" />
+                <solid android:color="@color/widget_ink" />
+            </shape>
+        </clip>
+    </item>
+</layer-list>

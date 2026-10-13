@@ -5,6 +5,7 @@ import { esc, topbar, toggle, chip, settingRow, plural } from '../ui.js';
 import { GEAR, AVOID, DEFAULT_CUISINES, importJson, defaults, plugin } from '../store.js';
 import { DIR, canAuto, autoBackup, shareBackup, lastBackup } from '../backup.js';
 import { errors, report } from '../errlog.js';
+import { available as homeAvailable, reminderOf, timeText, askNotifications, syncHome } from '../widget.js';
 import { TREAT_CATS, CAT_LABEL, norm } from '../dict.js';
 import { STORES } from '../offers.js';
 
@@ -98,6 +99,18 @@ function learnedSheet(c) {
       forget(cc, k) { delete cc.state.learned[k]; cc.save(); cc.renderSheet(); cc.render(); },
     },
   });
+}
+
+function reminderSection(c) {
+  const r = reminderOf(c.state);
+  const hhmm = `${String(r.hour).padStart(2, '0')}:${String(r.minute).padStart(2, '0')}`;
+  return `<span class="label">Przypomnienie i widżet</span>
+      <div class="rows">
+        ${settingRow('Przypomnienie o paragonach', r.on ? `o ${timeText(r)}, tylko w dni bez żadnego wydatku` : 'wyłączone', toggle('reminder', r.on, 'Przypomnienie o paragonach'))}
+        ${r.on ? settingRow('Godzina', '', `<input class="field small" type="time" value="${hhmm}" data-ch="reminderTime" style="width:132px">`) : ''}
+        ${r.on ? settingRow('Jak wygląda', 'pokaże przypomnienie od razu', '<button class="btn small" data-act="remindTest">Pokaż</button>') : ''}
+        <div class="item col"><span class="sub">Widżet z kwotą na dziś: przytrzymaj palec na pustym miejscu ekranu telefonu, wybierz Widżety i znajdź Do Pierwszego. Są trzy: mały, szeroki z przyciskiem dodawania wydatku i kwadrat z paskiem budżetu.</span></div>
+      </div>`;
 }
 
 function backupStatus(st) {
@@ -256,6 +269,8 @@ export default {
           learned.length ? '<button class="btn small" data-act="learnedSheet">Pokaż</button>' : '')}
       </div>
 
+      ${homeAvailable() ? reminderSection(c) : ''}
+
       <span class="label">Kopia danych</span>
       <div class="rows">
         ${canAuto()
@@ -283,6 +298,14 @@ export default {
   },
 
   changes: {
+    reminderTime(c, v) {
+      const m = /^(\d{1,2}):(\d{2})/.exec(String(v || ''));
+      if (!m) return;
+      c.state.settings.reminder = { ...reminderOf(c.state), hour: Math.min(23, Number(m[1])), minute: Math.min(59, Number(m[2])) };
+      c.save();
+      c.render();
+      syncHome(c.state, true);
+    },
     budget(c, v) {
       const n = Math.max(0, Math.round(Number(String(v).replace(',', '.')) || 0));
       c.state.settings.budget = n;
@@ -344,6 +367,22 @@ export default {
     },
     backupNow(c) { backupNow(c); },
     bug(c) { bugSheet(c); },
+    async reminder(c) {
+      const r = reminderOf(c.state);
+      let on = !r.on;
+      if (on && !(await askNotifications())) {
+        on = false;
+        c.toast('Bez zgody na powiadomienia nie przypomnę. Włącz je w ustawieniach Androida.');
+      }
+      c.state.settings.reminder = { ...r, on };
+      c.save();
+      c.render();
+      syncHome(c.state, true);
+    },
+    remindTest(c) {
+      const p = plugin('Home');
+      if (p) p.remindNow().then((x) => { if (!x || !x.shown) c.toast('Android nie pokazał powiadomienia: sprawdź zgodę w ustawieniach'); }).catch(() => {});
+    },
     import(c) { importBackup(c); },
     async checkUpd(c) {
       c.toast('Sprawdzam…');

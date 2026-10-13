@@ -7,6 +7,7 @@ import { today, period, previousPeriod } from './budget.js';
 import { screens } from './screens/index.js';
 import { autoBackup } from './backup.js';
 import { install as installErrorLog } from './errlog.js';
+import { syncHome, available as homeAvailable, askNotifications } from './widget.js';
 
 const app = {
   state: null,
@@ -40,7 +41,10 @@ function ctx(entry = top()) {
   };
 }
 
-export function save() { store.save(app.state); }
+export function save() {
+  store.save(app.state);
+  syncHome(app.state); // widżety i przypomnienie widzą nowe wydatki
+}
 
 // ---------- nawigacja ----------
 
@@ -455,6 +459,7 @@ function onResume() {
   refreshData(false);
   checkForUpdate().catch(() => {});
   runAutoBackup();
+  syncHome(app.state, true);
 }
 
 // ---------- start ----------
@@ -506,6 +511,9 @@ async function boot() {
   if (App) {
     App.addListener('backButton', () => { if (!back()) App.exitApp(); });
     App.addListener('resume', onResume);
+    // przycisk „+” w widżecie i „Dodaj wydatek” w przypomnieniu otwierają apkę z adresem dopierwszego://add
+    App.addListener('appUrlOpen', (e) => openFromOutside(e && e.url));
+    App.getLaunchUrl().then((r) => openFromOutside(r && r.url)).catch(() => {});
     App.addListener('pause', () => { app.hiddenAt = app.hiddenAt || Date.now(); store.flush(); });
   } else {
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape') back(); });
@@ -518,6 +526,44 @@ async function boot() {
   refreshData(false).catch(() => {});
   checkForUpdate().catch(() => {});
   runAutoBackup();
+  syncHome(app.state, true);
+  setTimeout(offerReminder, 1500);
+}
+
+function openFromOutside(url) {
+  if (!url || !app.state || !app.state.onboarded) return;
+  if (/^dopierwszego:\/\/add/.test(url)) {
+    closeSheet(true);
+    const t = top();
+    if (!t || t.name !== 'add') go('add', {});
+  }
+}
+
+// Raz po aktualizacji: pytanie, czy przypominać o paragonach (Android pyta potem o zgodę na powiadomienia)
+function offerReminder() {
+  const st = app.state;
+  if (!homeAvailable() || !st.onboarded || st.settings.reminder || app.sheetCfg) return;
+  sheet({
+    mascot: 'happy',
+    render: () => '<h2>Przypominać o paragonach?</h2>' +
+      '<p>Wieczorem o 20:30 zapytam, czy dodałeś dzisiejsze zakupy. Tylko w dni, w których nie dodasz żadnego wydatku. Godzinę zmienisz w ustawieniach.</p>' +
+      '<div class="row"><button class="btn grow" data-act="no">Nie, dzięki</button><button class="btn dark grow" data-act="yes">Tak, przypominaj</button></div>' +
+      '<p class="tiny muted center">Na ekran telefonu możesz też dodać widżet: przytrzymaj palec na pustym miejscu i wybierz Widżety.</p>',
+    actions: {
+      no(c) {
+        c.state.settings.reminder = { on: false, hour: 20, minute: 30 };
+        c.closeSheet(true);
+        c.save();
+      },
+      async yes(c) {
+        const ok = await askNotifications();
+        c.state.settings.reminder = { on: ok, hour: 20, minute: 30 };
+        c.closeSheet(true);
+        c.save();
+        c.toast(ok ? 'Przypomnę o 20:30' : 'Bez zgody na powiadomienia nie przypomnę. Możesz ją dać w ustawieniach.');
+      },
+    },
+  });
 }
 
 // Kopia co tydzień w Dokumenty/Do Pierwszego (Android); sprawdzana przy starcie i powrocie do apki

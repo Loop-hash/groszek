@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- okrągły przycisk „dodaj wydatek” z plusem -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/widget_ink" />
+        </shape>
+    </item>
+    <item android:gravity="center" android:width="18dp" android:height="3dp">
+        <shape android:shape="rectangle"><solid android:color="@color/widget_paper" /></shape>
+    </item>
+    <item android:gravity="center" android:width="3dp" android:height="18dp">
+        <shape android:shape="rectangle"><solid android:color="@color/widget_paper" /></shape>
+    </item>
+</layer-list>

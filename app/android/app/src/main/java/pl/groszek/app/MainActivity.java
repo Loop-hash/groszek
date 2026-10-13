@@ -12,6 +12,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(OcrPlugin.class); // czytanie paragonów (ML Kit)
         registerPlugin(UpdaterPlugin.class); // aktualizacje jednym przyciskiem
+        registerPlugin(HomePlugin.class); // widżety i wieczorne przypomnienie
         rollbackBrokenWeb();
         super.onCreate(savedInstanceState);
     }

@@ -4,7 +4,7 @@ const KEY = 'groszek-state-v1';
 let pref = null;
 
 function native() {
-  return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  return typeof window !== 'undefined' && !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 }
 
 // Wtyczki Capacitora (Preferences, App, Filesystem, Share). Rdzeń ładuje js/vendor/capacitor.js.

@@ -4,4 +4,8 @@
     <string name="title_activity_main">Do Pierwszego</string>
     <string name="package_name">pl.groszek.app</string>
     <string name="custom_url_scheme">pl.groszek.app</string>
+    <string name="widget_small_desc">Ile możesz dziś wydać</string>
+    <string name="widget_wide_desc">Kwota na dziś z Groszosławem i przyciskiem dodawania wydatku</string>
+    <string name="widget_square_desc">Kwota na dziś, ile zostało do pierwszego i pasek budżetu</string>
+    <string name="reminder_channel">Przypomnienia o paragonach</string>
 </resources>
