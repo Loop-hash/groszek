@@ -695,6 +695,8 @@ def main():
     run("kaufland", kaufland)
     run("lidl", lidl)
     run("aldi", aldi)
+    # Gazetka Biedronki to same obrazki stron (leaflet-api.prod.biedronka.cloud). Próba z Tesseractem
+    # (10.2026) myliła cyfry w ozdobnych cenach, np. 5,49 jako 3,49, więc tych cen nie pokazujemy.
     stores["biedronka"] = {"ok": False, "count": 0, "error": "Biedronka publikuje promocje tylko jako obrazki"}
 
     # Nie nadpisuj dobrych danych sklepu, który chwilowo nie odpowiada: weź jego ostatnie oferty.

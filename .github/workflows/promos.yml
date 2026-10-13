@@ -36,12 +36,6 @@ jobs:
           set -o pipefail
           python scraper/discover.py debug 2>&1 | tee debug/discover.log
 
-      - name: Gazetka Biedronki, próba odczytu (tylko podgląd)
-        continue-on-error: true
-        run: |
-          sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-pol > /dev/null
-          python scraper/biedronka_ocr.py debug/biedronka_ocr 6 2>&1 | tee debug/biedronka_ocr.log
-
       - name: Pobranie promocji
         run: |
           set -o pipefail
