@@ -16,14 +16,17 @@ const CANON_STEMS = [...new Set(CANON)].map((n) => [n, wordsOf(n).map(stemPL)]).
 
 // Do jakiej rzeczy z listy pasuje nazwa z paragonu: "Lubella świderki 400g" -> "świderki".
 // Krótki rdzeń musi pasować dokładnie, żeby "mieszanka" nie stała się mięsem. Skrót z paragonu
-// ("POMID", "TOST") pasuje do pełnego słowa, które się od niego zaczyna.
+// ("POMID", "TOST") pasuje do pełnego słowa, które się od niego zaczyna. Nazwa z kilku słów
+// pasuje też sklejona ("HOTDOG" to "hot dog"). Danie wygrywa z tym, co w nim jest:
+// "Hot-dog z kabanosem" to hot dog, a nie kabanosy. Przymiotnik się nie liczy: "pasta kanapkowa" to nie kanapka.
 export function canonOf(name) {
   const ws = wordsOf(name);
   const st = ws.map(stemPL);
   let best = null;
   let bs = 0;
   for (const [n, cs] of CANON_STEMS) {
-    const ok = cs.every((c) => st.some((s, i) => s === c || (c.length >= 5 && ws[i].startsWith(c)) || (ws[i].length >= 4 && c.startsWith(ws[i]))));
+    const glued = cs.length > 1 && ws.some((w) => w.startsWith(cs.join('')));
+    const ok = glued || cs.every((c) => st.some((s, i) => s === c || (c.length >= 5 && ws[i].startsWith(c) && !/^ow[aeyi]/.test(ws[i].slice(c.length))) || (ws[i].length >= 4 && c.startsWith(ws[i]))));
     if (!ok) continue;
     // pierwszy wyraz to zwykle rzeczownik ("Ser Kasztelan śmietankowy" to ser, nie śmietana)
     const sc = cs.length * 100 + cs.join('').length + (st[0] === cs[0] ? 50 : 0);

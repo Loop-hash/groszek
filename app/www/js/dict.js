@@ -37,7 +37,8 @@ const ENTRIES = [
     'wedel', 'goplana', '=wawel', 'grzesk', 'princess', '=lion', 'knoppers', 'toblerone', 'lindt', 'ferrero', 'alpen gold', 'daim', 'jezyki', '=m m'], ico: 'candy', cat: 'słodycze' },
   { k: ['piwo', 'piwa', '=wino', 'wina', 'wodk', 'cydr', 'whisk', '=gin', '=rum', 'likier', 'nalewk', 'szampan', 'prosecco', 'radler', 'alkohol', 'tequila', 'brandy', 'koniak', 'aperol', '=tyskie', '=zywiec', '=lech', '=harnas', '=perla', '=okocim', '=warka', 'carlsberg', 'heineken',
     '=tatra', 'somersby', 'redds', 'desperados', '=zubr', '=kozel', 'pilsner', '=lager', '=ipa'], ico: 'bottle', cat: 'alkohol' },
-  { k: ['pizza', 'kebab', 'burger', 'hot dog', 'hotdog', 'zapiekank', 'frytk', 'nugget', 'mcdonald', '=kfc', 'kubelek', 'shoarma', 'falafel w bulce'], ico: 'bag', cat: 'fast food' },
+  { k: ['pizza', 'kebab', 'burger', 'hot dog', 'hotdog', 'zapiekank', 'frytk', 'nugget', 'mcdonald', '=kfc', 'kubelek', 'shoarma', 'falafel w bulce',
+    '=kanapka', '=kanapki', '=wrap', '=wrapy', '=panini', '^burrito', 'tortilla z ', '^quesadill', '=calzone'], ico: 'bag', cat: 'fast food' },
   { k: ['danie gotowe', 'gotowe danie', 'gotowy obiad', 'zupka chinsk', 'chinska zupk', 'zupa w proszk', 'zupa instant', 'kubek smakow', 'lasagne gotow', 'danie w sloik', 'gotowiec', 'kotlet gotow', 'golabki w sloik', 'fasolka po bretonsku w sloik', 'mrozona pizza', 'sushi'], ico: 'bag', cat: 'gotowe dania' },
   // podstawy
   { k: ['mlek', 'kefir', 'maslank', 'jogurt', '=jog', 'smietan', 'smiet', 'skyr', 'mascarpone', 'serek wiejski', 'zsiadl'], ico: 'milk', cat: 'nabiał' },
@@ -83,6 +84,7 @@ export function norm(s) {
     .replace(/ł/g, 'l')
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
+    .replace(/([a-z])-(?=[a-z])/g, '$1 ') // "hot-dog", "coca-cola": dwa słowa
     .replace(/[^a-z0-9%., -]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();

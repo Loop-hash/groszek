@@ -144,6 +144,14 @@ await t('baza cen z paragonów i kary w trybie ostrym', async () => {
   // nazwa ogólna z paragonu i promocja z gazetki tylko w czasie jej trwania
   assert.equal(P.generalName('Mlekovita mlekuht 3,2%1l'), 'Mleko 3,2% 1 l');
   assert.equal(P.generalName('Fairy Extra+650ml'), 'Płyn do naczyń 650 ml');
+  // danie wygrywa z tym, co w nim jest; łącznik i sklejone słowa też się liczą
+  assert.equal(P.generalName('HOT-DOG Z KABANOSEM GX-B'), 'Hot dog');
+  assert.equal(P.generalName('HOTDOG Z KABANOSEM'), 'Hot dog');
+  assert.equal(P.describe({ name: 'Hot dog' }, { settings: {} }).cat, 'fast food');
+  assert.equal(P.generalName('KANAPKA Z SZYNKA'), 'Kanapka');
+  assert.equal(P.generalName('Sałatka szwedzka'), 'Sałatka');
+  assert.equal(P.generalName('Kabanosy Tarczyński 105g'), 'Kabanosy 105 g');
+  assert.notEqual(P.generalName('Pasta kanapkowa'), 'Kanapka'); // przymiotnik to nie danie
   const offer = { store: 'aldi', name: 'Mleko UHT 3,2%', price: 2.99, oldPrice: 4.49, from: '2026-10-01', to: '2026-10-05' };
   const milk = { name: 'Mleko 3,2% 1 l', raw: 'Mlekovita mlekuht 3,2%1l', qty: 2, unit: 'szt', price: 2.99, total: 5.98 };
   assert.equal(P.promoFor(milk, [offer], 'aldi', '2026-10-03').save, 3);

@@ -51,7 +51,7 @@ export const CANON = [
   'herbatniki', 'wafelki', 'pierniki', 'lody', 'pączki', 'drożdżówki', 'rogaliki', 'croissanty', 'muffinki', 'ciasto', 'sernik',
   'chipsy', 'paluszki', 'chrupki', 'popcorn', 'krakersy', 'precle', 'nachosy', 'prażynki', 'orzeszki solone',
   // gotowce i fast food
-  'pizza', 'pizza mrożona', 'zapiekanka', 'kebab', 'burger', 'hot dog', 'zupka chińska', 'pierogi', 'pyzy', 'kopytka',
+  'pizza', 'pizza mrożona', 'zapiekanka', 'kebab', 'burger', 'hot dog', 'kanapka', 'wrap', 'panini', 'burrito', 'sałatka', 'zupka chińska', 'pierogi', 'pyzy', 'kopytka',
   'danie gotowe', 'sushi', 'gołąbki w słoiku', 'fasolka po bretońsku',
   // chemia i dom
   'papier toaletowy', 'ręczniki papierowe', 'chusteczki', 'płyn do naczyń', 'gąbki', 'worki na śmieci', 'proszek do prania',
