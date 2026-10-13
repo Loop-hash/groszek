@@ -2,8 +2,9 @@
 import { fmt, shortDate } from '../budget.js';
 import { ui, sprite } from '../pixels.js';
 import { esc, topbar, toggle, chip, settingRow, plural } from '../ui.js';
-import { GEAR, AVOID, DEFAULT_CUISINES, importJson, defaults } from '../store.js';
+import { GEAR, AVOID, DEFAULT_CUISINES, importJson, defaults, plugin } from '../store.js';
 import { DIR, canAuto, autoBackup, shareBackup, lastBackup } from '../backup.js';
+import { errors, report } from '../errlog.js';
 import { TREAT_CATS, CAT_LABEL, norm } from '../dict.js';
 import { STORES } from '../offers.js';
 
@@ -118,6 +119,52 @@ async function backupNow(c) {
   c.render();
 }
 
+// Zgłoszenie problemu: krótki opis od użytkownika, wersja apki i ostatnie błędy, wysłane jak zwykła wiadomość
+function bugSheet(c) {
+  const n = errors().length;
+  c.sheet({
+    mascot: 'worried',
+    render: () => '<h2>Zgłoś problem</h2>' +
+      `<p class="small">Napisz krótko, co robiłeś i co poszło nie tak. Apka dołączy numer wersji${n ? ` i ${n} ${plural(n, 'ostatni błąd', 'ostatnie błędy', 'ostatnich błędów')}` : ''}. Twoich wydatków ani paragonów w zgłoszeniu nie ma.</p>` +
+      '<textarea id="bug-note" class="field" rows="4" placeholder="np. przy usuwaniu wydatku wyskoczył błąd"></textarea>' +
+      '<div class="row"><button class="btn grow" data-act="sheet-close">Anuluj</button><button class="btn dark grow" data-act="send">Wyślij</button></div>' +
+      '<p class="tiny muted center">Wyślij to osobie, od której masz apkę, np. na Messengerze albo mailem.</p>',
+    actions: {
+      async send(cc) {
+        const el = document.getElementById('bug-note');
+        const platform = cc.app.native && cc.app.native() ? 'Android' : /iPhone|iPad/.test(navigator.userAgent) ? 'iPhone' : 'przeglądarka';
+        const text = report({ build: cc.app.build || {}, platform, note: el ? el.value : '' });
+        const how = await shareText(text);
+        if (how) { cc.closeSheet(true); cc.toast(how === 'copied' ? 'Skopiowano zgłoszenie, wklej je w wiadomości' : 'Dzięki! To bardzo pomaga'); }
+        else if (how === null) cc.toast('Nie udało się wysłać ani skopiować zgłoszenia');
+      },
+    },
+  });
+}
+
+// 'shared' albo 'copied'; false, gdy użytkownik zrezygnował; null, gdy nic nie zadziałało
+async function shareText(text) {
+  const share = plugin('Share');
+  try {
+    if (share) {
+      await share.share({ title: 'Zgłoszenie z Do Pierwszego', text, dialogTitle: 'Wyślij zgłoszenie' });
+      return 'shared';
+    }
+    if (navigator.share) {
+      await navigator.share({ title: 'Zgłoszenie z Do Pierwszego', text });
+      return 'shared';
+    }
+  } catch (e) {
+    if ((e && e.name === 'AbortError') || /cancel/i.test(String(e && e.message))) return false;
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    return 'copied';
+  } catch (e) {
+    return null;
+  }
+}
+
 function importBackup(c) {
   const inp = document.getElementById('file-input');
   inp.value = '';
@@ -227,6 +274,7 @@ export default {
           : settingRow('Wersja', `Do Pierwszego 0.1.${esc(build.build || 0)}${upd ? (upd.newer ? ' · jest nowsza wersja!' : ' · masz najnowszą') : ''}`,
             upd && upd.newer ? '<button class="btn small dark" data-act="update">Aktualizuj</button>' : '<button class="btn small" data-act="checkUpd">Sprawdź</button>')}
         ${settingRow('Odśwież dane', 'promocje i przepisy z GitHuba', `<button class="btn small" data-act="refresh">${ui('refresh', 14)}</button>`)}
+        ${settingRow('Zgłoś problem', 'coś nie działa? apka dołączy wersję i ostatnie błędy', '<button class="btn small" data-act="bug">Zgłoś</button>')}
         <div class="item col"><span class="sub">Promocje: strony Kauflandu, Lidla i Aldi, pobierane automatycznie dwa razy w tygodniu. Wartości odżywcze: USDA FoodData Central. Ceny składników są szacunkowe, a te z promocji pochodzą ze sklepów.</span></div>
         <div class="item"><button class="btn small block" data-act="reset">Wyczyść wszystkie dane</button></div>
       </div>
@@ -295,6 +343,7 @@ export default {
       if (c.state.settings.autoBackup) backupNow(c);
     },
     backupNow(c) { backupNow(c); },
+    bug(c) { bugSheet(c); },
     import(c) { importBackup(c); },
     async checkUpd(c) {
       c.toast('Sprawdzam…');

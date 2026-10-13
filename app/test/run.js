@@ -379,6 +379,30 @@ await t('kopia automatyczna: raz w tygodniu, kilka ostatnich plików, przypomnie
   }
 });
 
+await t('zgłoś problem: dziennik ostatnich błędów i treść zgłoszenia', async () => {
+  const mem = {};
+  const had = { ls: 'localStorage' in globalThis };
+  globalThis.localStorage = { getItem: (k) => (k in mem ? mem[k] : null), setItem: (k, v) => { mem[k] = String(v); } };
+  try {
+    const E = await import('../www/js/errlog.js');
+    E.clearErrors();
+    E.record('TypeError: x is null', 'list');
+    E.record('TypeError: x is null', 'list'); // seria: jeden wpis z licznikiem
+    for (let i = 0; i < 30; i++) E.record('błąd ' + i, 'home');
+    const list = E.errors();
+    assert.equal(list.length, 20); assert.equal(list[list.length - 1].msg, 'błąd 29');
+    E.clearErrors(); E.record('ReferenceError: sprite is not defined', 'add'); E.record('ReferenceError: sprite is not defined', 'add');
+    assert.equal(E.errors()[0].n, 2);
+    const txt = E.report({ build: { build: 41, sha: 'abc1234' }, platform: 'Android', note: 'nie mogę usunąć wydatku' });
+    assert.ok(txt.startsWith('Do Pierwszego 0.1.41 (abc1234) · Android'));
+    assert.ok(txt.includes('nie mogę usunąć wydatku'));
+    assert.ok(txt.includes('[add] ×2 ReferenceError: sprite is not defined'));
+    assert.ok(JSON.parse(mem['do-pierwszego-bledy']).length === 1); // przetrwa zamknięcie apki
+  } finally {
+    if (!had.ls) delete globalThis.localStorage;
+  }
+});
+
 await t('kod: każda funkcja z innego pliku jest zaimportowana', async () => {
   // łapie błędy typu „sprite is not defined”, które wychodzą dopiero po kliknięciu w apce
   const fs = await import('node:fs');

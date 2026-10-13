@@ -6,6 +6,7 @@ import { sprite } from './pixels.js';
 import { today, period, previousPeriod } from './budget.js';
 import { screens } from './screens/index.js';
 import { autoBackup } from './backup.js';
+import { install as installErrorLog } from './errlog.js';
 
 const app = {
   state: null,
@@ -21,6 +22,7 @@ const app = {
   day: today(),
 };
 window.groszek = app; // pomocne przy szukaniu błędów
+installErrorLog(() => (top() || {}).name || '');
 
 const $ = (id) => document.getElementById(id);
 
