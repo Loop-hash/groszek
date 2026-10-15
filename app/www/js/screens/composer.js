@@ -25,6 +25,7 @@ function defaults(c) {
   p.prep = 0;
   p.seed = 1;
   p.people = people(c.state);
+  p.emptyPantry = !!c.state.settings.emptyPantry; // ostatni wybór zostaje
   return p;
 }
 
@@ -58,7 +59,7 @@ export default {
           row.map((m) => { const r = findRecipe(c, m.id); return r ? `<div class="row">${recipeIcon(r.icon, 26)}<span class="small grow"><span class="muted">${MEALS[m.slot]}:</span> ${esc(r.name)}${!fam && m.mult && m.mult !== 1 ? ` <b>· ${multLabel(m.mult)}</b>` : ''}${m.slot === 'obiad' ? (m.cook ? (m.batch > 1 ? ` <b>(${m.prep ? 'food prep' : 'gotujesz'} na ${m.batch} ${plural(m.batch, 'dzień', 'dni', 'dni')})</b>` : '') : ` <span class="muted">(${m.prep ? 'z food prepa' : 'z wczoraj'})</span>`) : ''}</span></div>` : ''; }).join('') + '</div>';
       }).join('');
       const trips = res.trips.map((tr) => `<details class="more"><summary><span>${esc(dowShort(tr.date))} ${esc(dayLabel(tr.date))} · ${esc(tr.storeName)}</span><span class="pixel">${fmt(tr.cost)} zł</span></summary><div class="stack">` +
-        tr.items.map((it) => `<div class="row">${food(it.icon, 22)}<span class="grow small">${esc(it.name)} <span class="muted">· ${esc(buyLabel(it))}</span></span>${it.promo ? `<span class="pill dark">${esc(STORES[it.promo.store])}</span>` : ''}<span class="pixel small">${fmt(it.price)}</span></div>`).join('') + '</div></details>').join('');
+        tr.items.map((it) => `<div class="row">${food(it.icon, 22)}<span class="grow small">${esc(it.name)} <span class="muted">· ${esc(buyLabel(it))}</span></span>${it.promo ? `<span class="pill dark">${esc(STORES[it.promo.store])}</span>` : it.pantry ? '<span class="pill">do szafki</span>' : ''}<span class="pixel small">${fmt(it.price)}</span></div>`).join('') + '</div></details>').join('');
       const nutRows = NUT.map((k) => {
         const st = nutStatus(res.avg[k], res.targets[k]);
         const v = k === 'salt' ? res.avg[k].toFixed(1).replace('.', ',') : Math.round(res.avg[k]);
@@ -73,7 +74,8 @@ export default {
         <div class="card stack" style="gap:6px">${nutRows}</div>`}
         <span class="label">Zakupy · ${res.trips.length} ${plural(res.trips.length, 'wyjście', 'wyjścia', 'wyjść')}</span>
         <div class="stack">${trips}</div>
-        ${res.pantry.length ? `<div class="small muted">Sprawdź w szafce: ${esc(res.pantry.join(', '))}.</div>` : ''}
+        ${res.pantryBoughtN ? `<div class="small muted">W zakupach jest też to, co zwykle stoi w szafce (${res.pantryBoughtN} ${plural(res.pantryBoughtN, 'rzecz', 'rzeczy', 'rzeczy')}, około ${fmt(res.pantryBought)} zł). Starczy na dłużej niż ten plan.</div>` : ''}
+        ${res.pantry.length ? `<div class="small muted">Sprawdź w szafce: ${esc(res.pantry.join(', '))}. Jeśli tego nie masz, dolicz około ${fmt(res.pantryCost)} zł albo włącz „Pusta szafka”.</div>` : ''}
         <span class="label">Dzień po dniu</span>
         <div class="rows">${daysHtml}</div>
         <div class="row"><button class="btn grow" data-act="again">${ui('refresh', 14)} Inaczej</button><button class="btn dark grow" data-act="save">Zapisz plan</button></div>
@@ -95,6 +97,7 @@ export default {
           ? `<div class="stack" style="gap:6px"><span class="bold">Jedno gotowanie na</span><div class="seg">${[2, 3, 4, 5].map((n) => `<button class="${p.prep === n ? 'on' : ''}" data-act="prepDays" data-arg="${n}">${n} dni</button>`).join('')}</div>` +
             `<span class="small muted">${p.prep > 4 ? 'W lodówce do 4 dni, porcję na 5. dzień zamroź od razu.' : 'Porcje do pudełek i do lodówki, wytrzymają do 4 dni.'}</span></div>`
           : `<div class="row between"><span><b>Gotuję na 2 dni</b><br><span class="small muted">jeden obiad starcza na dwa dni</span></span>${toggle('cook2', p.cook2, 'Gotuję na 2 dni')}</div>`}
+        <div class="row between"><span><b>Pusta szafka</b><br><span class="small muted">doliczę olej, sól i przyprawy i wybiorę dania, które potrzebują ich mniej</span></span>${toggle('pantry', p.emptyPantry, 'Pusta szafka')}</div>
         <div class="small muted">${fam
           ? (p.days ? `To ${fmt(p.amount / Math.max(1, p.days))} zł dziennie, czyli ${fmt(p.amount / Math.max(1, p.days) / n)} zł na osobę. Porcje są takie, jak w przepisach.` : '')
           : `${p.days ? `To ${fmt(p.amount / Math.max(1, p.days))} zł dziennie. ` : ''}Cel: ${fmt(c.state.settings.kcal, 0)} kcal dziennie (zmienisz w Ustawieniach).`}</div>
@@ -119,6 +122,13 @@ export default {
       c.render();
     },
     cook2(c) { c.params.cook2 = !c.params.cook2; c.app.composed = null; c.render(); },
+    pantry(c) {
+      c.params.emptyPantry = !c.params.emptyPantry;
+      c.state.settings.emptyPantry = c.params.emptyPantry;
+      c.save();
+      c.app.composed = null;
+      c.render();
+    },
     prep(c) { c.params.prep = c.params.prep > 0 ? 0 : 3; c.app.composed = null; c.render(); },
     prepDays(c, n) { c.params.prep = Number(n) || 3; c.app.composed = null; c.render(); },
     people(c, v) { c.params.people = Math.max(1, Math.min(MAX_PEOPLE, (c.params.people || 1) + Number(v))); c.app.composed = null; c.render(); },
@@ -155,7 +165,7 @@ export default {
 
 function opts(c) {
   const p = c.params;
-  return { amount: p.amount, from: p.from, days: p.days, meals: Object.keys(p.meals).filter((k) => p.meals[k]), cook2: p.cook2, prep: p.prep, seed: p.seed,
+  return { amount: p.amount, from: p.from, days: p.days, meals: Object.keys(p.meals).filter((k) => p.meals[k]), cook2: p.cook2, prep: p.prep, seed: p.seed, emptyPantry: !!p.emptyPantry,
     people: isFamily(c.state) ? p.people || people(c.state) : 1 };
 }
 

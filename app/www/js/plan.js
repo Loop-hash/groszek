@@ -32,6 +32,27 @@ export function dayMeals(c, date) {
     .sort((a, b) => SLOT_ORDER.indexOf(a.slot) - SLOT_ORDER.indexOf(b.slot));
 }
 
+// Rzeczy „z szafki” (olej, sól, przyprawy): najmniejsze opakowanie i jego cena
+export function pantryPack(i) {
+  const g = i.pkg || i.piece || 100;
+  return { g, price: r2((i.kg * g) / 1000) };
+}
+
+// Ile kosztowałyby nowe rzeczy z szafki potrzebne do tego dania (tych z `have` już nie liczymy)
+function newPantryCost(c, r, have) {
+  let sum = 0;
+  for (const x of r.ings || []) {
+    if (have.has(x.i)) continue;
+    const i = ing(c, x.i);
+    if (i && i.pantry) sum += pantryPack(i).price;
+  }
+  return sum;
+}
+
+function pantryOf(c, r) {
+  return (r.ings || []).filter((x) => { const i = ing(c, x.i); return i && i.pantry; }).map((x) => x.i);
+}
+
 // Ile osób je ten posiłek (tryb rodzinny); starsze wpisy w planie były dla jednej osoby
 export const eaters = (m) => Math.max(1, Number(m && m.n) || 1);
 
@@ -82,7 +103,8 @@ function pickBest(cands, scoreFn) {
   return best;
 }
 
-// opts: { amount, from, days, meals: ['sniadanie','obiad','kolacja'], cook2, prep: liczba dni food prepa albo 0, seed, people }
+// opts: { amount, from, days, meals: ['sniadanie','obiad','kolacja'], cook2, prep: liczba dni food prepa albo 0, seed, people,
+//   emptyPantry: pusta szafka, czyli olej, sól i przyprawy trzeba kupić (liczą się w kwocie, a plan woli dania na tych samych przyprawach) }
 // Układa dwa warianty: z różnorodnymi śniadaniami i najtańszy. Wybiera różnorodny, jeśli mieści się w kwocie i w kaloriach.
 // Dla kilku osób (tryb rodzinny) porcje są zwykłe, z przepisu, bez dobierania pod kalorie, a kwota jest na wszystkich.
 export function compose(c, opts) {
@@ -122,6 +144,12 @@ function composeOnce(c, opts, varied) {
     pools.obiad = pools.obiad.filter((r) => r.prep);
     if (opts.meals.includes('obiad') && !pools.obiad.length) warnings.push('Brak dań na food prep przy obecnych ustawieniach kuchni, sprzętu i „Nie jem”.');
   }
+  // pusta szafka: bez dań z drogimi dodatkami, które trzeba by kupić tylko dla nich (miód, oliwa, kakao)
+  if (opts.emptyPantry) {
+    const BASIC = new Set(['olej', 'sol', 'pieprz', 'cukier']);
+    const pricey = (r) => (r.ings || []).some((x) => { const i = ing(c, x.i); return i && i.pantry && !BASIC.has(x.i) && pantryPack(i).price > 5; });
+    for (const m of SLOT_ORDER) { const cheap = pools[m].filter((r) => !pricey(r)); if (cheap.length >= 15) pools[m] = cheap; }
+  }
   for (const m of opts.meals) if (!pools[m].length && !(prepN && m === 'obiad')) warnings.push(`Brak przepisów na: ${MEALS[m].toLowerCase()}. Sprawdź kuchnie, sprzęt i „Nie jem” w ustawieniach.`);
 
   const plan = {};
@@ -130,6 +158,9 @@ function composeOnce(c, opts, varied) {
   const lastTag = { obiad: null };
 
   const zlPerKcal = perDay / T; // tyle wolno średnio wydać na 1 kcal
+  // pusta szafka: każda nowa przyprawa to całe opakowanie, więc lepiej dania na tym, co już będzie kupione
+  const have = new Set();
+  const useHave = (r) => { if (opts.emptyPantry) for (const id of pantryOf(c, r)) have.add(id); };
   const kcalOfR = (r) => Math.max(150, nutrition(r).kcal || 0);
   const cpkOf = (r) => cost(r) / kcalOfR(r);
 
@@ -159,6 +190,7 @@ function composeOnce(c, opts, varied) {
     }
     if (slot === 'obiad' && lastTag.obiad && proteinTag(c, r) === lastTag.obiad) sc -= 2.5;
     sc += recipeCost(c, r).promo.length * 0.25;
+    if (opts.emptyPantry) sc -= (newPantryCost(c, r, have) / Math.max(1, perDay)) * 6;
     return sc + rand() * 1.4;
   }
 
@@ -175,6 +207,7 @@ function composeOnce(c, opts, varied) {
         plan[dates[i + k]].push(m);
       }
       history.obiad.push(r.id);
+      useHave(r);
       lastTag.obiad = proteinTag(c, r);
       i += span;
     }
@@ -187,6 +220,7 @@ function composeOnce(c, opts, varied) {
       if (!r) return;
       plan[d].push(fam ? { id: r.id, slot, cook: true, batch: 1, n: N } : { id: r.id, slot, cook: true, batch: 1 });
       history[slot].push(r.id);
+      useHave(r);
     });
   }
 
@@ -239,7 +273,15 @@ function composeOnce(c, opts, varied) {
       // nigdy to samo danie dzień po dniu (poza gotowaniem na 2 dni)
       const adj = new Set([dates[idx - 1], dates[idx + (ck.m.batch || 1)]].filter(Boolean)
         .flatMap((d) => plan[d].filter((m) => m.slot === ck.m.slot).map((m) => m.id)));
-      const pool = pools[ck.m.slot].filter((x) => val(x) < cur * 0.85 && !adj.has(x.id));
+      let pool = pools[ck.m.slot].filter((x) => val(x) < cur * 0.85 && !adj.has(x.id));
+      if (opts.emptyPantry && pool.length) {
+        // tańsze danie, które nie wymaga kupowania nowych przypraw, jeśli takie jest
+        const used = new Set(dates.flatMap((d) => plan[d].filter((m) => m !== ck.m).flatMap((m) => pantryOf(c, findRecipe(c, m.id)))));
+        // najpierw bez nowych przypraw, potem z tanimi (do 3 zł), a drogie (miód, oliwa) tylko w ostateczności
+        const noNew = pool.filter((x) => newPantryCost(c, x, used) === 0);
+        const cheapNew = pool.filter((x) => newPantryCost(c, x, used) <= 3);
+        pool = noNew.length ? noNew : cheapNew.length ? cheapNew : pool;
+      }
       if (!pool.length) continue;
       const near = new Set(dates.slice(Math.max(0, idx - 3), idx + 4).flatMap((d) => plan[d].map((m) => m.id)));
       // śniadania i kolacje: bez tej samej "bazy" dzień przed i dzień po (np. owsianka po owsiance)
@@ -309,7 +351,8 @@ function composeOnce(c, opts, varied) {
   if (!fam && avg.kcal < tg.kcal[0] * 0.95) {
     warnings.push(`Średnio ${Math.round(avg.kcal)} kcal dziennie, a cel to ${Math.round(T)}. ${opts.meals.length < 3 ? 'Dodaj w planie śniadania albo kolacje.' : 'Dorzuć przekąski, np. banana, jogurt albo kanapkę.'}`);
   }
-  return { plan, dates, trips: result.trips, total: result.total, avg, targets: tg, warnings, opts, pantry: result.pantry };
+  return { plan, dates, trips: result.trips, total: result.total, avg, targets: tg, warnings, opts, pantry: result.pantry,
+    pantryCost: result.pantryCost, pantryBought: result.pantryBought, pantryBoughtN: result.pantryBoughtN };
 }
 
 function family(c, id) {
@@ -352,7 +395,7 @@ export function evaluate(c, plan, dates, opts) {
         for (const x of r.ings || []) {
           const i = ing(c, x.i);
           if (!i) continue;
-          if (i.pantry) { pantry.add(x.i); continue; }
+          if (i.pantry && !opts.emptyPantry) { pantry.add(x.i); continue; }
           tr.need[x.i] = (tr.need[x.i] || 0) + x.g * factor;
         }
       }
@@ -375,10 +418,11 @@ export function evaluate(c, plan, dates, opts) {
       const perKg = promoOk ? p.perKg : p.base;
       let buyG;
       let packs = 0;
-      if (i.pkg) { packs = Math.ceil(need / i.pkg - 0.03); buyG = packs * i.pkg; } else buyG = Math.ceil(need / 50) * 50;
+      // co najmniej jedno opakowanie: 2 g soli to nadal cała paczka soli
+      if (i.pkg) { packs = Math.max(1, Math.ceil(need / i.pkg - 0.03)); buyG = packs * i.pkg; } else buyG = Math.ceil(need / 50) * 50;
       const price = r2((perKg * buyG) / 1000);
       stock[id] = have + buyG - gNeed;
-      tr.items.push({ id, name: i.name, icon: i.icon, g: Math.round(buyG), packs, pkg: i.pkg, piece: i.piece, price, promo: promoOk ? p.offer : null });
+      tr.items.push({ id, name: i.name, icon: i.icon, g: Math.round(buyG), packs, pkg: i.pkg, piece: i.piece, price, promo: promoOk ? p.offer : null, ...(i.pantry ? { pantry: true } : {}) });
       tr.cost += price;
       if (promoOk) storeVotes[p.offer.store] = (storeVotes[p.offer.store] || 0) + 1;
     }
@@ -391,7 +435,11 @@ export function evaluate(c, plan, dates, opts) {
     delete tr.need;
     total += tr.cost;
   }
-  return { trips, total: r2(total), pantry: [...pantry].map((id) => (ing(c, id) || {}).name).filter(Boolean) };
+  // z szafki: ile kosztowałyby, gdyby trzeba je było kupić (po jednym najmniejszym opakowaniu)
+  const pantryCost = r2([...pantry].reduce((a, id) => { const i = ing(c, id); return a + (i ? pantryPack(i).price : 0); }, 0));
+  const bought = trips.flatMap((tr) => tr.items.filter((it) => it.pantry));
+  return { trips, total: r2(total), pantry: [...pantry].map((id) => (ing(c, id) || {}).name).filter(Boolean), pantryCost,
+    pantryBought: r2(bought.reduce((a, it) => a + it.price, 0)), pantryBoughtN: new Set(bought.map((it) => it.id)).size };
 }
 
 // Ile sztuk / opakowań: "2 × 500 g" albo "ok. 3 szt. (450 g)"

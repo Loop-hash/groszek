@@ -105,7 +105,7 @@ export default {
 
     const trips = (st.trips || []).filter((tr) => tr.date >= t).slice(0, 6);
     const tripRows = trips.map((tr, i) => `<details class="more"><summary><span>${esc(tr.label || dayLabel(tr.date))} · ${esc(tr.storeName || 'dowolny dyskont')}</span><span class="pixel">${fmt(tr.cost)} zł</span></summary><div class="stack">` +
-      tr.items.map((it) => `<div class="row">${food(it.icon, 22)}<span class="grow small">${esc(it.name)} <span class="muted">· ${esc(buyLabel(it))}</span></span>${it.promo ? `<span class="pill dark">${esc(STORES[it.promo.store])}</span>` : ''}<span class="pixel small">${fmt(it.price)}</span></div>`).join('') +
+      tr.items.map((it) => `<div class="row">${food(it.icon, 22)}<span class="grow small">${esc(it.name)} <span class="muted">· ${esc(buyLabel(it))}</span></span>${it.promo ? `<span class="pill dark">${esc(STORES[it.promo.store])}</span>` : it.pantry ? '<span class="pill">do szafki</span>' : ''}<span class="pixel small">${fmt(it.price)}</span></div>`).join('') +
       `<button class="btn small block" data-act="trip" data-arg="${i}">${ui('basket', 14)} Dopisz te zakupy do listy</button></div></details>`).join('');
 
     const label = p.label;

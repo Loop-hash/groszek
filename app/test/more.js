@@ -96,6 +96,21 @@ export default async function (t, assert) {
     const r = R.findRecipe(c, fam.plan[from][0].id);
     assert.equal(P.dayTotals(c, from).cost, Math.round(R.recipeCost(c, r).perPortion * 4 * 100) / 100);
   });
+  await tt('pusta szafka: przyprawy w zakupach, bez drogich dodatków', () => {
+    const c = mk();
+    const from = B.addDays(B.today(), 1);
+    const o = { amount: 100, from, days: 14, meals: ['sniadanie', 'obiad', 'kolacja'], cook2: true, seed: 1 };
+    const full = P.compose(c, o);
+    assert.ok(full.pantry.length > 0 && full.pantryCost > 0); // bez opcji: przyprawy tylko do sprawdzenia, z szacunkiem kosztu
+    const empty = P.compose(c, { ...o, emptyPantry: true });
+    const bought = empty.trips.flatMap((tr) => tr.items.filter((it) => it.pantry));
+    assert.ok(bought.some((it) => it.name === 'Olej rzepakowy'));
+    assert.ok(bought.every((it) => it.g > 0 && it.price > 0), 'każda rzecz to co najmniej jedno opakowanie');
+    assert.ok(!bought.some((it) => ['Miód', 'Oliwa z oliwek', 'Kakao'].includes(it.name)), bought.map((it) => it.name).join(', '));
+    assert.equal(empty.pantry.length, 0);
+    assert.ok(empty.total > full.total); // szafka kosztuje
+    assert.ok(empty.total <= 100.5 || /się nie da/.test(empty.warnings[0])); // uczciwie: albo się mieści, albo mówi, że nie
+  });
   await tt('przepis przeliczony na inną liczbę porcji', () => {
     assert.equal(R.scaleQ('2 puszki', 4 / 3), '2½ puszki');
     assert.equal(R.scaleQ('1 łyżeczka', 4), '4 łyżeczki');
