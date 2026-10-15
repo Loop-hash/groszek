@@ -1,0 +1,1774 @@
+[
+ {
+  "file": "p1.jpg",
+  "want": {
+   "total": 194.93,
+   "store": "Biedronka",
+   "date": "2026-10-03",
+   "items": 13
+  },
+  "got": {
+   "total": 194.93,
+   "how": "suma+karta+sprzedaż+pozycje+duża czcionka",
+   "engine": "mlkit",
+   "store": "Biedronka",
+   "ms": 2938,
+   "text": "JERONIMO MARTINS POLSKA S.A.\nul. Žniwna 5, 62-025 Kostrzyn\nBiedronka nr 4521\nGliwice, ul. Pszczyńska 1\nNIP 779-10-11-327\n2026-10-03 14:41  nr wydr.16328\nPARAGON FISKALNY\nMasto ext. 200g\nC1 x7,49  7,49C\nPapier toalet owy 8\nA 1 x12,99  12,99A\nJaja L 10szt\nC 3 x9,99  29,97C\nSer gouda plastry\nC 2 x6,99  13,98C\nPtyn do naczyń lL\nA 1 x6,49  6,49A\nChleb wiej ski 500g\nC 3 x4,99  14,97C\nCzekolada mleczna\nA 1 x4,49  4,49A\nPomidory luz kg\nC 1,721l x9,99  17,19C\nBanany luz kg\nC 1,246 x5,99  7,46C\nKawa mielona 250g\nA 3 x14,99  44,97A\nKietbasa śląska\nC 1 xll,99  11,99C\nWoda niegaz. 1,5L\nA 3 x1,99  5,97A\nSok pomarańcz. 1L\nA 3 x5,99  17,97A\nRabat  -1,00\nSprzedaż opodatk. A  92,88\nPTU A 23, 00%  17,37\nSprzedaż opodatk. C  102,05\nPTU C 5, 00%  4,86\nSuma PTU  22,23\nSUNA PLN  194,93\nKarta płatnicza  194,93\n979 #Kasa 3  Kasjer nr 19\n63:28 C2976225",
+   "itemsOk": true,
+   "items": [
+    [
+     "Masto ext. 200g",
+     1,
+     7.49,
+     7.49,
+     0
+    ],
+    [
+     "Papier toalet owy 8",
+     1,
+     12.99,
+     12.99,
+     0
+    ],
+    [
+     "Jaja L 10szt",
+     3,
+     9.99,
+     29.97,
+     0
+    ],
+    [
+     "Ser gouda plastry",
+     2,
+     6.99,
+     13.98,
+     0
+    ],
+    [
+     "Ptyn do naczyń l L",
+     1,
+     6.49,
+     6.49,
+     0
+    ],
+    [
+     "Chleb wiej ski 500g",
+     3,
+     4.99,
+     14.97,
+     0
+    ],
+    [
+     "Czekolada mleczna",
+     1,
+     4.49,
+     4.49,
+     0
+    ],
+    [
+     "Pomidory luz",
+     1.721,
+     9.99,
+     17.19,
+     0
+    ],
+    [
+     "Banany luz",
+     1.246,
+     5.99,
+     7.46,
+     0
+    ],
+    [
+     "Kawa mielona 250g",
+     3,
+     14.99,
+     44.97,
+     0
+    ],
+    [
+     "Kietbasa śląska",
+     1,
+     11.99,
+     11.99,
+     0
+    ],
+    [
+     "Woda niegaz. 1,5L",
+     3,
+     1.99,
+     5.97,
+     0
+    ],
+    [
+     "Sok pomarańcz. 1L",
+     3,
+     5.99,
+     17.97,
+     1
+    ]
+   ]
+  }
+ },
+ {
+  "file": "p2.jpg",
+  "want": {
+   "total": 134.29,
+   "store": "Lidl",
+   "date": "2026-10-07",
+   "items": 10
+  },
+  "got": {
+   "total": 134.29,
+   "how": "suma+karta+sprzedaż+pozycje+duża czcionka",
+   "engine": "mlkit",
+   "store": "Lidl",
+   "ms": 1669,
+   "text": "Lidl sp. z 0.0. sp.k.\nul. Poznańska 48, Jankowice\nSklep Lidl Gliwice\nul. Toszecka 101\nNIP 781-18-97-358\n2026-10-07 08:45  nr wydr.17882\nPARAGON FISKALNY\nZiemniaki luz kg\nC 1,279 x2,49  3,18C\nKrewetki mroż. 400g\nC 3 x22,99  68,97C\nSok pomarańcz. 1L\nA 2 x5,99  11,98A\nJogurt nat. 400g\nC 1 x2,79  2,79C\nJaja L 10szt\nC1 x9,99  9,99C\nMasto ext. 200g\nC 2 x7,49  14,98C\nTwaróg półtł. 250g\nC1 x3,99  3,99C\nPassata 690g\nC 1 x4, 29  4,29C\nPomidory luz kg\nC 0,964 x9,99  9,63C\nPłyn do naczyń 1L\nA 1 x6,49  6,49A\nRabat  -2,00\nSprzedaż opodatk. A  18,47\nPTU A 23, 00%  3,45\nSprzedaż opodatk. C  115,82\nPTU C 5,00%  5,52\nSuma PTU  8,97\nSUNA PLN  134,29\nKarta płatnicza  134,29\n530 #Kasa 2  Kasjer nr 36\n36:58 B6179113",
+   "itemsOk": true,
+   "items": [
+    [
+     "Ziemniaki luz",
+     1.279,
+     2.49,
+     3.18,
+     0
+    ],
+    [
+     "Krewetki mroż. 400g",
+     3,
+     22.99,
+     68.97,
+     0
+    ],
+    [
+     "Sok pomarańcz. 1L",
+     2,
+     5.99,
+     11.98,
+     0
+    ],
+    [
+     "Jogurt nat. 400g",
+     1,
+     2.79,
+     2.79,
+     0
+    ],
+    [
+     "Jaja L 10szt",
+     1,
+     9.99,
+     9.99,
+     0
+    ],
+    [
+     "Masto ext. 200g",
+     2,
+     7.49,
+     14.98,
+     0
+    ],
+    [
+     "Twaróg półtł. 250g",
+     1,
+     3.99,
+     3.99,
+     0
+    ],
+    [
+     "Passata 690g",
+     1,
+     4.29,
+     4.29,
+     0
+    ],
+    [
+     "Pomidory luz",
+     0.964,
+     9.99,
+     9.63,
+     0
+    ],
+    [
+     "Płyn do naczyń 1L",
+     1,
+     6.49,
+     6.49,
+     2
+    ]
+   ]
+  }
+ },
+ {
+  "file": "p3.jpg",
+  "want": {
+   "total": 170.98,
+   "store": "Kaufland",
+   "date": "2026-10-08",
+   "items": 19
+  },
+  "got": {
+   "total": 170.98,
+   "how": "suma+karta+sprzedaż+pozycje+duża czcionka",
+   "engine": "mlkit",
+   "store": "Kaufland",
+   "ms": 1976,
+   "text": "Kaufland Polska Markety\nsp. z 0.o. sp.j.\nul. Wróblews kiego 6\n44-100 Gliwice\nNIP 899-24-21-286\n2026-10-08 11:31  nr wydr.31576\nPARAGON FISKALIY\nPapierToaletowy8 t  1SZT x12,99 12,99A\nBananyLuzKg t  1,324KG x5,99 7,93C\nMlekoUHT3,2%1L t  1SZT x3,49 3,49C\nZiemniakiLuzKg t  1,513KG x2,49 3,77C\nJogurtNat. 400g t  1SZT x2,79 2,79C\nSokPomarańcz. 1L t  3SZT X5,99 17,97A\nKawaMielona250g t  25ZT X14,99 29,98A\nRyżDługoziarnistylkg  t\n1,027KG x5,49 5,64C\nPłynDoNaczyńlL t  1SZT X6,49 6,49A\nPassata690g t  1SZT x4,29 4,29C\nPomidoryLuzKg t  0,620KG x9,99 6,19c\nWodaNiegaz .1,5L t  25ZT X1,99 3,98A\nKietbasaśląska t  1SZT X11,99 11,99C\nChlebliejski500g t  1SZT x4,99 4,99C\nMastoExt. 200g t  1SZT X7,49 7,49C\nTharógPóttt.250g t  1SZT X3,99 3,99C\nTortillaPszenna6szt t 1SZT x6,49 6,49C\nCebulaLuzKg t  1,012KG x3,29 3,33C\nPierśZKurczakakg t 1,088KG x24,99 27,19C\nSprzedaż opodatk. A  71,41\nPTU A 23, 00%  13,35\nSprzedaż opodatk. C  99,57\nPTU C 5,00%  4,74\nSuma PTU  18,09\nSUNA PLN  170,98\nKarta płatnicza  170,98\n545 #Kasa 6  Kasjer nr 28\n42:80 A5851102",
+   "itemsOk": true,
+   "items": [
+    [
+     "Papier Toaletowy 8",
+     1,
+     12.99,
+     12.99,
+     0
+    ],
+    [
+     "Banany Luz Kg",
+     1.324,
+     5.99,
+     7.93,
+     0
+    ],
+    [
+     "Mleko UHT 3,2%1L",
+     1,
+     3.49,
+     3.49,
+     0
+    ],
+    [
+     "Ziemniaki Luz Kg",
+     1.513,
+     2.49,
+     3.77,
+     0
+    ],
+    [
+     "Jogurt Nat. 400g",
+     1,
+     2.79,
+     2.79,
+     0
+    ],
+    [
+     "Sok Pomarańcz. 1L",
+     3,
+     5.99,
+     17.97,
+     0
+    ],
+    [
+     "Kawa Mielona 250g",
+     2,
+     14.99,
+     29.98,
+     0
+    ],
+    [
+     "Ryż Długoziarnistylkg",
+     1.027,
+     5.49,
+     5.64,
+     0
+    ],
+    [
+     "Płyn Do Naczyńl L",
+     1,
+     6.49,
+     6.49,
+     0
+    ],
+    [
+     "Passata 690g",
+     1,
+     4.29,
+     4.29,
+     0
+    ],
+    [
+     "Pomidory Luz Kg",
+     0.62,
+     9.99,
+     6.19,
+     0
+    ],
+    [
+     "Woda Niegaz .1,5L",
+     2,
+     1.99,
+     3.98,
+     0
+    ],
+    [
+     "Kietbasaśląska",
+     1,
+     11.99,
+     11.99,
+     0
+    ],
+    [
+     "Chlebliejski 500g",
+     1,
+     4.99,
+     4.99,
+     0
+    ],
+    [
+     "Masto Ext. 200g",
+     1,
+     7.49,
+     7.49,
+     0
+    ],
+    [
+     "Tharóg Póttt.250g",
+     1,
+     3.99,
+     3.99,
+     0
+    ],
+    [
+     "Tortilla Pszenna 6szt",
+     1,
+     6.49,
+     6.49,
+     0
+    ],
+    [
+     "Cebula Luz Kg",
+     1.012,
+     3.29,
+     3.33,
+     0
+    ],
+    [
+     "Pierś Z Kurczakakg",
+     1.088,
+     24.99,
+     27.19,
+     0
+    ]
+   ]
+  }
+ },
+ {
+  "file": "p4.jpg",
+  "want": {
+   "total": 75.59,
+   "store": "Aldi",
+   "date": "2026-10-08",
+   "items": 8
+  },
+  "got": {
+   "total": 75.59,
+   "how": "suma+karta+sprzedaż+pozycje+duża czcionka",
+   "engine": "mlkit",
+   "store": "Aldi",
+   "ms": 1761,
+   "text": "ALDI Sp. Z 0.0., ul. Niedźwiedziniec 10\n41-506 Chorzów\nVST 280 Gliwice\nul. Testowa 1\nNIP 1070002973\n2026-10-08 12:26  nr wydr.88977\nPARAGON FISKALNY\nMAKARON PENNE 500G C 1SZT* 3,99 3,99 C\nKAWA MIELONA 250G A 2SZT * 14,99 29,98 A\nOPUST KAWA MIELONA 250G A  -1,00 A\nMASŁO EXT. 200G C 1SZT * 7,49 7,49 C\nOPUST MASŁO EXT. 200G C  -1,49 C\nCEBULA LUZ KG C 0,869kg * 3,29 2, 86 C\nKREWETKI MROŻ. 400G C 1SZT * 22, 99 22,99 c\nPŁYN DO NACZYŃ 1L A  1SZT * 6,49 6,49 A\nPASSATA 690G C  1SZT * 4,29 4,29 C\nOPUST PASSATA 690G C  -2,00 C\nWODA NIEGAZ. 1,5L A 1SZT * 1,99 1,99 A\nSuma Opustów  -4,49\nSprzedaż opodatk.  37,46\nPTU A 23, 00%  7, 00\nSprzedaż opodatk. C  38, 13\nPTU C 5, 00%  1,82\nSuma PTU  8,82\nSUNA PLN  75,59\nKarta płatnicza  75,59\n167 #Kasa 2  Kasjer nr 28\n54:80 A7498882",
+   "itemsOk": true,
+   "items": [
+    [
+     "Makaron penne 500g",
+     1,
+     3.99,
+     3.99,
+     0
+    ],
+    [
+     "Kawa mielona 250g",
+     2,
+     14.99,
+     29.98,
+     1
+    ],
+    [
+     "Masło ext. 200g",
+     1,
+     7.49,
+     7.49,
+     1.49
+    ],
+    [
+     "Cebula luz",
+     0.869,
+     3.29,
+     2.86,
+     0
+    ],
+    [
+     "Krewetki mroż. 400g",
+     1,
+     22.99,
+     22.99,
+     0
+    ],
+    [
+     "Płyn do naczyń 1l",
+     1,
+     6.49,
+     6.49,
+     0
+    ],
+    [
+     "Passata 690g",
+     1,
+     4.29,
+     4.29,
+     2
+    ],
+    [
+     "Woda niegaz. 1,5l",
+     1,
+     1.99,
+     1.99,
+     0
+    ]
+   ]
+  }
+ },
+ {
+  "file": "p5.jpg",
+  "want": {
+   "total": 269.76,
+   "store": "Żabka",
+   "date": "2026-10-05",
+   "items": 21
+  },
+  "got": {
+   "total": 269.76,
+   "how": "suma+karta+sprzedaż+pozycje+duża czcionka",
+   "engine": "mlkit",
+   "store": "Żabka",
+   "ms": 2174,
+   "text": "Žabka Polska sp. z 0.0.\nul. Stanistava Matyi 8\n61-586 Poznań\nSklep Z1234 Gliwice\nNIP 778-14-04- 546\n2026-10-05 14:27\nnr wydr.51715\nPARAGON FISKALIY\nPapier toaletowy 8\nA l x12,99  12,99A\nWoda niegaz. 1,5L\nA 2 x1,99  3,98A\nKrewetki mroż. 400g\nC 3 x22,99  68,97C\nPiers z kurczaka kg\nC 0,787 x24,99  19,67C\nTortilla pszenna 6szt\nC 2 x6,49  12,98C\nBanany luz kg\nC 1,123 x5,99  6,73C\nKietbasa śląska\nC 1 xll, 99  11,99C\nPassata 690g\nC 2 x4,29  8,58C\nMleko UHT 3,2% 1L\nC 3 x3, 49  10,47C\nJaja L 10szt\nC 1 x9,99  9,99C\nRyż długoziarnisty lkg\nC 1,010 x5,49  5,54C\nMakaron penne 500g\nC 2 x3,99  7,98C\nCzekolada nleczna\nA 3 x4,49  13,47A\nTharóg póttt. 250g\nC1 x3,99  3,99C\nPomidory luz kg\nC 1,188 x9,99  11,87C\nSok pomarańcz. 1L\nA 2 x5,99  11,98A\nPłyn do naczyń 1L\nA 1 x6, 49  6,49A\nZiemniakd luz kg\nC 1,537 x2,49  3,83C\nKawa mielona 250g\nA 2 x14, 99  29,98A\nJogurt nat. 400g\nC1 x2, 79  2,79C\nSer gouda plastry\nC 1 x6,99  6,99C\nRabat  -1,50\nSprzedaż opodatk. A  78,89\nPTU A 23, 00%  14,75\nSprzedaż opodatk. C  190,87\nPTU C 5,00%  9,09\nSuma PTU  23, 84\nSUNA PLN  269,76\nKarta płatnicza  269,76\n775 Kasa 6  Kasjer nr 5\n90:79 C4745746",
+   "itemsOk": true,
+   "items": [
+    [
+     "Papier toaletowy 8",
+     1,
+     12.99,
+     12.99,
+     0
+    ],
+    [
+     "Woda niegaz. 1,5L",
+     2,
+     1.99,
+     3.98,
+     0
+    ],
+    [
+     "Krewetki mroż. 400g",
+     3,
+     22.99,
+     68.97,
+     0
+    ],
+    [
+     "Piers z kurczaka",
+     0.787,
+     24.99,
+     19.67,
+     0
+    ],
+    [
+     "Tortilla pszenna 6szt",
+     2,
+     6.49,
+     12.98,
+     0
+    ],
+    [
+     "Banany luz",
+     1.123,
+     5.99,
+     6.73,
+     0
+    ],
+    [
+     "Kietbasa śląska",
+     1,
+     11.99,
+     11.99,
+     0
+    ],
+    [
+     "Passata 690g",
+     2,
+     4.29,
+     8.58,
+     0
+    ],
+    [
+     "Mleko UHT 3,2% 1L",
+     3,
+     3.49,
+     10.47,
+     0
+    ],
+    [
+     "Jaja L 10szt",
+     1,
+     9.99,
+     9.99,
+     0
+    ],
+    [
+     "Ryż długoziarnisty lkg",
+     1.01,
+     5.49,
+     5.54,
+     0
+    ],
+    [
+     "Makaron penne 500g",
+     2,
+     3.99,
+     7.98,
+     0
+    ],
+    [
+     "Czekolada nleczna",
+     3,
+     4.49,
+     13.47,
+     0
+    ],
+    [
+     "Tharóg póttt. 250g",
+     1,
+     3.99,
+     3.99,
+     0
+    ],
+    [
+     "Pomidory luz",
+     1.188,
+     9.99,
+     11.87,
+     0
+    ],
+    [
+     "Sok pomarańcz. 1L",
+     2,
+     5.99,
+     11.98,
+     0
+    ],
+    [
+     "Płyn do naczyń 1L",
+     1,
+     6.49,
+     6.49,
+     0
+    ],
+    [
+     "Ziemniakd luz",
+     1.537,
+     2.49,
+     3.83,
+     0
+    ],
+    [
+     "Kawa mielona 250g",
+     2,
+     14.99,
+     29.98,
+     0
+    ],
+    [
+     "Jogurt nat. 400g",
+     1,
+     2.79,
+     2.79,
+     0
+    ],
+    [
+     "Ser gouda plastry",
+     1,
+     6.99,
+     6.99,
+     1.5
+    ]
+   ]
+  }
+ },
+ {
+  "file": "p6.jpg",
+  "want": {
+   "total": 96.42,
+   "store": "Biedronka",
+   "date": "2026-10-08",
+   "items": 8
+  },
+  "got": {
+   "total": 96.42,
+   "how": "suma+karta+sprzedaż+pozycje+duża czcionka",
+   "engine": "mlkit",
+   "store": "Biedronka",
+   "ms": 1633,
+   "text": "JERONIMO MARTINS POLSKA S.A.\nul. Žniwna 5, 62-025 Kostrzyn\nBiedronka nr 4521\nGliwice, ul. Pszczyńska 1\nNIP 779-10-11-327\n2026-10-08 20:12  nr wydr.35786\nPARAGON FISKALNY\nMakaron penne 500g\nC 1 x3,99  3,99C\nPomido ry luz kg\nC 0,927 x9,99  9,26C\nPapier toaletowy 8\nA 3 X12,99  38,97A\nRyż długoziarnisty 1kg\nC 0,696 x5,49  3,82C\nMleko UHT 3,2% 1L\nC 1 x3,49  3,49C\nBanany luz kg\nC 1,241 x5,99  7,43C\nMasto ext. 200g\nC 3 x7,49  22,47C\nSer gouda plastry\nC 1 x6,99  6,99C\nSprzedaż opodatk. A  38,97\nPTU A 23, 00%  7,29\nSprzedaż opodatk. C  57,45\nPTU C 5,00%  2,74\nSuma PTU  10,02\nSUNA PLN  96,42\nKarta płatnicza  96,42\n145 #Kasa 3  Kasjer nr 23\n63:13 C8634576",
+   "itemsOk": true,
+   "items": [
+    [
+     "Makaron penne 500g",
+     1,
+     3.99,
+     3.99,
+     0
+    ],
+    [
+     "Pomido ry luz",
+     0.927,
+     9.99,
+     9.26,
+     0
+    ],
+    [
+     "Papier toaletowy 8",
+     3,
+     12.99,
+     38.97,
+     0
+    ],
+    [
+     "Ryż długoziarnisty 1kg",
+     0.696,
+     5.49,
+     3.82,
+     0
+    ],
+    [
+     "Mleko UHT 3,2% 1L",
+     1,
+     3.49,
+     3.49,
+     0
+    ],
+    [
+     "Banany luz",
+     1.241,
+     5.99,
+     7.43,
+     0
+    ],
+    [
+     "Masto ext. 200g",
+     3,
+     7.49,
+     22.47,
+     0
+    ],
+    [
+     "Ser gouda plastry",
+     1,
+     6.99,
+     6.99,
+     0
+    ]
+   ]
+  }
+ },
+ {
+  "file": "p7.jpg",
+  "want": {
+   "total": 169.58,
+   "store": "Lidl",
+   "date": "2026-10-04",
+   "items": 19
+  },
+  "got": {
+   "total": 169.58,
+   "how": "suma+karta+sprzedaż+duża czcionka",
+   "engine": "mlkit",
+   "store": "Lidl",
+   "ms": 2047,
+   "text": "Lidl sp. z 0.0. Sp.k.\nul. Poznańska 48, Jankowice\nSklep Lidl Gliwice\nul. Toszecka 101\nNIP 781-18-97-358\n2026-10-04 15:06  nr wydr.77245\nPARAGON FISKALIY\nJogurt nat. 400g\nC1 x2,79  2,79C\nCebula luz kg\nC 1,162 x3,29  3,82C\nMleko UHT 3,2% 1L\nC1 x3, 49  3,49C\nMakaron penne 500g\nC1 x3,99  3,99C\nCzekolada mleczna\nA 3 x4,49  13,47A\nKawa mielona 25@g\nA 1 x14,99  14,99A\nPierś z kurczaka kg\nC 1,649 x24,99  41,21C\nTwaróg pót tł. 250g\nC1 x3,99  3,99C\nBanany luz kg\nC 0,642 x5,99  3,85C\nMasto ext. 200g\nC1 x7, 49  7,49C\nSer gouda plastry\nC 1 x6,99  6,99C\nWoda niegaz. 1,5L\nA 1 xl,99  1,99A\nZiemniaki luz kg\nC 0,752 x2,49  1,87C\nPłyn do naczyń 1L\nA 3 x6,49  19,47A\nJaja L 10szt\nC1 x9,99  9,99C\nPomidory luz kg\nC 0,892 x9,99  8,91C\nTortilla pszenna 6szt\nC1 x6,49  6,49C\nPassata 690g\nC1 x4,29  4,29C\nKietbasa ślaska\nC 1 x11, 99  11,99C\nRabat\n-1,50\nSprzedaż opodatk. A  49,92\nPTU A 23, 00%  9,33\nSprzedaż opodatk.C  119,66\nPTU C 5, 00%  5,70\nSuma PTU\n15,03\nSUNA PLN  169,58\nKarta płatnicza  169,58\n751 #Kasa 4\nKasjer nr 4\n31:29 BS2482 78",
+   "itemsOk": true,
+   "items": [
+    [
+     "Jogurt nat. 400g",
+     1,
+     2.79,
+     2.79,
+     0
+    ],
+    [
+     "Cebula luz",
+     1.162,
+     3.29,
+     3.82,
+     0
+    ],
+    [
+     "Mleko UHT 3,2% 1L",
+     1,
+     3.49,
+     3.49,
+     0
+    ],
+    [
+     "Makaron penne 500g",
+     1,
+     3.99,
+     3.99,
+     0
+    ],
+    [
+     "Czekolada mleczna",
+     3,
+     4.49,
+     13.47,
+     0
+    ],
+    [
+     "Kawa mielona 25@g",
+     1,
+     14.99,
+     14.99,
+     0
+    ],
+    [
+     "Pierś z kurczaka",
+     1.649,
+     24.99,
+     41.21,
+     0
+    ],
+    [
+     "Twaróg pót tł. 250g",
+     1,
+     3.99,
+     3.99,
+     0
+    ],
+    [
+     "Banany luz",
+     0.642,
+     5.99,
+     3.85,
+     0
+    ],
+    [
+     "Masto ext. 200g",
+     1,
+     7.49,
+     7.49,
+     0
+    ],
+    [
+     "Ser gouda plastry",
+     1,
+     6.99,
+     6.99,
+     0
+    ],
+    [
+     "Woda niegaz. 1,5L",
+     1,
+     1.99,
+     1.99,
+     0
+    ],
+    [
+     "Ziemniaki luz",
+     0.752,
+     2.49,
+     1.87,
+     0
+    ],
+    [
+     "Płyn do naczyń 1L",
+     3,
+     6.49,
+     19.47,
+     0
+    ],
+    [
+     "Jaja L 10szt",
+     1,
+     9.99,
+     9.99,
+     0
+    ],
+    [
+     "Pomidory luz",
+     0.892,
+     9.99,
+     8.91,
+     0
+    ],
+    [
+     "Tortilla pszenna 6szt",
+     1,
+     6.49,
+     6.49,
+     0
+    ],
+    [
+     "Passata 690g",
+     1,
+     4.29,
+     4.29,
+     0
+    ],
+    [
+     "Kietbasa ślaska",
+     1,
+     11.99,
+     11.99,
+     1.5
+    ]
+   ]
+  }
+ },
+ {
+  "file": "p8.jpg",
+  "want": {
+   "total": 158.12,
+   "store": "Kaufland",
+   "date": "2026-10-08",
+   "items": 16
+  },
+  "got": {
+   "total": 158.12,
+   "how": "suma+karta+sprzedaż+pozycje+duża czcionka",
+   "engine": "mlkit",
+   "store": "Kaufland",
+   "ms": 1771,
+   "text": "Kaufland Polska Markety\nsp. z 0.0. sp.j.\nul. Wróblews kiego 6\n44-100 Gliwice\nNIP 899-24-21-286\n2026-10-08 11:45  nr wydr. 76955\nPARAGON FISKALNY\nPapierToalet owy8 t 2SZT xl2,99 25,98A\nKrewetkiMroż.400g t 1SZT x22,99 22,99C\nTwarógPót tt. 250g t 1SZT X3, 99 3,99C\nRyżDługoziarnistylkg  t\n1,432KG x5,49 7,86C\nPassata690g t  1SZT x4, 29 4,29C\nKietbasaśląska t  1SZT xl1, 99 11,99C\nChlebWiej ski500g t  2SZT x4,99 9,98C\nMakaronPenne500g t  1SZT X3,99 3,99C\nKawaMielona250g  1SZT X14, 99 14,99A\nZiemniakiLuzKg t  1,340KG x2,49 3,34C\nSerGoudaPlastry t  1SZT X6,99 6,99C\nJogurtNat. 400g t  3SZT x2, 79 8,37C\nJajaLl0szt t  1SZT x9,99 9,99C\nCebulaLuzKg t  0,813KG x3, 29 2,67C\nSokPomarańcz. 1L t  2SZT x5,99 11,98A\nPierśZKurczakakgt  0,349KG x24,99 8,72C\nSprzedaż opodatk. A  52,95\nPTU A 23, 00%  9,90\nSprzedaż opodatk. C  105,17\nPTU C 5,00%  5,01\nSuma PTU  14,91\nSUNA PLN  158,12\nKarta płatnicza  158, 12\n786 #Kasa 5  Kasjer nr 15\n53:53 B282 1442",
+   "itemsOk": true,
+   "items": [
+    [
+     "Papier Toalet owy 8",
+     2,
+     12.99,
+     25.98,
+     0
+    ],
+    [
+     "Krewetki Mroż.400g",
+     1,
+     22.99,
+     22.99,
+     0
+    ],
+    [
+     "Twaróg Pót tt. 250g",
+     1,
+     3.99,
+     3.99,
+     0
+    ],
+    [
+     "Ryż Długoziarnistylkg",
+     1.432,
+     5.49,
+     7.86,
+     0
+    ],
+    [
+     "Passata 690g",
+     1,
+     4.29,
+     4.29,
+     0
+    ],
+    [
+     "Kietbasaśląska",
+     1,
+     11.99,
+     11.99,
+     0
+    ],
+    [
+     "Chleb Wiej ski 500g",
+     2,
+     4.99,
+     9.98,
+     0
+    ],
+    [
+     "Makaron Penne 500g",
+     1,
+     3.99,
+     3.99,
+     0
+    ],
+    [
+     "Kawa Mielona 250g",
+     1,
+     14.99,
+     14.99,
+     0
+    ],
+    [
+     "Ziemniaki Luz Kg",
+     1.34,
+     2.49,
+     3.34,
+     0
+    ],
+    [
+     "Ser Gouda Plastry",
+     1,
+     6.99,
+     6.99,
+     0
+    ],
+    [
+     "Jogurt Nat. 400g",
+     3,
+     2.79,
+     8.37,
+     0
+    ],
+    [
+     "Jaja Ll0szt",
+     1,
+     9.99,
+     9.99,
+     0
+    ],
+    [
+     "Cebula Luz Kg",
+     0.813,
+     3.29,
+     2.67,
+     0
+    ],
+    [
+     "Sok Pomarańcz. 1L",
+     2,
+     5.99,
+     11.98,
+     0
+    ],
+    [
+     "Pierś Z Kurczakakgt",
+     0.349,
+     24.99,
+     8.72,
+     0
+    ]
+   ]
+  }
+ },
+ {
+  "file": "p9.jpg",
+  "want": {
+   "total": 198.09,
+   "store": "Aldi",
+   "date": "2026-10-10",
+   "items": 19
+  },
+  "got": {
+   "total": 198.09,
+   "how": "suma+karta+sprzedaż+duża czcionka",
+   "engine": "mlkit",
+   "store": "Aldi",
+   "ms": 2138,
+   "text": "ALDI Sp. z 0.0., ul. Niedźwiedziniec 10\n41-506 Chorzów\nVST 280 Gliwice\nul. Testowa 1\nNIP 1070002973\n2026-10-10 15:55  nr wydr. 49866\nPARAGON FISKALINY\nCHLEB WIEJSKI 500G C  1SZT* 4,99 4,99 C\nBANANY LUZ KG C 1,150kg * 5,99 6, 89 C\nWODA NIEGAZ. 1,5L A 3SZT * 1,99 5,97 A\nKIEŁBASA ŚLĄSKA C 1SZT * 11,99 11,99 C\nMAKARON PENNE 500G C 3SZT * 3,99 11,97 C\nMLEKO UHT 3,2% 1L C 3SZT* 3,49 10,47 C\nKAWA MIELONA 250GA 3SZT * 14,99 44,97 A\nCEBULA LUZ KG C 0,756kg * 3,29 2,49 C\nSER GOUDA PLASTRY C 3SZT *6,99 20,97 C\nOPUST SER GOUDA PLASTRY C  -1,49 C\nRYŻ DŁUGOZIARNISTY IKG C 1,720kg * 5,49 9,\nOPUST RYŽŻ DŁUGOZIARNISTY 1 C -1,49 C\nCZEKOLADA MLECZNA A 1SZT * 4,49 4,49 A\nPOMIDORY LUZ KG C 0,667kg * 9,99 6,66 C\nTWARÓG PÓŁTŁ.. 250G C 1SZT*3,99 3,99 C\nPIERS Z KURCZAKA KG C 0,657kg * 24,99 16,47\nSOK POMARANCZ. 1L A 1SZT * 5,99 5,99 A\nPŁYN DO NACZYŃ 1L A 3SZT *6,49 19,47 A\nZIEMNIAKI LUZ KG C 1,455kg * 2,49 3,62 C\nMASŁO EXT. 200G C 1SZT * 7,49 7,49C\nJOGURT NAT. 400G C 1SZT * 2,79 2,79 C\nSuma Opustów  -2,98\nSprzedaż opodatk. A  80,89\nPTU A 23,00%  15,13\nSprzedaż opodatk. C  117, 20\nPTU C 5,00%  5,58\nSuma PTU  20,71\nSUNA PLN  198,09\nKarta płatnicza  198,09\n628 #Kasa 7  Kasjer nr 23\n29:67 A5846870",
+   "itemsOk": true,
+   "items": [
+    [
+     "Chleb wiejski 500g",
+     1,
+     4.99,
+     4.99,
+     0
+    ],
+    [
+     "Banany luz",
+     1.15,
+     5.99,
+     6.89,
+     0
+    ],
+    [
+     "Woda niegaz. 1,5l",
+     3,
+     1.99,
+     5.97,
+     0
+    ],
+    [
+     "Kiełbasa śląska",
+     1,
+     11.99,
+     11.99,
+     0
+    ],
+    [
+     "Makaron penne 500g",
+     3,
+     3.99,
+     11.97,
+     0
+    ],
+    [
+     "Mleko uht 3,2% 1l",
+     3,
+     3.49,
+     10.47,
+     0
+    ],
+    [
+     "Kawa mielona 250ga",
+     3,
+     14.99,
+     44.97,
+     0
+    ],
+    [
+     "Cebula luz",
+     0.756,
+     3.29,
+     2.49,
+     0
+    ],
+    [
+     "Ser gouda plastry",
+     3,
+     6.99,
+     20.97,
+     1.49
+    ],
+    [
+     "Ryż długoziarnisty ikg",
+     1.72,
+     5.49,
+     9.44,
+     1.49
+    ],
+    [
+     "Czekolada mleczna",
+     1,
+     4.49,
+     4.49,
+     0
+    ],
+    [
+     "Pomidory luz",
+     0.667,
+     9.99,
+     6.66,
+     0
+    ],
+    [
+     "Twaróg półtł.. 250g",
+     1,
+     3.99,
+     3.99,
+     0
+    ],
+    [
+     "Piers z kurczaka",
+     0.657,
+     24.99,
+     16.42,
+     0
+    ],
+    [
+     "Sok pomarancz. 1l",
+     1,
+     5.99,
+     5.99,
+     0
+    ],
+    [
+     "Płyn do naczyń 1l",
+     3,
+     6.49,
+     19.47,
+     0
+    ],
+    [
+     "Ziemniaki luz",
+     1.455,
+     2.49,
+     3.62,
+     0
+    ],
+    [
+     "Masło ext. 200g",
+     1,
+     7.49,
+     7.49,
+     0
+    ],
+    [
+     "Jogurt nat. 400g",
+     1,
+     2.79,
+     2.79,
+     0
+    ]
+   ]
+  }
+ },
+ {
+  "file": "p10.jpg",
+  "want": {
+   "total": 199.81,
+   "store": "Żabka",
+   "date": "2026-10-03",
+   "items": 15
+  },
+  "got": {
+   "total": 199.81,
+   "how": "sprzedaż+pozycje",
+   "engine": "mlkit",
+   "store": "Żabka",
+   "ms": 2098,
+   "text": "Zabka Polska sp. z 0.0.\nul. Stanisława Matyi 8\n61-586 Poznań\nSklep Z1234 Gliwice\nNIP 778-14-04-546\n2026-10-03 15:25  nr wydr.33642\nPARAGON FISKALINY\nPierś z kurczaka kg\nC 1,209 x24,99  30,21C\nRyż długozia rnisty lkg\nC 0,985 x5,49  5,41C\nKrewetki mroż. 400g\nC 1 x22,99  22,99C\nTwaróg pôttt. 250g\nC 3 x3,99  11,97C\nPapier toaletowy 8\nA 3 x12,99  38,97A\nJogurt nat. 400g\nC 3 x2,79  8,37C\nBanany luz kg\nC 1,602 x5,99  9,60C\nCebula luz kg\nC 1,151 x3,29  3,79C\nTortilla pszenna 6szt\nC 3 x6,49  19,47C\nZiemniaki luz kg\nC 0,446 x2,49  1,11C\nKawa mielona 250g\nA 1 x14,99  14,99A\nWoda niegaz. 1,5L\nA 1 x1,99  1,99A\nChleb wiej ski 500g\nC 2 x4,99  9,98C\nMakaron penne 500g\nC 1 x3,99  3,99C\nSok pomarańcz. lL\nA 3 x5,99  17,97A\nRabat  -1,00\nSprzedaż opodatk. A  73,92\nPTU A 23,00%  13,82\nSprzedaż opodatk. C  125,89\nPTU C 5,00%  5,99\nSuma PTU  19,82\nSINA PLN  19,81\nGotówka\n200,00\nReszta\n0,19\n914 #Kasa 7\nKasjer nr 17\n50:17 AS587631",
+   "itemsOk": true,
+   "items": [
+    [
+     "Pierś z kurczaka",
+     1.209,
+     24.99,
+     30.21,
+     0
+    ],
+    [
+     "Ryż długozia rnisty lkg",
+     0.985,
+     5.49,
+     5.41,
+     0
+    ],
+    [
+     "Krewetki mroż. 400g",
+     1,
+     22.99,
+     22.99,
+     0
+    ],
+    [
+     "Twaróg pôttt. 250g",
+     3,
+     3.99,
+     11.97,
+     0
+    ],
+    [
+     "Papier toaletowy 8",
+     3,
+     12.99,
+     38.97,
+     0
+    ],
+    [
+     "Jogurt nat. 400g",
+     3,
+     2.79,
+     8.37,
+     0
+    ],
+    [
+     "Banany luz",
+     1.602,
+     5.99,
+     9.6,
+     0
+    ],
+    [
+     "Cebula luz",
+     1.151,
+     3.29,
+     3.79,
+     0
+    ],
+    [
+     "Tortilla pszenna 6szt",
+     3,
+     6.49,
+     19.47,
+     0
+    ],
+    [
+     "Ziemniaki luz",
+     0.446,
+     2.49,
+     1.11,
+     0
+    ],
+    [
+     "Kawa mielona 250g",
+     1,
+     14.99,
+     14.99,
+     0
+    ],
+    [
+     "Woda niegaz. 1,5L",
+     1,
+     1.99,
+     1.99,
+     0
+    ],
+    [
+     "Chleb wiej ski 500g",
+     2,
+     4.99,
+     9.98,
+     0
+    ],
+    [
+     "Makaron penne 500g",
+     1,
+     3.99,
+     3.99,
+     0
+    ],
+    [
+     "Sok pomarańcz. l L",
+     3,
+     5.99,
+     17.97,
+     1
+    ]
+   ]
+  }
+ },
+ {
+  "file": "test-paragon.jpg",
+  "want": {
+   "total": 35.25,
+   "store": "Biedronka"
+  },
+  "got": {
+   "total": 35.25,
+   "how": "suma+karta+sprzedaż+pozycje",
+   "engine": "mlkit",
+   "store": "Biedronka",
+   "ms": 1220,
+   "text": "JERONIMO MARTINS POLSKA S.A.\nBIEDRONKA NR 3214\nul. Zwycięstwa 12, Gliwice\nNIP 779-10-11-327\n2026-10- 11  nr wydr.004211\nPARAGON FISKALNY\nMleko 2% 1L  1 x3,99  3,99C\nChleb graham  1 x4,49 4,49C\nPierś z kurczaka 0,612x24,99 15,29C\nJabłka luz  1,2x4,99  5,99C\nMakaron Lubella 1 x5, 49  5,49C\nSPRZEDAŻ OPODATK. C  35,25\nPTU C 5,00%  1,68\nSUMA PTU  1,68\nSUMA PLN  35,25\nKarta płatnicza  35,25\n00421 #Kasa 3 Kasjer nr 12",
+   "itemsOk": true,
+   "items": [
+    [
+     "Mleko 2% 1L",
+     1,
+     3.99,
+     3.99,
+     0
+    ],
+    [
+     "Chleb graham",
+     1,
+     4.49,
+     4.49,
+     0
+    ],
+    [
+     "Pierś z kurczaka",
+     0.612,
+     24.99,
+     15.29,
+     0
+    ],
+    [
+     "Jabłka luz",
+     1.2,
+     4.99,
+     5.99,
+     0
+    ],
+    [
+     "Makaron Lubella",
+     1,
+     5.49,
+     5.49,
+     0
+    ]
+   ]
+  }
+ },
+ {
+  "file": "p1.jpg",
+  "want": {
+   "total": 194.93,
+   "store": "Biedronka",
+   "date": "2026-10-03",
+   "items": 13
+  },
+  "got": {
+   "total": 194.93,
+   "how": "karta+sprzedaż+pozycje",
+   "engine": "tesseract",
+   "store": "Biedronka",
+   "ms": 3963,
+   "text": "JERONIMO MARTINS POLSKA S.A.\nul. Żniwna 5, 62-025 Kostrzyn\nBiedronka nr 4521\nGliwice, ul. Pszczyńska 1\nNIP 779-10-11-327\n2026-10-03 14:41  nr wydr.16328\nPARAGON FISKALNY  —\nMasło ext. 200g  |\nC 1x7,49  7,49C  =\"\nPapier toaletowy 8\n1:1 x12;9%  12,99A\nJaja L 10szt  =:\nż  C 3 x9,99  29,97C\nSer gouda plastry  |\nC 2 x6,99  13,98C  =\nPtyn do naczyń IL  |\nA 1 x6,49  6,49A  |\n4%.  chleb wiejski 500g  |  |\n:  C  3 x4,99  14,97C  4\nCzekolada mleczna\nA 1 x4,49  4,49A\nPomidory luz kg\nC 1,721 x9,99  17,19c\nBanany luz kg\n=  C 1,246 x5,99  7,46X\nE  Kawa mielona 250g\nA 3 x14,99  44,97A\nKiełbasa śląska\nBY”  C 1 x11,9  11,99C\nWoda niegaz. 1,5L\nA 3 x1,99  5,97A\nSok pomarańcz. 1L\n=  A 3 x5,99  17,97A\nRabat  -1,00\nSprzedaż opodatk. A  92,88\nPTU A 23,00%  17,37\nSprzedaż opodatk. C  102,05\nPTU C 5,00%  4,86  i\nSuma PTU  22,23\nUMA PA  4,9\nKarta płatnicza  194,93\n979 +4Kasa 3  Kasjer nr 19\n63:28 C2976225\nARN",
+   "itemsOk": true,
+   "items": [
+    [
+     "Masło ext. 200g",
+     1,
+     7.49,
+     7.49,
+     0
+    ],
+    [
+     "Papier toaletowy 8",
+     1,
+     12.99,
+     12.99,
+     0
+    ],
+    [
+     "Jaja L 10szt",
+     3,
+     9.99,
+     29.97,
+     0
+    ],
+    [
+     "Ser gouda plastry",
+     2,
+     6.99,
+     13.98,
+     0
+    ],
+    [
+     "Ptyn do naczyń IL",
+     1,
+     6.49,
+     6.49,
+     0
+    ],
+    [
+     "4%. chleb wiejski 500g",
+     3,
+     4.99,
+     14.97,
+     0
+    ],
+    [
+     "Czekolada mleczna",
+     1,
+     4.49,
+     4.49,
+     0
+    ],
+    [
+     "Pomidory luz",
+     1.721,
+     9.99,
+     17.19,
+     0
+    ],
+    [
+     "Banany luz",
+     1.246,
+     5.99,
+     7.46,
+     0
+    ],
+    [
+     "E Kawa mielona 250g",
+     3,
+     14.99,
+     44.97,
+     0
+    ],
+    [
+     "Kiełbasa śląska",
+     1,
+     11.99,
+     11.99,
+     0
+    ],
+    [
+     "Woda niegaz. 1,5L",
+     3,
+     1.99,
+     5.97,
+     0
+    ],
+    [
+     "Sok pomarańcz. 1L",
+     3,
+     5.99,
+     17.97,
+     1
+    ]
+   ]
+  }
+ },
+ {
+  "file": "p2.jpg",
+  "want": {
+   "total": 134.29,
+   "store": "Lidl",
+   "date": "2026-10-07",
+   "items": 10
+  },
+  "got": {
+   "total": 134.29,
+   "how": "suma+karta+sprzedaż+pozycje+duża czcionka",
+   "engine": "tesseract",
+   "store": "Lidl",
+   "ms": 2503,
+   "text": "Lidl sp. z 0.0. Sp.k.\nul. Poznańska 48, Jankowice\nSklep Lidl Gliwice\nul. Toszecka 101\nNIP 781-18-97-358\n2026-10-07 08:45  nr wydr. 17882\nPARAGON FISKALNY\nZiemniaki luz kg\nC 1,279 x2,49  3,18C\nKrewetki mroż. 400g\nC  3 x22,99  68,97C\nSok pomarańcz. 1L\nA 2 x5,99  11,98A\nJogurt nat. 400g\nC  1 x2,79  2,79C\nJaja L 10szt\nC  1 x9,99  9,99C\nMasło ext. 200g\nC  2 x7,49  14,98C\nTwaróg półtł. 250g\nC  1 x3,99  3,99C\nPassata 690g\nC  1 x4,29  4,29C\nPomidory luz kg\nC 0,964 x9,99  9,63C\nPłyn do naczyń 1L\nA 1 x6,49  6,49A\nRabat  -2,00\nSprzedaż opodatk. A  18,47\nPTU A 23,00%  3,45\nSprzedaż opodatk. C  115,82\nPTU C 5,00%  5,52\nSuma PTU  8,97\nSUMA PL  134,29\nKarta płatnicza  134,29\n530 Kasa 2  Kasjer nr 36\n36:58 B6179113",
+   "itemsOk": true,
+   "items": [
+    [
+     "Ziemniaki luz",
+     1.279,
+     2.49,
+     3.18,
+     0
+    ],
+    [
+     "Krewetki mroż. 400g",
+     3,
+     22.99,
+     68.97,
+     0
+    ],
+    [
+     "Sok pomarańcz. 1L",
+     2,
+     5.99,
+     11.98,
+     0
+    ],
+    [
+     "Jogurt nat. 400g",
+     1,
+     2.79,
+     2.79,
+     0
+    ],
+    [
+     "Jaja L 10szt",
+     1,
+     9.99,
+     9.99,
+     0
+    ],
+    [
+     "Masło ext. 200g",
+     2,
+     7.49,
+     14.98,
+     0
+    ],
+    [
+     "Twaróg półtł. 250g",
+     1,
+     3.99,
+     3.99,
+     0
+    ],
+    [
+     "Passata 690g",
+     1,
+     4.29,
+     4.29,
+     0
+    ],
+    [
+     "Pomidory luz",
+     0.964,
+     9.99,
+     9.63,
+     0
+    ],
+    [
+     "Płyn do naczyń 1L",
+     1,
+     6.49,
+     6.49,
+     2
+    ]
+   ]
+  }
+ },
+ {
+  "file": "p3.jpg",
+  "want": {
+   "total": 170.98,
+   "store": "Kaufland",
+   "date": "2026-10-08",
+   "items": 19
+  },
+  "got": {
+   "total": 170.98,
+   "how": "karta+sprzedaż+pozycje",
+   "engine": "tesseract",
+   "store": "Kaufland",
+   "ms": 3323,
+   "text": "Kaufland Polska Markety\nSp. Z 0.0. Sp.j.\nul. Wróblewskiego 6\n44-100 Gliwice\nNIP 899-24-21-286\n2026-10-08 11:31  nr wydr. 31576\nPARAGOW FISKALNY\nPapierToaletowy8 t  1SZT x12,99 12,99A\nBananyLuzKg t  1,324KG x5,99 7,93C\nMlekoUHT3,2%1L t  1SZT x3,49 3,49C\nZiemniakiLuzKą t  1,513KG x2,49 3,77C\nJogurtNat .4009g t  1SZT x2,79 2,79%\nSokPomarańcz.1L t  3SZT x5,99 17,97A\nKawaMielona2589 t  2SZT x14,99 29,98A\nRyżDługoziarnistylką  t\n1,027KG x5,49 5,64C\nPłynDoNaczyńiL t  1SZT x6,49 6,49A\nPassata6909 t  1SZT x4,29 4,29€\nPomidoryLuzKą t  0,620KG x9,99 6,19C\nWodaNiegaz.1,5L t  2SZT x1,99 3,98A\nKiełbasaSląska t  1SZT x11,99 11,99C\nChlebWiejski508g t  1SZT x4,99 4,99C\nMasłoExt.2009 t  ISZT x7,49 7,49C\nTwarógPółtł.2509 t  1SZT x3,99 3,99C\nTortillaPszennabszt t  1SZT x6,49 6,49C\nCebulaLuzKą t  1,012KG x3,29 3,33C\nPiersZKurczakaKą t 1,088KG x24,99 27,19C\nSprzedaż opodatk. A  71,41\nPTU A 23,00%  13,35\nSprzedaż opodatk. C  99,57\nPTU C 5,00%  4,74\nSuma PTU  18,09\nSUMA PLN  170,9\nKarta płatnicza  170,98\n545 $Kasa 6  Kasjer nr 28\n42:80 A5851102",
+   "itemsOk": true,
+   "items": [
+    [
+     "Papier Toaletowy 8",
+     1,
+     12.99,
+     12.99,
+     0
+    ],
+    [
+     "Banany Luz Kg",
+     1.324,
+     5.99,
+     7.93,
+     0
+    ],
+    [
+     "Mleko UHT 3,2%1L",
+     1,
+     3.49,
+     3.49,
+     0
+    ],
+    [
+     "Ziemniaki Luz Ką",
+     1.513,
+     2.49,
+     3.77,
+     0
+    ],
+    [
+     "Jogurt Nat .4009g",
+     1,
+     2.79,
+     2.79,
+     0
+    ],
+    [
+     "Sok Pomarańcz.1L",
+     3,
+     5.99,
+     17.97,
+     0
+    ],
+    [
+     "Kawa Mielona 2589",
+     2,
+     14.99,
+     29.98,
+     0
+    ],
+    [
+     "Ryż Długoziarnistylką",
+     1.027,
+     5.49,
+     5.64,
+     0
+    ],
+    [
+     "Płyn Do Naczyńi L",
+     1,
+     6.49,
+     6.49,
+     0
+    ],
+    [
+     "Passata 6909",
+     1,
+     4.29,
+     4.29,
+     0
+    ],
+    [
+     "Pomidory Luz Ką",
+     0.62,
+     9.99,
+     6.19,
+     0
+    ],
+    [
+     "Woda Niegaz.1,5L",
+     2,
+     1.99,
+     3.98,
+     0
+    ],
+    [
+     "Kiełbasa Sląska",
+     1,
+     11.99,
+     11.99,
+     0
+    ],
+    [
+     "Chleb Wiejski 508g",
+     1,
+     4.99,
+     4.99,
+     0
+    ],
+    [
+     "Masło Ext.2009",
+     1,
+     7.49,
+     7.49,
+     0
+    ],
+    [
+     "Twaróg Półtł.2509",
+     1,
+     3.99,
+     3.99,
+     0
+    ],
+    [
+     "Tortilla Pszennabszt",
+     1,
+     6.49,
+     6.49,
+     0
+    ],
+    [
+     "Cebula Luz Ką",
+     1.012,
+     3.29,
+     3.33,
+     0
+    ],
+    [
+     "Piers Z Kurczaka Ką",
+     1.088,
+     24.99,
+     27.19,
+     0
+    ]
+   ]
+  }
+ },
+ {
+  "file": "p4.jpg",
+  "want": {
+   "total": 75.59,
+   "store": "Aldi",
+   "date": "2026-10-08",
+   "items": 8
+  },
+  "got": {
+   "total": 75.59,
+   "how": "karta+sprzedaż+pozycje",
+   "engine": "tesseract",
+   "store": "Aldi",
+   "ms": 2480,
+   "text": "=\nr\nALDI Sp. z o.o., ul. Niedźwiedziniec 10\n41-506 Chorzów  Y\nVST 280 Gliwice\nul. Testowa 1\nNIP 1070002973\n2026-10-08 12:26  nr wydr.88977\nPARAGON FISKALNY\nMAKARON PENNE 500G C 1SZT * 3,99 3,99 C\nKAWA MIELONA 250G A 2SZT * 14,99 29,98 A\nOPUST KAWA MIELONA 250G A  -1,00 A\nMASŁO EXT. 2060G C  1SZT * 7,49 7,49 C\nOPUST MASŁO EXT. 200G C  -1,49 C\nCEBULA LUZ KG C  0,869kg * 3,29 2,86 C\nKREWETKI MROŻ. 400G C 1SZT * 22,99 22,99 C\nPŁYN DO NACZYŃ 1L A   1SZT * 6,49 6,49 A\nPASSATA 690G C  1SZT * 4,29 4,29 C\nOPUST PASSATA 690G C  -2,00 C\nWODA NIEGAZ. 1,51 A  1SZT * 1,99 1,99 A\nSuma Opustów  -4,49\nSprzedaż opodatk. A  37,46\nPTU A 23,00%  7,00\nSprzedaż opodatk. C  38,13\nPTU C 5,00%  1,82\nSuma PTU  8,82\nSUNA PLN  15,59\nKarta płatnicza  75,59\n167 Kasa 2  Kasjer nr 28\n54:80 A7498882\n:\nkj",
+   "itemsOk": true,
+   "items": [
+    [
+     "Makaron penne 500g",
+     1,
+     3.99,
+     3.99,
+     0
+    ],
+    [
+     "Kawa mielona 250g",
+     2,
+     14.99,
+     29.98,
+     1
+    ],
+    [
+     "Masło ext. 2060g",
+     1,
+     7.49,
+     7.49,
+     1.49
+    ],
+    [
+     "Cebula luz",
+     0.869,
+     3.29,
+     2.86,
+     0
+    ],
+    [
+     "Krewetki mroż. 400g",
+     1,
+     22.99,
+     22.99,
+     0
+    ],
+    [
+     "Płyn do naczyń 1l",
+     1,
+     6.49,
+     6.49,
+     0
+    ],
+    [
+     "Passata 690g",
+     1,
+     4.29,
+     4.29,
+     2
+    ],
+    [
+     "Woda niegaz. 1,51",
+     1,
+     1.99,
+     1.99,
+     0
+    ]
+   ]
+  }
+ },
+ {
+  "file": "test-paragon.jpg",
+  "want": {
+   "total": 35.25,
+   "store": "Biedronka"
+  },
+  "got": {
+   "total": 35.25,
+   "how": "suma+karta+sprzedaż+pozycje",
+   "engine": "tesseract",
+   "store": "Biedronka",
+   "ms": 1595,
+   "text": "JERONIMO MARTINS POLSKA S.A.\nBIEDRONKA NR 3214\nul. Zwycięstwa 12, Gliwice\nNIP 779-10-11-327  |\n2026-10-11  nr wydr.004211\nPARAGON FISKALNY  |\nMleko 2% 1L  1 x3,99  3,99C\nChleb graham  1 x4,49  4,49C\nPierś z kurczaka 0,612x24,99 15,29C\nJabłka luz  1,2x4,99 5,99C\nMakaron Lubella 1 x5,49  5,49C\nSPRZEDAŻ OPODATK. C  35,25\nPTU C 5,00%  1,68\nSUMA PTU  1,68\nSUMA PLN  35,25\n|  Karta płatnicza  35,25\n00421 Kasa 3 Kasjer nr 12",
+   "itemsOk": true,
+   "items": [
+    [
+     "Mleko 2% 1L",
+     1,
+     3.99,
+     3.99,
+     0
+    ],
+    [
+     "Chleb graham",
+     1,
+     4.49,
+     4.49,
+     0
+    ],
+    [
+     "Pierś z kurczaka",
+     0.612,
+     24.99,
+     15.29,
+     0
+    ],
+    [
+     "Jabłka luz",
+     1.2,
+     4.99,
+     5.99,
+     0
+    ],
+    [
+     "Makaron Lubella",
+     1,
+     5.49,
+     5.49,
+     0
+    ]
+   ]
+  }
+ }
+]

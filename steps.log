@@ -1,0 +1,133 @@
+Performing Streamed Install
+Success
+
+zrzut 01-start
+tap 'Zaczynamy' 540 2079
+zrzut 02-home
+tap 'Lista' 163 2003
+tap android.widget.EditText 466 407
+zrzut 03-lista-klawiatura
+zrzut 03b-lista
+jest 'Na dziś możesz wydać'
+tap 'Ustawienia' 109 233
+NIE ZNALEZIONO 'Tryb ostry'
+zrzut 04-ustawienia
+NIE ZNALEZIONO 'Lista'
+NIE ZNALEZIONO klasy android.widget.EditText
+zrzut 05-ostry
+BRAK 'Na dziś możesz wydać'
+NIE ZNALEZIONO 'Promocje'
+zrzut 06-promocje
+BRAK 'Na dziś możesz wydać'
+NIE ZNALEZIONO 'Przepisy'
+zrzut 07-przepisy
+NIE ZNALEZIONO 'Owsianka z jabłkiem'
+zrzut 08-przepis
+NIE ZNALEZIONO 'Planer'
+NIE ZNALEZIONO 'Ułóż plan za kwotę'
+NIE ZNALEZIONO 'Ułóż plan'
+zrzut 09-kompozytor
+NIE ZNALEZIONO 'Dodaj wydatek'
+NIE ZNALEZIONO '1'
+NIE ZNALEZIONO '2'
+NIE ZNALEZIONO '5'
+zrzut 10-wydatek
+NIE ZNALEZIONO 'Zapisz'
+zrzut 11-po-wydatku
+NIE ZNALEZIONO 'Ustawienia'
+NIE ZNALEZIONO 'Zapisz kopię'
+zrzut 12-kopia-udostepnij
+zrzut 13-po-restarcie
+BRAK 'wydane 125,00'
+tap 'Dodaj wydatek' 540 1762
+NIE ZNALEZIONO 'Z galerii'
+zrzut 15-wybor-zdjecia
+wybrano zdjęcie {'text': 'Przypominać o paragonach?', 'desc': '', 'cls': 'android.widget.TextView', 'x': 540, 'y': 1785, 'w': 971, 'h': 81}
+BRAK 'Done'
+BRAK 'Gotowe'
+jest 'Wybierz'
+NIE ZNALEZIONO 'Wybierz'
+zrzut 16-odczyt-paragonu
+BRAK 'Odczytane z paragonu'
+BRAK '35,25'
+cdp: gniazdo webview_devtools_remote_5301 pid 5301 wszystkie ['webview_devtools_remote_5301']
+cdp: forward 9222
+
+cdp: /json b'[ {\n   "description": "{\\"attached\\":true,\\"empty\\":false,\\"height\\":2209,\\"never_attached\\":false,\\"screenX\\":0,\\"screenY\\":128,\\"visible\\":true,\\"width\\":1080}",\n   "devtoolsFrontendUrl": "https://chrome-devtools-frontend.appspot.com/serve_internal_file/@7741f71cbce3b7dfe3eb5890976d2596364b0733/inspector.html?ws=127.0.0.1:9222/devtools/page/B36CC4CBC68F58FC2CB99C32052AD9F9",\n   "faviconUrl": "ht'
+ocr mlkit p1.jpg OK chciałem 194.93 mam 194.93 suma+karta+sprzedaż+pozycje+duża czcionka Biedronka 2938 ms pozycje 13 / 13 zgodne 
+ocr mlkit p2.jpg OK chciałem 134.29 mam 134.29 suma+karta+sprzedaż+pozycje+duża czcionka Lidl 1669 ms pozycje 10 / 10 zgodne 
+ocr mlkit p3.jpg OK chciałem 170.98 mam 170.98 suma+karta+sprzedaż+pozycje+duża czcionka Kaufland 1976 ms pozycje 19 / 19 zgodne 
+ocr mlkit p4.jpg OK chciałem 75.59 mam 75.59 suma+karta+sprzedaż+pozycje+duża czcionka Aldi 1761 ms pozycje 8 / 8 zgodne 
+ocr mlkit p5.jpg OK chciałem 269.76 mam 269.76 suma+karta+sprzedaż+pozycje+duża czcionka Żabka 2174 ms pozycje 21 / 21 zgodne 
+ocr mlkit p6.jpg OK chciałem 96.42 mam 96.42 suma+karta+sprzedaż+pozycje+duża czcionka Biedronka 1633 ms pozycje 8 / 8 zgodne 
+ocr mlkit p7.jpg OK chciałem 169.58 mam 169.58 suma+karta+sprzedaż+duża czcionka Lidl 2047 ms pozycje 19 / 19 zgodne 
+ocr mlkit p8.jpg OK chciałem 158.12 mam 158.12 suma+karta+sprzedaż+pozycje+duża czcionka Kaufland 1771 ms pozycje 16 / 16 zgodne 
+ocr mlkit p9.jpg OK chciałem 198.09 mam 198.09 suma+karta+sprzedaż+duża czcionka Aldi 2138 ms pozycje 19 / 19 zgodne 
+ocr mlkit p10.jpg OK chciałem 199.81 mam 199.81 sprzedaż+pozycje Żabka 2098 ms pozycje 15 / 15 zgodne 
+ocr mlkit test-paragon.jpg OK chciałem 35.25 mam 35.25 suma+karta+sprzedaż+pozycje Biedronka 1220 ms pozycje 5 / None zgodne 
+ocr tesseract p1.jpg OK chciałem 194.93 mam 194.93 karta+sprzedaż+pozycje Biedronka 3963 ms pozycje 13 / 13 zgodne 
+ocr tesseract p2.jpg OK chciałem 134.29 mam 134.29 suma+karta+sprzedaż+pozycje+duża czcionka Lidl 2503 ms pozycje 10 / 10 zgodne 
+ocr tesseract p3.jpg OK chciałem 170.98 mam 170.98 karta+sprzedaż+pozycje Kaufland 3323 ms pozycje 19 / 19 zgodne 
+ocr tesseract p4.jpg OK chciałem 75.59 mam 75.59 karta+sprzedaż+pozycje Aldi 2480 ms pozycje 8 / 8 zgodne 
+ocr tesseract test-paragon.jpg OK chciałem 35.25 mam 35.25 suma+karta+sprzedaż+pozycje Biedronka 1595 ms pozycje 5 / None zgodne 
+ocr wynik mlkit: 11/11
+ocr wynik mlkit pozycje: 11/11
+ocr wynik tesseract: 5/5
+ocr wynik tesseract pozycje: 5/5
+zrzut 14-ciemny
+cdp: gniazdo webview_devtools_remote_5301 pid 5301 wszystkie ['webview_devtools_remote_5301']
+cdp: forward 9222
+
+cdp: /json b'[ {\n   "description": "{\\"attached\\":true,\\"empty\\":false,\\"height\\":2209,\\"never_attached\\":false,\\"screenX\\":0,\\"screenY\\":128,\\"visible\\":true,\\"width\\":1080}",\n   "devtoolsFrontendUrl": "https://chrome-devtools-frontend.appspot.com/serve_internal_file/@7741f71cbce3b7dfe3eb5890976d2596364b0733/inspector.html?ws=127.0.0.1:9222/devtools/page/B36CC4CBC68F58FC2CB99C32052AD9F9",\n   "faviconUrl": "ht'
+zrzut 16b-po-kopii
+kopia automatyczna: OK do-pierwszego-kopia-2026-10-15.json | folder: do-pierwszego-kopia-2026-10-15.json
+cdp: gniazdo webview_devtools_remote_5301 pid 5301 wszystkie ['webview_devtools_remote_5301']
+cdp: forward 9222
+
+cdp: /json b'[ {\n   "description": "{\\"attached\\":true,\\"empty\\":false,\\"height\\":2209,\\"never_attached\\":false,\\"screenX\\":0,\\"screenY\\":128,\\"visible\\":true,\\"width\\":1080}",\n   "devtoolsFrontendUrl": "https://chrome-devtools-frontend.appspot.com/serve_internal_file/@7741f71cbce3b7dfe3eb5890976d2596364b0733/inspector.html?ws=127.0.0.1:9222/devtools/page/B36CC4CBC68F58FC2CB99C32052AD9F9",\n   "faviconUrl": "ht'
+widżety: OK {'small': 9116, 'wide': 21764, 'square': 18964, 'small_dark': 9348, 'wide_dark': 21804, 'square_dark': 19264} | przypomnienie pokazane: True
+przypomnienie w systemie: TAK NotificationRecord(0x02ed43c8: pkg=pl.groszek.app user=UserHandle{0} id=2030 tag=null importance=3 key=0|pl.groszek.app|2030|null|10209: Notification(channel=przypomnienia shortcut=null contentView=null vibrate=null sound=null defaults=0 flags=AUTO_CANCEL color=0x00000000 actions=2 vis=PRIVATE))
+   
+zrzut 19-przypomnienie
+budziki: TAK tag=*walarm*:pl.groszek.app.REMIND
+      tag=*alarm*:pl.groszek.app.MIDNIGHT
+          type=RTC tag=*alarm*:pl.groszek.app.MIDNIGHT
+zrzut 20-z-widzetu
+„+” z widżetu otwiera: add OK
+cdp: gniazdo webview_devtools_remote_5301 pid 5301 wszystkie ['webview_devtools_remote_5301']
+cdp: forward 9222
+
+cdp: /json b'[ {\n   "description": "{\\"attached\\":true,\\"empty\\":false,\\"height\\":2209,\\"never_attached\\":false,\\"screenX\\":0,\\"screenY\\":128,\\"visible\\":true,\\"width\\":1080}",\n   "devtoolsFrontendUrl": "https://chrome-devtools-frontend.appspot.com/serve_internal_file/@7741f71cbce3b7dfe3eb5890976d2596364b0733/inspector.html?ws=127.0.0.1:9222/devtools/page/B36CC4CBC68F58FC2CB99C32052AD9F9",\n   "faviconUrl": "ht'
+wspólny dom: OK {'fid': 'b1c8e7b317c4fd13ca57091fb2b27325', 'joined': True, 'live': True, 'connected': False, 'devices': 2, 'error': '', 'pending': 0} | rekordów w bazie: 16
+zrzut 21-wspolny-dom
+cdp: gniazdo webview_devtools_remote_5301 pid 5301 wszystkie ['webview_devtools_remote_5301']
+cdp: forward 9222
+
+cdp: /json b'[ {\n   "description": "{\\"attached\\":true,\\"empty\\":false,\\"height\\":2209,\\"never_attached\\":false,\\"screenX\\":0,\\"screenY\\":128,\\"visible\\":true,\\"width\\":1080}",\n   "devtoolsFrontendUrl": "https://chrome-devtools-frontend.appspot.com/serve_internal_file/@7741f71cbce3b7dfe3eb5890976d2596364b0733/inspector.html?ws=127.0.0.1:9222/devtools/page/B36CC4CBC68F58FC2CB99C32052AD9F9",\n   "faviconUrl": "ht'
+aktualizacja strony: start {"build":48,"native":"53512265386a","web":{"url":"https://github.com/Loop-hash/groszek/releases/download/najnowsza/groszek-www.zip","size":600471},"info":{"native":"53512265386a","apkBuild":48,"webPath":"","badWeb":0,"sdk":35,"silent":true}}
+cdp: gniazdo webview_devtools_remote_5301 pid 5301 wszystkie ['webview_devtools_remote_5301']
+cdp: forward 9222
+
+cdp: /json b'[ {\n   "description": "{\\"attached\\":true,\\"empty\\":false,\\"height\\":2209,\\"never_attached\\":false,\\"screenX\\":0,\\"screenY\\":128,\\"visible\\":true,\\"width\\":1080}",\n   "devtoolsFrontendUrl": "https://chrome-devtools-frontend.appspot.com/serve_internal_file/@7741f71cbce3b7dfe3eb5890976d2596364b0733/inspector.html?ws=127.0.0.1:9222/devtools/page/B36CC4CBC68F58FC2CB99C32052AD9F9",\n   "faviconUrl": "ht'
+zrzut 17-po-aktualizacji-strony
+aktualizacja strony: OK {"webPath":"/data/user/0/pl.groszek.app/files/web/b48","build":48,"vendor":200,"screen":true} | okienko instalatora: nie
+aktualizacja strony: paragon na nowej stronie {"total":35.25,"engine":"mlkit"}
+cdp: gniazdo webview_devtools_remote_6156 pid 6156 wszystkie ['webview_devtools_remote_6156']
+cdp: forward 9222
+
+cdp: /json b'[ {\n   "description": "{\\"attached\\":true,\\"empty\\":false,\\"height\\":2209,\\"never_attached\\":false,\\"screenX\\":0,\\"screenY\\":128,\\"visible\\":true,\\"width\\":1080}",\n   "devtoolsFrontendUrl": "https://chrome-devtools-frontend.appspot.com/serve_internal_file/@7741f71cbce3b7dfe3eb5890976d2596364b0733/inspector.html?ws=127.0.0.1:9222/devtools/page/4A4253365D2FFAB8F49367EF171FA5DF",\n   "faviconUrl": "ht'
+aktualizacja strony: po restarcie {"native":"53512265386a","apkBuild":48,"webPath":"/data/user/0/pl.groszek.app/files/web/b48","badWeb":0,"sdk":35,"silent":true}
+cdp: gniazdo webview_devtools_remote_6156 pid 6156 wszystkie ['webview_devtools_remote_6156']
+cdp: forward 9222
+
+cdp: /json b'[ {\n   "description": "{\\"attached\\":true,\\"empty\\":false,\\"height\\":2209,\\"never_attached\\":false,\\"screenX\\":0,\\"screenY\\":128,\\"visible\\":true,\\"width\\":1080}",\n   "devtoolsFrontendUrl": "https://chrome-devtools-frontend.appspot.com/serve_internal_file/@7741f71cbce3b7dfe3eb5890976d2596364b0733/inspector.html?ws=127.0.0.1:9222/devtools/page/4A4253365D2FFAB8F49367EF171FA5DF",\n   "faviconUrl": "ht'
+aktualizacja APK: start https://github.com/Loop-hash/groszek/releases/download/najnowsza/groszek.apk | przed: lastUpdateTime=2026-10-15 14:17:09 pid 6156
+zrzut 18-po-aktualizacji-apk
+aktualizacja APK: zainstalowana TAK | okienko instalatora: nie | otworzyła się sama: nie (Android blokuje otwieranie z tła)
+aktualizacja APK: logcat I/GroszekUpdate( 6341): nowa wersja zainstalowana
+E/ActivityTaskManager(  559): Background activity launch blocked! [callingPackage: pl.groszek.app; callingPackageTargetSdk: 36; callingUid: 10209; callingPid: 6341; appSwitchState: 2; callingUidHasAnyVisibleWindow: false; callingUidProcState: RECEIVER; isCallingUidPersistentSystemProcess: false; forcedBalByPiSender: BSP.NONE; intent: Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x14000000 pkg=pl.groszek.app cmp=pl.groszek.app/.MainActivity }; callerApp: ProcessRecord{170e7f 6341:pl.groszek.app/u0a209}; inVisibleTask: false; balAllowedByPiCreator: BSP.ALLOW_BAL; balAllowedByPiCreatorWithHardening: BSP.ALLOW_BAL; resultIfPiCreatorAllowsBal: BAL_BLOCK; hasRealCaller: true; isCallForResult: false; isPendingIntent: false; autoOptInReason: notPendingIntent; realCallingPackage: pl.groszek.app; realCallingPackageTargetSdk: 36; realCallingUid: 10209; realCallingPid: 6341; realCallingUidHasAnyVisibleWindow: false; realCallingUidProcState: RECEIVER; isRealCallingUidPersistentSystemProcess: false; originatingPendingIntent: null; realCallerApp: ProcessRecord{170e7f 6341:pl.groszek.app/u0a209}; realInVisibleTask: false; balAllowedByPiSender: BSP.ALLOW_BAL; resultIfPiSenderAllowsBal: BAL_BLOCK; balImproveRealCallerVisibilityCheck: true; balRequireOptInByPendingIntentCreator: true; balRequireOptInSameUid: false; balRespectAppSwitchStateWhenCheckBoundByForegroundUid: true; balDontBringExistingBackgroundTaskStackToFg: true]
+I/ActivityTaskManager(  559): START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x14000000 pkg=pl.groszek.app cmp=pl.groszek.app/.MainActivity} with LAUNCH_SINGLE_TASK from uid 10209 (BAL_BLOCK) result code=102
+I/GroszekUpdate( 6341): otwieram apkę po aktualizacji
+I/GroszekUpdate( 6341): status 0 INSTALL_SUCCEEDED: Session installed
+
+koniec | nieudane: nic

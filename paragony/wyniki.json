@@ -1,0 +1,62 @@
+{
+ "p1.jpg": {
+  "total": 194.93,
+  "store": "Biedronka",
+  "date": "2026-10-03",
+  "items": 13
+ },
+ "p2.jpg": {
+  "total": 134.29,
+  "store": "Lidl",
+  "date": "2026-10-07",
+  "items": 10
+ },
+ "p3.jpg": {
+  "total": 170.98,
+  "store": "Kaufland",
+  "date": "2026-10-08",
+  "items": 19
+ },
+ "p4.jpg": {
+  "total": 75.59,
+  "store": "Aldi",
+  "date": "2026-10-08",
+  "items": 8
+ },
+ "p5.jpg": {
+  "total": 269.76,
+  "store": "Żabka",
+  "date": "2026-10-05",
+  "items": 21
+ },
+ "p6.jpg": {
+  "total": 96.42,
+  "store": "Biedronka",
+  "date": "2026-10-08",
+  "items": 8
+ },
+ "p7.jpg": {
+  "total": 169.58,
+  "store": "Lidl",
+  "date": "2026-10-04",
+  "items": 19
+ },
+ "p8.jpg": {
+  "total": 158.12,
+  "store": "Kaufland",
+  "date": "2026-10-08",
+  "items": 16
+ },
+ "p9.jpg": {
+  "total": 198.09,
+  "store": "Aldi",
+  "date": "2026-10-10",
+  "items": 19
+ },
+ "p10.jpg": {
+  "total": 199.81,
+  "store": "Żabka",
+  "date": "2026-10-03",
+  "items": 15
+ }
+}
