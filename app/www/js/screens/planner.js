@@ -2,7 +2,7 @@
 import { period, previousPeriod, today, addDays, parseYmd, dayLabel, dowName, fmt, r2, people, isFamily } from '../budget.js';
 import { ui, recipeIcon, food } from '../pixels.js';
 import { esc, topbar, search, plural } from '../ui.js';
-import { dayMeals, dayTotals, targets, nutStatus, STATUS_LABEL, buyLabel, SLOT_ORDER, eaters } from '../plan.js';
+import { dayMeals, dayTotals, targets, nutStatus, STATUS_LABEL, buyLabel, SLOT_ORDER, eaters, offerLabel } from '../plan.js';
 import { available, recipeCost, nutrition, NUT, NUT_LABEL, NUT_UNIT, MEALS } from '../recipes.js';
 import { norm } from '../dict.js';
 import { addToList } from '../listlogic.js';
@@ -105,7 +105,7 @@ export default {
 
     const trips = (st.trips || []).filter((tr) => tr.date >= t).slice(0, 6);
     const tripRows = trips.map((tr, i) => `<details class="more"><summary><span>${esc(tr.label || dayLabel(tr.date))} · ${esc(tr.storeName || 'dowolny dyskont')}</span><span class="pixel">${fmt(tr.cost)} zł</span></summary><div class="stack">` +
-      tr.items.map((it) => `<div class="row">${food(it.icon, 22)}<span class="grow small">${esc(it.name)} <span class="muted">· ${esc(buyLabel(it))}</span></span>${it.promo ? `<span class="pill dark">${esc(STORES[it.promo.store])}</span>` : it.pantry ? '<span class="pill">do szafki</span>' : ''}<span class="pixel small">${fmt(it.price)}</span></div>`).join('') +
+      tr.items.map((it) => `<div class="row">${food(it.icon, 22)}<span class="grow small">${esc(it.name)} <span class="muted">· ${esc(buyLabel(it))}</span>${it.promo ? `<span class="tiny muted" style="display:block">${esc(offerLabel(it))}</span>` : ''}</span>${it.promo ? `<span class="pill dark">${esc(STORES[it.promo.store])}</span>` : it.pantry ? '<span class="pill">do szafki</span>' : ''}<span class="pixel small">${fmt(it.price)}</span></div>`).join('') +
       `<button class="btn small block" data-act="trip" data-arg="${i}">${ui('basket', 14)} Dopisz te zakupy do listy</button></div></details>`).join('');
 
     const label = p.label;
@@ -154,7 +154,7 @@ export default {
       const tr = (c.state.trips || []).filter((x) => x.date >= t)[Number(i)];
       if (!tr) return;
       let n = 0;
-      for (const it of tr.items) if (addToList(c, it.name, { note: buyLabel(it) }, { quiet: true })) n++;
+      for (const it of tr.items) if (addToList(c, it.name, { note: [buyLabel(it), offerLabel(it)].filter(Boolean).join(' · ') }, { quiet: true })) n++;
       c.toast(n ? `Dopisano ${n} ${plural(n, 'rzecz', 'rzeczy', 'rzeczy')} do listy` : 'Wszystko już jest na liście');
       c.render();
     },

@@ -1,6 +1,6 @@
 // Przepisy: koszt porcji z cenami z promocji, wartości odżywcze, filtry (kuchnie, sprzęt, "nie jem", oceny).
 import { norm } from './dict.js';
-import { offersFor, isActive } from './offers.js';
+import { offersFor, isActive, offerTerms, offerAllowed } from './offers.js';
 import { r2, today } from './budget.js';
 
 export const NUT = ['kcal', 'protein', 'fat', 'carbs', 'fiber', 'salt'];
@@ -56,38 +56,112 @@ export function available(c, meal = null) {
 }
 
 // Cena oferty za kilogram, jeśli da się ją odczytać z opisu.
+// Przy ofertach z warunkiem („co druga taniej”, „1+1 gratis”) cena za kg ze sklepu dotyczy tańszej sztuki,
+// więc liczymy ją z ceny jednej sztuki przy spełnionym warunku i wagi opakowania.
 export function offerPerKg(o, ingr) {
+  const t = offerTerms(o);
+  const conditional = t.min > 1 || t.each !== o.price;
   const u = String(o.unitPrice || '');
   let m = /1\s*kg\s*([\d\s]+[,.]\d{2})/i.exec(u) || /=\s*1\s*l\s*([\d\s]+[,.]\d{2})/i.exec(u);
-  if (m) return Number(m[1].replace(/\s/g, '').replace(',', '.'));
+  if (m && !conditional) return Number(m[1].replace(/\s/g, '').replace(',', '.'));
   const text = norm(`${o.detail || ''} ${o.name || ''}`);
-  if (/cena za kg|za 1 kg|\/kg/.test(text)) return o.price;
+  if (/cena za kg|za 1 kg|\/kg/.test(text)) return t.each;
   m = /(\d+(?:[.,]\d+)?)\s*(kg|g|l|ml)\b/.exec(text);
   if (m) {
     let w = Number(m[1].replace(',', '.'));
     if (m[2] === 'g' || m[2] === 'ml') w /= 1000;
     const mult = /(\d+)\s*x\s*\d/.exec(text);
     if (mult) w *= Number(mult[1]);
-    if (w > 0.02 && w < 20) return o.price / w;
+    if (w > 0.02 && w < 20) return t.each / w;
   }
   m = /(\d+)\s*(szt|jaj)/.exec(text);
-  if (m && ingr && ingr.piece) return o.price / ((Number(m[1]) * ingr.piece) / 1000);
+  if (m && ingr && ingr.piece) return t.each / ((Number(m[1]) * ingr.piece) / 1000);
   return null;
 }
 
-function offerFitsIngredient(o, ingr) {
-  const text = norm(`${o.name} ${o.brand || ''}`);
-  return (ingr.kw || []).some((k) => {
+// Opakowanie z oferty: { g } gramów w jednym opakowaniu albo { loose } na wagę (cena za kg, 100 g z lady).
+export function offerPack(o, ingr) {
+  const text = norm(`${o.detail || ''} ${o.name || ''}`);
+  if (/cena za kg|za 1 kg|\/kg|na wage|limit \d+(?:[.,]\d+)? kg/.test(text)) return { loose: true };
+  const m = /(\d+(?:[.,]\d+)?)\s*(kg|g|l|ml)\b/.exec(text);
+  if (m) {
+    let w = Number(m[1].replace(',', '.'));
+    if (m[2] === 'kg' || m[2] === 'l') w *= 1000;
+    const mult = /(\d+)\s*x\s*\d/.exec(text);
+    if (mult) w *= Number(mult[1]);
+    // „1 kg” albo „100 g” bez słowa o opakowaniu to cena za wagę (warzywa luzem, wędlina z lady)
+    if ((w === 1000 || w === 100) && !/opak|puszk|butel|sloik|karton|torebk|paczk|kostk|tub|kubek|siatk|worek|szt/.test(text)) return { loose: true };
+    if (w >= 20 && w <= 20000) return { g: Math.round(w) };
+  }
+  const p = /(\d+)\s*(szt|jaj)/.exec(text);
+  if (p && ingr && ingr.piece) return { g: Number(p[1]) * ingr.piece };
+  return null;
+}
+
+// Jak dokładnie oferta pasuje do składnika: długość najdłuższego pasującego słowa kluczowego (0 = wcale).
+// Krótkie słowo („ser”) tylko jako całe słowo albo z krótką końcówką („sery”), żeby „serek” nie był serem.
+function fitLength(text, words, ingr) {
+  let best = 0;
+  for (const k of ingr.kw || []) {
     const kk = norm(k);
-    return kk.includes(' ') ? text.includes(kk) : text.split(' ').some((w) => w.startsWith(kk));
-  });
+    let ok;
+    if (kk.includes(' ')) ok = text.includes(kk);
+    else if (kk.length <= 4) ok = words.some((w) => w === kk || (w.startsWith(kk) && w.length <= kk.length + 1));
+    else ok = words.some((w) => w.startsWith(kk));
+    if (ok && kk.length > best) best = kk.length;
+  }
+  return best;
+}
+
+// Oferta należy do składnika, który pasuje do niej najdokładniej: „Ser twarogowy” to twaróg, a nie ser żółty
+// (oba pasują, ale „twarog” jest dokładniejsze niż „ser”).
+const bestFor = new WeakMap();
+function bestIngredients(o, all) {
+  let hit = bestFor.get(o);
+  if (hit && hit.all === all) return hit.ids;
+  const text = norm(`${o.name} ${o.brand || ''}`);
+  const words = text.split(' ');
+  let max = 0;
+  let ids = new Set();
+  for (const [id, ingr] of Object.entries(all || {})) {
+    const l = fitLength(text, words, ingr);
+    if (!l || l < max) continue;
+    if (l > max) { max = l; ids = new Set(); }
+    ids.add(id);
+  }
+  hit = { all, ids };
+  bestFor.set(o, hit);
+  return ids;
+}
+
+function offerFitsIngredient(o, ingr, c, id) {
+  const all = c && c.data.ingredients && c.data.ingredients.ingredients;
+  if (all && id) return bestIngredients(o, all).has(id);
+  const text = norm(`${o.name} ${o.brand || ''}`);
+  return fitLength(text, text.split(' '), ingr) > 0;
+}
+
+// Wszystkie oferty pasujące do składnika w danym dniu, także z warunkiem („przy 2 szt.”), bez tych z aplikacją,
+// której ktoś nie ma. Do zakupów w planie: tam wiadomo, ile sztuk trzeba kupić.
+export function offerChoices(c, id, d = today()) {
+  const ingr = ing(c, id);
+  if (!ingr || ingr.pantry) return [];
+  const out = [];
+  for (const o of offersFor(c.data, c.state.settings, d)) {
+    if (!isActive(o, d) || !offerFitsIngredient(o, ingr, c, id) || !offerAllowed(o, c.state.settings)) continue;
+    const perKg = offerPerKg(o, ingr);
+    const pack = offerPack(o, ingr);
+    if (!perKg || !pack || perKg > ingr.kg * 1.5 || perKg < ingr.kg * 0.2) continue; // odrzuca dziwne odczyty
+    out.push({ o, t: offerTerms(o), pack, perKg });
+  }
+  return out;
 }
 
 let priceMemo = { key: '', map: new Map() };
 // Najtańsza cena za kg w danym dniu (domyślnie dziś): zwykła albo z promocji ważnej tego dnia,
 // także takiej, która dopiero się zacznie (tylko gdy da się policzyć cenę za kg i jest taniej).
 export function priceOf(c, id, d = today()) {
-  const key = ((c.data.promos && c.data.promos.updated) || '') + today() + JSON.stringify(c.state.settings.stores);
+  const key = ((c.data.promos && c.data.promos.updated) || '') + today() + JSON.stringify(c.state.settings.stores) + JSON.stringify(c.state.settings.cards || {});
   if (priceMemo.key !== key) priceMemo = { key, map: new Map() };
   const mk = id + '|' + d;
   if (priceMemo.map.has(mk)) return priceMemo.map.get(mk);
@@ -95,7 +169,8 @@ export function priceOf(c, id, d = today()) {
   let res = { perKg: ingr ? ingr.kg : 0, offer: null, base: ingr ? ingr.kg : 0 };
   if (ingr && !ingr.pantry) {
     for (const o of offersFor(c.data, c.state.settings, d)) {
-      if (!isActive(o, d) || !offerFitsIngredient(o, ingr)) continue;
+      if (!isActive(o, d) || !offerFitsIngredient(o, ingr, c, id) || !offerAllowed(o, c.state.settings)) continue;
+      if (offerTerms(o).min > 1) continue; // „przy 2 szt.” nie dotyczy jednej porcji; zakupy w planie liczą to osobno
       const pk = offerPerKg(o, ingr);
       if (!pk || pk > ingr.kg * 1.5 || pk < ingr.kg * 0.2) continue; // odrzuca dziwne odczyty
       if (pk < res.perKg) res = { perKg: pk, offer: o, base: ingr.kg };

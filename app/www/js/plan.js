@@ -1,7 +1,7 @@
 // Plan posiłków: normy, sumy dnia, układanie miesiąca za podaną kwotę i rozpisanie zakupów.
 import { today, addDays, diffDays, shopsClosed, r2, dayLabel, dowName } from './budget.js';
-import { findRecipe, available, recipeCost, nutrition, NUT, ing, priceOf, proteinTag, MEALS } from './recipes.js';
-import { STORES, isActive } from './offers.js';
+import { findRecipe, available, recipeCost, nutrition, NUT, ing, priceOf, proteinTag, MEALS, offerChoices } from './recipes.js';
+import { STORES } from './offers.js';
 
 export const SLOT_ORDER = ['sniadanie', 'obiad', 'kolacja'];
 
@@ -368,6 +368,36 @@ function fmtZl(n) {
   return String(r2(n).toFixed(2)).replace('.', ',') + ' zł';
 }
 
+// Opis opakowania z gazetki: „Puszka 455 g”, „30 szt.”, „330 g” (bez limitów i słowa „opakowanie”)
+function packText(o) {
+  return String(o.detail || '').split(',')[0].replace(/^\s*opak\.?\s*/i, '').replace(/\s*(opakowanie|sztuka|szt\.?)\s*$/i, '').trim()
+    .replace(/^(\d+)$/, '$1 szt.');
+}
+
+// Najtańszy sposób, żeby kupić `need` gramów w danym dniu. Promocja liczy się tylko w swoim opakowaniu
+// (30 jaj to 30 jaj, puszka 455 g to puszka) i z warunkiem („przy 2 szt.” = co najmniej 2 sztuki).
+// Zwykły produkt: najmniejsze opakowanie z bazy w cenie regularnej.
+export function bestBuy(c, i, id, need, d) {
+  const p = priceOf(c, id, d);
+  let packs = 0;
+  let g;
+  // co najmniej jedno opakowanie: 2 g soli to nadal cała paczka soli
+  if (i.pkg) { packs = Math.max(1, Math.ceil(need / i.pkg - 0.03)); g = packs * i.pkg; } else g = Math.ceil(need / 50) * 50;
+  let best = { g, packs, pkg: i.pkg, price: r2((p.base * g) / 1000), promo: null };
+  for (const ch of offerChoices(c, id, d)) {
+    let opt;
+    if (ch.pack.loose) {
+      const lg = Math.ceil(need / 50) * 50;
+      opt = { g: lg, packs: 0, pkg: null, price: r2((ch.perKg * lg) / 1000) };
+    } else {
+      const n = Math.max(1, ch.t.min, Math.ceil(need / ch.pack.g - 0.03));
+      opt = { g: n * ch.pack.g, packs: n, pkg: ch.pack.g, price: r2(n * ch.t.each), packLabel: packText(ch.o) };
+    }
+    if (opt.price < best.price - 0.005) best = { ...opt, promo: ch.o, cond: ch.t.min > 1 ? `przy ${ch.t.min} szt.` : '' };
+  }
+  return best;
+}
+
 // Zakupy: co kilka dni, w dzień otwarty, z całymi opakowaniami i resztkami przechodzącymi na kolejne zakupy.
 export function evaluate(c, plan, dates, opts) {
   const blocks = [];
@@ -412,19 +442,13 @@ export function evaluate(c, plan, dates, opts) {
       const have = stock[id] || 0;
       let need = gNeed - have;
       if (need <= 0) { stock[id] = have - gNeed; continue; }
-      // cena z dnia zakupów: promocja, która zacznie się do tego dnia, też się liczy
-      const p = priceOf(c, id, tr.date);
-      const promoOk = !!(p.offer && isActive(p.offer, tr.date));
-      const perKg = promoOk ? p.perKg : p.base;
-      let buyG;
-      let packs = 0;
-      // co najmniej jedno opakowanie: 2 g soli to nadal cała paczka soli
-      if (i.pkg) { packs = Math.max(1, Math.ceil(need / i.pkg - 0.03)); buyG = packs * i.pkg; } else buyG = Math.ceil(need / 50) * 50;
-      const price = r2((perKg * buyG) / 1000);
-      stock[id] = have + buyG - gNeed;
-      tr.items.push({ id, name: i.name, icon: i.icon, g: Math.round(buyG), packs, pkg: i.pkg, piece: i.piece, price, promo: promoOk ? p.offer : null, ...(i.pantry ? { pantry: true } : {}) });
-      tr.cost += price;
-      if (promoOk) storeVotes[p.offer.store] = (storeVotes[p.offer.store] || 0) + 1;
+      // cena z dnia zakupów: zwykły produkt albo promocja w jej własnym opakowaniu i z jej warunkiem, co taniej wychodzi
+      const b = bestBuy(c, i, id, need, tr.date);
+      stock[id] = have + b.g - gNeed;
+      tr.items.push({ id, name: i.name, icon: i.icon, g: Math.round(b.g), packs: b.packs, pkg: b.pkg, piece: i.piece, price: b.price, promo: b.promo,
+        ...(b.packLabel ? { packLabel: b.packLabel } : {}), ...(b.cond ? { cond: b.cond } : {}), ...(i.pantry ? { pantry: true } : {}) });
+      tr.cost += b.price;
+      if (b.promo) storeVotes[b.promo.store] = (storeVotes[b.promo.store] || 0) + 1;
     }
     tr.cost = r2(tr.cost);
     tr.items.sort((a, b) => b.price - a.price);
@@ -442,8 +466,16 @@ export function evaluate(c, plan, dates, opts) {
     pantryBought: r2(bought.reduce((a, it) => a + it.price, 0)), pantryBoughtN: new Set(bought.map((it) => it.id)).size };
 }
 
+// Który produkt z gazetki kupić: „Krakus Szynka konserwowa · przy 2 szt.”
+export function offerLabel(it) {
+  if (!it || !it.promo) return '';
+  return [`${it.promo.brand ? it.promo.brand + ' ' : ''}${it.promo.name}`.trim(), it.cond].filter(Boolean).join(' · ');
+}
+
 // Ile sztuk / opakowań: "2 × 500 g" albo "ok. 3 szt. (450 g)"
 export function buyLabel(it) {
+  if (it.packLabel && it.packs) return `${it.packs} × ${it.packLabel}`;
+  if (it.piece && it.pkg && it.packs && it.pkg % it.piece === 0) return `${it.packs} × ${it.pkg / it.piece} szt.`; // jajka: „1 × 10 szt.”
   if (it.pkg && it.packs) return `${it.packs} × ${it.pkg >= 1000 ? (it.pkg / 1000).toString().replace('.', ',') + ' kg' : it.pkg + ' g'}`;
   if (it.piece) return `ok. ${Math.max(1, Math.round(it.g / it.piece))} szt. (${it.g} g)`;
   return it.g >= 1000 ? `${(it.g / 1000).toFixed(2).replace('.', ',')} kg` : `${it.g} g`;

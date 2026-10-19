@@ -2,7 +2,7 @@
 import { status, today, addDays, fmt, dayLabel, dowShort, diffDays, people, isFamily, MAX_PEOPLE } from '../budget.js';
 import { ui, recipeIcon, food, sprite } from '../pixels.js';
 import { esc, topbar, toggle, plural, stepper } from '../ui.js';
-import { compose, nutStatus, STATUS_LABEL, buyLabel, multLabel } from '../plan.js';
+import { compose, nutStatus, STATUS_LABEL, buyLabel, multLabel, offerLabel } from '../plan.js';
 import { findRecipe, NUT, NUT_LABEL, NUT_UNIT, MEALS } from '../recipes.js';
 import { STORES } from '../offers.js';
 
@@ -59,7 +59,7 @@ export default {
           row.map((m) => { const r = findRecipe(c, m.id); return r ? `<div class="row">${recipeIcon(r.icon, 26)}<span class="small grow"><span class="muted">${MEALS[m.slot]}:</span> ${esc(r.name)}${!fam && m.mult && m.mult !== 1 ? ` <b>· ${multLabel(m.mult)}</b>` : ''}${m.slot === 'obiad' ? (m.cook ? (m.batch > 1 ? ` <b>(${m.prep ? 'food prep' : 'gotujesz'} na ${m.batch} ${plural(m.batch, 'dzień', 'dni', 'dni')})</b>` : '') : ` <span class="muted">(${m.prep ? 'z food prepa' : 'z wczoraj'})</span>`) : ''}</span></div>` : ''; }).join('') + '</div>';
       }).join('');
       const trips = res.trips.map((tr) => `<details class="more"><summary><span>${esc(dowShort(tr.date))} ${esc(dayLabel(tr.date))} · ${esc(tr.storeName)}</span><span class="pixel">${fmt(tr.cost)} zł</span></summary><div class="stack">` +
-        tr.items.map((it) => `<div class="row">${food(it.icon, 22)}<span class="grow small">${esc(it.name)} <span class="muted">· ${esc(buyLabel(it))}</span></span>${it.promo ? `<span class="pill dark">${esc(STORES[it.promo.store])}</span>` : it.pantry ? '<span class="pill">do szafki</span>' : ''}<span class="pixel small">${fmt(it.price)}</span></div>`).join('') + '</div></details>').join('');
+        tr.items.map((it) => `<div class="row">${food(it.icon, 22)}<span class="grow small">${esc(it.name)} <span class="muted">· ${esc(buyLabel(it))}</span>${it.promo ? `<span class="tiny muted" style="display:block">${esc(offerLabel(it))}</span>` : ''}</span>${it.promo ? `<span class="pill dark">${esc(STORES[it.promo.store])}</span>` : it.pantry ? '<span class="pill">do szafki</span>' : ''}<span class="pixel small">${fmt(it.price)}</span></div>`).join('') + '</div></details>').join('');
       const nutRows = NUT.map((k) => {
         const st = nutStatus(res.avg[k], res.targets[k]);
         const v = k === 'salt' ? res.avg[k].toFixed(1).replace('.', ',') : Math.round(res.avg[k]);

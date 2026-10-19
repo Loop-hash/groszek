@@ -241,6 +241,8 @@ export default {
       <div class="rows">
         ${['kaufland', 'lidl', 'aldi'].map((id) => settingRow(STORES[id], 'promocje z tego sklepu', toggle('store', s.stores[id] !== false, STORES[id], id))).join('')}
         ${settingRow('Biedronka', 'wkrótce: promocje są tylko jako obrazki', '<span class="pill dashed">wkrótce</span>')}
+        ${settingRow('Mam Lidl Plus', 'liczę też ceny z kuponów w aplikacji Lidla', toggle('card', !!(s.cards && s.cards.lidlplus), 'Mam Lidl Plus', 'lidlplus'))}
+        ${settingRow('Mam Kaufland Card', 'liczę też ceny tylko z kartą Kauflandu', toggle('card', !!(s.cards && s.cards.kauflandcard), 'Mam Kaufland Card', 'kauflandcard'))}
       </div>
 
       <span class="label">Groszosław i wygląd</span>
@@ -328,6 +330,7 @@ export default {
     cuisAll(c) { for (const k of DEFAULT_CUISINES) c.state.settings.cuisines[k] = true; c.save(); c.render(); },
     cuisNone(c) { for (const k of DEFAULT_CUISINES) c.state.settings.cuisines[k] = false; c.save(); c.render(); },
     store(c, id) { const s = c.state.settings; s.stores[id] = s.stores[id] === false; c.save(); c.render(); },
+    card(c, id) { const s = c.state.settings; s.cards = { ...(s.cards || {}), [id]: !(s.cards && s.cards[id]) }; c.save(); c.render(); },
     peek(c) {
       const s = c.state.settings;
       s.peek = s.peek === false;

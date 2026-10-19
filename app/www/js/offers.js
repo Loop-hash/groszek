@@ -72,6 +72,32 @@ export function normalize(o) {
   return f;
 }
 
+// Warunki oferty: aplikacja albo karta sklepu (app), najmniejsza liczba sztuk (min) i cena jednej sztuki przy jej spełnieniu (each).
+// „co druga -60%” jest już uśredniona w normalize, „1+1 gratis” liczymy jako cenę jednej sztuki z dwóch.
+export function offerTerms(o) {
+  const c = String(o.cond || '').toLowerCase();
+  let app = null;
+  if (/lidl\s*plus/.test(c)) app = 'lidlplus';
+  else if (/kaufland\s*card|z kart/.test(c)) app = 'kauflandcard';
+  let min = 1;
+  let each = o.price;
+  let m;
+  if ((m = /(\d+)\s*\+\s*(\d+)\s*gratis/.exec(c))) {
+    const a = Number(m[1]);
+    const b = Number(m[2]);
+    min = a + b;
+    each = r2((o.price * a) / (a + b));
+  } else if ((m = /przy\s+(?:zakupie\s+)?(\d+)/.exec(c))) min = Math.max(1, Number(m[1]));
+  else if (/co drug|druga sztuk|drugi produkt/.test(c)) min = 2;
+  return { app, min, each };
+}
+
+// Czy oferta jest dostępna bez aplikacji albo karty, których ktoś nie ma (Ustawienia → Sklepy)
+export function offerAllowed(o, settings) {
+  const t = offerTerms(o);
+  return !t.app || !!(settings && settings.cards && settings.cards[t.app]);
+}
+
 // Oferty w sklepach włączonych w ustawieniach, bez tych, które już się skończyły.
 export function offersFor(data, settings, d = today()) {
   const all = (data.promos && data.promos.offers) || [];
