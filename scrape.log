@@ -1,0 +1,5 @@
+kaufland ok 250
+lidl: z wyszukiwarki 56 | ze stron dodatkowo 0 | błędy: ["lidl_piekarnia: HTTPError('404 Client Error: Not Found for url: https://www.lidl.pl/h/piekarnia/h10096086')", "lidl_przyprawy: HTTPError('404 Client Error: Not Found for url: https://www.lidl.pl/h/oleje-sosy-i-przyprawy/h10096110')", "lidl_mrozonki: HTTPError('404 Client Error: Not Found for url: https://www.lidl.pl/h/mrozonki-mrozona-zywnosc/h10071049')"]
+lidl ok 56
+aldi ok 41
+Zapisano 325 ofert do data/promos.json
