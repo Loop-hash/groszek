@@ -1,0 +1,5 @@
+kaufland ok 287
+lidl: z wyszukiwarki 60 | ze stron dodatkowo 12 | błędy: ["lidl_przyprawy: HTTPError('404 Client Error: Not Found for url: https://www.lidl.pl/h/oleje-sosy-i-przyprawy/h10096110')"]
+lidl ok 72
+aldi ok 131
+Zapisano 462 ofert do data/promos.json
